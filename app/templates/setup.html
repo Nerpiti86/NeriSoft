@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}{{ app_name }} · Configuración inicial{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', path='css/login.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='css/setup.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="login-shell">
+    <aside class="login-brand-panel" aria-label="Identidad NERISOFT">
+        <div class="login-brand">
+            <span class="login-brand-mark" aria-hidden="true">
+                <i class="ti ti-diamond"></i>
+            </span>
+            <div>
+                <strong>{{ app_name }}</strong>
+                <span>GESTIÓN ERP</span>
+            </div>
+        </div>
+
+        <div class="login-brand-copy setup-brand-copy">
+            <span class="login-eyebrow">Primer acceso</span>
+            <h1>Creá el administrador inicial.</h1>
+            <p>Este paso aparece únicamente mientras NERISOFT no tenga usuarios registrados.</p>
+        </div>
+
+        <div class="login-brand-footer">
+            <span>v{{ app_version }}</span>
+            <span>NERISOFT · 2026</span>
+        </div>
+    </aside>
+
+    <main class="login-main setup-main">
+        <section class="login-card setup-card" aria-labelledby="setup-title">
+            <header class="login-card-header setup-card-header">
+                <span class="login-card-kicker">Configuración inicial</span>
+                <h2 id="setup-title">Administrador del sistema</h2>
+                <p>Ingresá los datos de la primera cuenta administrativa.</p>
+            </header>
+
+            {% if errors.get('_form') %}
+            <div class="login-alert" role="alert">
+                <i class="ti ti-alert-circle" aria-hidden="true"></i>
+                <span>{{ errors.get('_form') }}</span>
+            </div>
+            {% endif %}
+
+            <form class="login-form setup-form" method="post" action="/setup" novalidate>
+                <input type="hidden" name="setup_token" value="{{ setup_token }}">
+
+                <div class="setup-grid">
+                    <div class="form-field{% if errors.get('name') %} is-error{% endif %}">
+                        <label for="setup-name">Nombre completo</label>
+                        <div class="login-input-wrap">
+                            <i class="ti ti-id" aria-hidden="true"></i>
+                            <input id="setup-name" name="name" type="text" maxlength="120" autocomplete="name" placeholder="Nombre y apellido" value="{{ values.get('name', '') }}" required>
+                        </div>
+                        {% if errors.get('name') %}<span class="field-error">{{ errors.get('name') }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-field{% if errors.get('username') %} is-error{% endif %}">
+                        <label for="setup-username">Usuario</label>
+                        <div class="login-input-wrap">
+                            <i class="ti ti-user" aria-hidden="true"></i>
+                            <input id="setup-username" name="username" type="text" maxlength="64" autocomplete="username" placeholder="administrador" value="{{ values.get('username', '') }}" required>
+                        </div>
+                        {% if errors.get('username') %}<span class="field-error">{{ errors.get('username') }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-field setup-span-2{% if errors.get('email') %} is-error{% endif %}">
+                        <label for="setup-email">Correo electrónico</label>
+                        <div class="login-input-wrap">
+                            <i class="ti ti-mail" aria-hidden="true"></i>
+                            <input id="setup-email" name="email" type="email" maxlength="254" autocomplete="email" placeholder="admin@empresa.com" value="{{ values.get('email', '') }}" required>
+                        </div>
+                        {% if errors.get('email') %}<span class="field-error">{{ errors.get('email') }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-field{% if errors.get('password') %} is-error{% endif %}">
+                        <label for="setup-password">Contraseña</label>
+                        <div class="login-input-wrap">
+                            <i class="ti ti-lock" aria-hidden="true"></i>
+                            <input id="setup-password" name="password" type="password" maxlength="128" autocomplete="new-password" placeholder="Mínimo 10 caracteres" required>
+                        </div>
+                        {% if errors.get('password') %}<span class="field-error">{{ errors.get('password') }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-field{% if errors.get('password_confirm') %} is-error{% endif %}">
+                        <label for="setup-password-confirm">Repetir contraseña</label>
+                        <div class="login-input-wrap">
+                            <i class="ti ti-lock-check" aria-hidden="true"></i>
+                            <input id="setup-password-confirm" name="password_confirm" type="password" maxlength="128" autocomplete="new-password" placeholder="Repetí la contraseña" required>
+                        </div>
+                        {% if errors.get('password_confirm') %}<span class="field-error">{{ errors.get('password_confirm') }}</span>{% endif %}
+                    </div>
+                </div>
+
+                <div class="setup-note">
+                    <i class="ti ti-shield-check" aria-hidden="true"></i>
+                    <span>La contraseña se guarda únicamente como hash seguro. Esta cuenta tendrá acceso administrativo total.</span>
+                </div>
+
+                <button class="login-submit" type="submit">
+                    <span>Crear administrador</span>
+                    <i class="ti ti-arrow-right" aria-hidden="true"></i>
+                </button>
+            </form>
+        </section>
+    </main>
+</div>
+{% endblock %}
