@@ -56,6 +56,8 @@
                 <p>
                     {% if form_mode == "create" %}
                     Creá una cuenta y, si tu alcance lo permite, asignale sus roles iniciales.
+                    {% elif current_user.is_superuser and editing_user.id == current_user.id %}
+                    Actualizá los datos de acceso de tu cuenta administradora.
                     {% elif can_edit_identity and can_assign_roles_to_form_user %}
                     Actualizá los datos de acceso y los roles permitidos para esta cuenta.
                     {% elif can_edit_identity %}
@@ -189,7 +191,7 @@
                     <strong>Administrador del sistema</strong>
                     <small>
                         {% if form_mode == "edit" and editing_user.id == current_user.id %}
-                        No podés quitarte permisos administrativos desde tu propia sesión.
+                        Acceso total. Esta cuenta no depende de roles para autorizar acciones.
                         {% else %}
                         Otorga acceso total fuera del esquema de roles. Reservalo para administración técnica.
                         {% endif %}
@@ -198,7 +200,7 @@
             </label>
             {% endif %}
 
-            {% if can_assign_roles %}
+            {% if can_assign_roles and not (form_mode == 'edit' and editing_user.id == current_user.id and current_user.is_superuser) %}
             <fieldset class="role-assignment" {% if form_mode == 'edit' and not can_assign_roles_to_form_user %}disabled{% endif %}>
                 <div class="role-assignment-heading">
                     <div>
