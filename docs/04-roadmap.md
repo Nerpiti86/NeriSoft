@@ -17,12 +17,13 @@ Completado:
 - saneamiento técnico previo a Roles y Permisos;
 - tests básicos y workflow automático;
 - Tarea 9.1: modelo, catálogo y helpers base de Roles y Permisos;
-- Tarea 9.2: gestión de roles, permisos y estado desde Configuración.
+- Tarea 9.2: gestión de roles, permisos y estado desde Configuración;
+- Tarea 9.3: asignación de roles a usuarios y permisos granulares en Gestión de Usuarios.
 
 Siguiente bloque funcional previsto:
 
 ```text
-Tarea 9.3 — Asignación de roles a usuarios
+Tarea 9.4 — Validación integral de permisos
 ```
 
 ## Etapa 0 — Base técnica ✅
@@ -69,12 +70,14 @@ Completado:
 - asignación de permisos a roles;
 - activación/desactivación de roles;
 - prevención de escalada por edición de roles fuera del alcance propio;
-- protección de roles asignados a la propia cuenta para gestores delegados.
+- protección de roles asignados a la propia cuenta para gestores delegados;
+- asignación de roles a usuarios;
+- permisos granulares de consulta, alta, edición, estado y asignación de roles en Gestión de Usuarios;
+- protección de cuentas con permisos superiores al alcance del gestor.
 
 Pendiente:
 
-- asignación de roles a usuarios;
-- reemplazo progresivo de controles `superuser` por permisos granulares;
+- validación integral de permisos y regresiones;
 - cambio de contraseña;
 - recuperación de contraseña;
 - rate limiting/bloqueo ante intentos fallidos;
@@ -262,8 +265,7 @@ A implementar contra normativa vigente al momento del desarrollo:
 ## Próximas tareas naturales
 
 ```text
-9.3 Asignación de roles a usuarios
-→ 9.4 Validación integral de permisos
+9.4 Validación integral de permisos
 → Auditoría
 → Configuración de empresa
 → Clientes
