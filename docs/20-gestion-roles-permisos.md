@@ -80,6 +80,6 @@ Desactivar un rol no borra:
 
 Un rol inactivo simplemente deja de aportar permisos efectivos hasta que vuelva a activarse.
 
-## Siguiente tarea
+## Continuidad
 
-La Tarea 9.3 incorporará la asignación de uno o más roles a usuarios y reemplazará progresivamente los controles exclusivos de `superuser` en Gestión de Usuarios por permisos granulares.
+La Tarea 9.3, documentada en [`21-asignacion-roles-usuarios.md`](21-asignacion-roles-usuarios.md), conecta estos roles con Gestión de Usuarios. El siguiente bloque es la Tarea 9.4 — validación integral de permisos.
