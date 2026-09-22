@@ -8,7 +8,7 @@
         <div>
             <div class="users-breadcrumb">Configuración <i class="ti ti-chevron-right" aria-hidden="true"></i> Roles y permisos</div>
             <h1>Roles y permisos</h1>
-            <p>Definí perfiles de acceso reutilizables y controlá qué acciones habilita cada uno.</p>
+            <p>Un rol reúne permisos que después se asignan a uno o más usuarios para definir qué pueden hacer en NERISOFT.</p>
         </div>
         {% if can_create_role and not form_mode %}
         <a class="primary-button" href="/configuracion/roles/nuevo">
@@ -51,9 +51,9 @@
                 <h2 id="role-form-title">{% if form_mode == "create" %}Nuevo rol{% else %}Editar rol{% endif %}</h2>
                 <p>
                     {% if form_mode == "create" %}
-                    Creá un perfil y marcá únicamente los permisos que necesite.
+                    Definí un nombre para el rol y elegí las acciones que podrán realizar los usuarios que lo tengan asignado.
                     {% else %}
-                    Los cambios de permisos se aplican a todos los usuarios que tengan este rol.
+                    Los cambios de permisos se aplican a todos los usuarios que tengan este rol asignado.
                     {% endif %}
                 </p>
             </div>
@@ -99,7 +99,7 @@
                         name="description"
                         maxlength="255"
                         rows="2"
-                        placeholder="Ej.: puede consultar usuarios y administrar perfiles operativos."
+                        placeholder="Ej.: vendedores que pueden consultar clientes y registrar operaciones de venta."
                         {% if errors.get('description') %}aria-invalid="true"{% endif %}
                     >{{ values.get('description', '') }}</textarea>
                     {% if errors.get('description') %}<small class="field-error">{{ errors.get('description') }}</small>{% endif %}
@@ -108,9 +108,9 @@
 
             <div class="permissions-heading">
                 <div>
-                    <span class="section-eyebrow">Alcance</span>
-                    <h3>Permisos incluidos</h3>
-                    <p>Solo podés otorgar permisos que formen parte de tu propio alcance efectivo.</p>
+                    <span class="section-eyebrow">Acceso del rol</span>
+                    <h3>Permisos del rol</h3>
+                    <p>Cada permiso habilita una acción concreta. Marcá solo las acciones que deben poder realizar los usuarios con este rol.</p>
                 </div>
                 <span class="permission-selection-count">{{ selected_permission_codes|length }} seleccionados</span>
             </div>
@@ -156,7 +156,7 @@
 
             <p class="permission-empty-note">
                 <i class="ti ti-info-circle" aria-hidden="true"></i>
-                Un rol puede guardarse sin permisos; en ese estado no habilita ninguna acción.
+                Un rol sin permisos no habilita ninguna acción. Podés guardarlo así y completarlo más adelante.
             </p>
 
             <div class="form-actions">
@@ -180,7 +180,7 @@
             <strong>{{ active_roles }}</strong>
         </article>
         <article>
-            <span>Usuarios con rol</span>
+            <span>Usuarios con roles</span>
             <strong>{{ users_with_roles }}</strong>
         </article>
     </section>
@@ -188,10 +188,10 @@
     <section class="users-panel roles-panel" aria-labelledby="roles-table-title">
         <div class="users-panel-toolbar">
             <div>
-                <span class="section-eyebrow">Seguridad</span>
-                <h2 id="roles-table-title">Perfiles de acceso</h2>
+                <span class="section-eyebrow">Accesos</span>
+                <h2 id="roles-table-title">Roles definidos</h2>
             </div>
-            <span class="roles-toolbar-note">Superusuario conserva acceso total fuera del esquema de roles.</span>
+            <span class="roles-toolbar-note">Los administradores del sistema tienen acceso total y no necesitan roles.</span>
         </div>
 
         <div class="users-table-wrap">
@@ -199,7 +199,7 @@
                 <thead>
                     <tr>
                         <th>Rol</th>
-                        <th>Alcance</th>
+                        <th>Permisos</th>
                         <th>Usuarios</th>
                         <th>Estado</th>
                         <th>Actualizado</th>
@@ -226,7 +226,7 @@
                                     {% for module in role_permission_modules.get(role.id, ()) %}
                                     <small>{{ module }}</small>
                                     {% else %}
-                                    <small>Sin alcance</small>
+                                    <small>Sin permisos</small>
                                     {% endfor %}
                                 </span>
                             </div>
@@ -247,7 +247,7 @@
                                 <span>Editar</span>
                             </a>
                             {% elif can_edit_role %}
-                            <button class="table-action is-disabled" type="button" disabled title="Este rol está fuera de tu alcance o asignado a tu cuenta">
+                            <button class="table-action is-disabled" type="button" disabled title="Este rol no puede modificarse desde tu cuenta actual">
                                 <i class="ti ti-lock" aria-hidden="true"></i>
                                 <span>Protegido</span>
                             </button>
@@ -273,7 +273,7 @@
                         <td class="empty-users" colspan="6">
                             <i class="ti ti-shield-off" aria-hidden="true"></i>
                             <strong>Todavía no hay roles</strong>
-                            <span>Creá el primer perfil para empezar a delegar acceso sin usar superusuario.</span>
+                            <span>Creá un rol, elegí sus permisos y después asignalo a uno o más usuarios desde la pestaña Usuarios.</span>
                         </td>
                     </tr>
                     {% endfor %}
@@ -283,7 +283,7 @@
 
         <footer class="users-panel-footer">
             <span>{{ total_roles }} roles definidos.</span>
-            <span>Los roles inactivos conservan asignaciones pero no conceden permisos.</span>
+            <span>Los roles inactivos siguen asignados, pero sus permisos dejan de aplicarse.</span>
         </footer>
     </section>
 </main>
