@@ -7,6 +7,7 @@ from fastapi import Request, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
+from app.core.permissions import permission_codes_for_user
 from app.models import User
 
 
@@ -37,6 +38,21 @@ def authenticated_user(request: Request, db: Session) -> User | None:
         request.session.clear()
         return None
 
+    return user
+
+
+def permission_or_redirect(
+    request: Request,
+    db: Session,
+    *required_permissions: str,
+) -> User | RedirectResponse:
+    user = authenticated_user(request, db)
+    if user is None:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+
+    granted = permission_codes_for_user(db, user)
+    if not set(required_permissions).issubset(granted):
+        return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
     return user
 
 

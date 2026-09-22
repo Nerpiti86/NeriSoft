@@ -24,6 +24,12 @@ jobs:
       - name: Compile Python
         run: python -m compileall -q app tests
 
+      - name: Apply migrations
+        env:
+          NERISOFT_DATABASE_URL: sqlite:///./ci-nerisoft.db
+          NERISOFT_SESSION_SECRET: ci-session-secret-for-nerisoft-tests-2026
+        run: python -m alembic upgrade head
+
       - name: Run tests
         run: python -m pytest -q
 

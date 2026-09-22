@@ -15,12 +15,13 @@ Completado:
 - assets locales de Geist, Tabler Icons y HTMX;
 - navegación parcial HTMX con shell persistente;
 - saneamiento técnico previo a Roles y Permisos;
-- tests básicos y workflow automático.
+- tests básicos y workflow automático;
+- Tarea 9.1: modelo, catálogo y helpers base de Roles y Permisos.
 
 Siguiente bloque funcional previsto:
 
 ```text
-Roles y permisos
+Tarea 9.2 — Gestión de Roles y Permisos
 ```
 
 ## Etapa 0 — Base técnica ✅
@@ -58,12 +59,17 @@ Completado:
 - usuarios;
 - protección de rutas;
 - CSRF en operaciones existentes;
-- setup inicial restringido al servidor por defecto.
+- setup inicial restringido al servidor por defecto;
+- modelo relacional de roles y permisos;
+- catálogo inicial de permisos de Sistema;
+- helpers para permisos efectivos y control de alcance;
+- `superuser` como bypass administrativo total.
 
 Pendiente:
 
-- roles;
-- permisos granulares;
+- interfaz de gestión de roles;
+- asignación de roles a usuarios;
+- reemplazo progresivo de controles `superuser` por permisos granulares;
 - cambio de contraseña;
 - recuperación de contraseña;
 - rate limiting/bloqueo ante intentos fallidos;
@@ -251,7 +257,8 @@ A implementar contra normativa vigente al momento del desarrollo:
 ## Próximas tareas naturales
 
 ```text
-Roles y permisos
+9.2 Gestión de Roles y Permisos
+→ 9.3 Asignación de roles a usuarios
 → Auditoría
 → Configuración de empresa
 → Clientes

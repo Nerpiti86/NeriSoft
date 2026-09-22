@@ -34,6 +34,7 @@ NERISOFT ya cuenta con:
 - assets críticos locales;
 - navegación parcial HTMX con shell persistente entre Inicio y Usuarios;
 - saneamiento técnico previo a Roles y Permisos;
+- base técnica de Roles y Permisos: modelo, catálogo, autorización y migración;
 - tests unitarios básicos y validación automática en GitHub Actions.
 
 El resumen consolidado para continuar el proyecto está en [`docs/12-resumen-y-contexto.md`](docs/12-resumen-y-contexto.md).
@@ -165,7 +166,7 @@ Ejecución:
 python -m pytest -q
 ```
 
-El workflow `.github/workflows/tests.yml` ejecuta compilación, tests y validación de sintaxis JavaScript en cada push a `main`.
+El workflow `.github/workflows/tests.yml` ejecuta compilación, migraciones sobre una base SQLite temporal, tests y validación de sintaxis JavaScript en cada push a `main`.
 
 ## Base de datos
 
@@ -182,6 +183,7 @@ Migraciones actuales:
 ```text
 0001_users
 0002_user_superuser
+0003_roles_permissions
 ```
 
 ## Flujo de trabajo
