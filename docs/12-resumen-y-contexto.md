@@ -92,6 +92,25 @@ No se ocultan problemas funcionales, de autorización o de renderizado mediante 
 - la tabla de Usuarios representa `Acceso` y no muestra al Administrador del sistema como si fuera un rol;
 - Roles y permisos permite alta, edición y activación/desactivación.
 
+## Densidad y metadatos en tablas
+
+Las tablas son resúmenes operativos, no fichas completas.
+
+Reglas:
+
+- mostrar solo columnas y metadatos necesarios para identificar, comparar o actuar;
+- evitar repetir tipo, estado, roles, permisos, badges, descripciones u otros datos secundarios cuando no aporten una decisión real;
+- no confundir alta densidad de información útil con alta cantidad de metadatos;
+- mover el detalle secundario a la ficha o vista del registro;
+- mantener la tabla visualmente liviana y escalable a medida que los módulos crecen.
+
+Regla corta:
+
+```text
+Tabla = resumen operativo
+Ficha = detalle completo
+```
+
 ## Arquitectura de navegación de Configuración
 
 La navegación debe escalar sin agregar niveles innecesarios ni mezclar consulta personal con administración:
@@ -278,6 +297,10 @@ Permiso = acción habilitada por un rol.
 Administrador del sistema = acceso total sin depender de roles.
 Administrador del sistema se representa como tipo de acceso, nunca como rol.
 No mezclar estos términos con “perfil”, “alcance” o “autorización” en textos de interfaz.
+
+Regla de tablas:
+Tabla = resumen operativo; ficha = detalle completo.
+Mostrar solo metadatos que ayuden a identificar, comparar o actuar.
 
 Antes de modificar, revisar main y docs relacionados. Mantener convenciones visuales, de seguridad y de datos.
 No tapar síntomas con CSS/JS: corregir la causa en la capa responsable y eliminar workarounds previos.
