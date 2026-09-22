@@ -19,7 +19,7 @@ def _router_paths(router) -> set[str]:
 
 
 def test_configuration_and_account_routes_are_registered() -> None:
-    assert "" in _router_paths(configuration_router)
+    assert "/configuracion" in _router_paths(configuration_router)
     assert "/mi-cuenta" in _router_paths(account_router)
 
 
