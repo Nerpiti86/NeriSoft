@@ -80,6 +80,10 @@ Desactivar un rol no borra:
 
 Un rol inactivo simplemente deja de aportar permisos efectivos hasta que vuelva a activarse.
 
-## Continuidad
+## Continuidad histórica
 
-La Tarea 9.3, documentada en [`21-asignacion-roles-usuarios.md`](21-asignacion-roles-usuarios.md), conecta estos roles con Gestión de Usuarios. El siguiente bloque es la Tarea 9.4 — validación integral de permisos.
+La Tarea 9.3, documentada en [`21-asignacion-roles-usuarios.md`](21-asignacion-roles-usuarios.md), conectó estos roles con Gestión de Usuarios. Luego se completó la Tarea 9.3.5 de normalización de Roles y Permisos.
+
+La Tarea 9.4 — validación integral de permisos — permanece pendiente, pero ya no es el siguiente bloqueo funcional.
+
+Para el estado actual y el próximo objetivo leer primero [`HANDOFF-ACTUAL.md`](HANDOFF-ACTUAL.md).
