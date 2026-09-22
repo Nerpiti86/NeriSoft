@@ -12,7 +12,7 @@
         <div>
             <div class="users-breadcrumb">Configuración <i class="ti ti-chevron-right" aria-hidden="true"></i> Usuarios</div>
             <h1>Usuarios</h1>
-            <p>Administrá quién puede ingresar a NERISOFT, su estado y los roles asignados.</p>
+            <p>Un usuario es una cuenta que puede ingresar a NERISOFT. Su acceso se define asignándole uno o más roles creados en Roles y permisos.</p>
         </div>
         {% if can_create_users and form_mode != "create" %}
         <a class="primary-button" href="/configuracion/usuarios/nuevo">
@@ -55,15 +55,15 @@
                 <h2 id="user-form-title">{% if form_mode == "create" %}Nuevo usuario{% else %}Editar usuario{% endif %}</h2>
                 <p>
                     {% if form_mode == "create" %}
-                    Creá una cuenta y, si tu alcance lo permite, asignale sus roles iniciales.
+                    Creá la cuenta y asignale uno o más roles. Los permisos de esos roles determinan qué podrá hacer este usuario.
                     {% elif current_user.is_superuser and editing_user.id == current_user.id %}
                     Actualizá los datos de acceso de tu cuenta administradora.
                     {% elif can_edit_identity and can_assign_roles_to_form_user %}
-                    Actualizá los datos de acceso y los roles permitidos para esta cuenta.
+                    Actualizá los datos de la cuenta y los roles que definen su acceso.
                     {% elif can_edit_identity %}
-                    Actualizá los datos de acceso. Los roles no pueden modificarse desde esta sesión.
+                    Actualizá los datos de la cuenta. Los roles asignados no pueden modificarse desde esta sesión.
                     {% else %}
-                    Administrá los roles permitidos para esta cuenta.
+                    Administrá los roles que definen el acceso de esta cuenta.
                     {% endif %}
                 </p>
             </div>
@@ -191,9 +191,9 @@
                     <strong>Administrador del sistema</strong>
                     <small>
                         {% if form_mode == "edit" and editing_user.id == current_user.id %}
-                        Acceso total. Esta cuenta no depende de roles para autorizar acciones.
+                        Acceso total a NERISOFT. Esta cuenta no necesita roles para obtener permisos.
                         {% else %}
-                        Otorga acceso total fuera del esquema de roles. Reservalo para administración técnica.
+                        Da acceso total a NERISOFT sin necesidad de roles. Usalo solo para administración del sistema.
                         {% endif %}
                     </small>
                 </span>
@@ -204,13 +204,13 @@
             <fieldset class="role-assignment" {% if form_mode == 'edit' and not can_assign_roles_to_form_user %}disabled{% endif %}>
                 <div class="role-assignment-heading">
                     <div>
-                        <span class="section-eyebrow">Autorización</span>
-                        <h3>Roles asignados</h3>
+                        <span class="section-eyebrow">Acceso del usuario</span>
+                        <h3>Roles de este usuario</h3>
                         <p>
                             {% if form_mode == 'edit' and editing_user.id == current_user.id %}
-                            Tus propios roles no pueden modificarse desde esta sesión.
+                            Podés ver tus roles asignados, pero no cambiarlos desde tu propia sesión.
                             {% else %}
-                            Solo aparecen roles cuyos permisos están completamente dentro de tu alcance.
+                            Seleccioná uno o más roles. Los permisos de todos los roles seleccionados se combinan para definir el acceso del usuario.
                             {% endif %}
                         </p>
                     </div>
@@ -243,14 +243,20 @@
                 {% else %}
                 <div class="role-empty-state">
                     <i class="ti ti-shield-off" aria-hidden="true"></i>
-                    <span>No hay roles disponibles dentro de tu alcance.</span>
+                    <span>
+                        {% if current_user.is_superuser %}
+                        Todavía no hay roles creados. Creá un rol en “Roles y permisos” y después volvé para asignarlo a este usuario.
+                        {% else %}
+                        No hay roles disponibles para asignar desde tu cuenta actual.
+                        {% endif %}
+                    </span>
                 </div>
                 {% endif %}
 
                 {% if hidden_assigned_roles %}
                 <p class="role-preserved-note">
                     <i class="ti ti-lock" aria-hidden="true"></i>
-                    {{ hidden_assigned_roles }} asignación{% if hidden_assigned_roles != 1 %}es{% endif %} fuera de tu alcance se conservará{% if hidden_assigned_roles != 1 %}n{% endif %} sin cambios.
+                    {{ hidden_assigned_roles }} rol{% if hidden_assigned_roles != 1 %}es{% endif %} asignado{% if hidden_assigned_roles != 1 %}s{% endif %} no puede{% if hidden_assigned_roles == 1 %}{% else %}n{% endif %} modificarse desde tu cuenta y se conservará{% if hidden_assigned_roles != 1 %}n{% endif %} sin cambios.
                 </p>
                 {% endif %}
             </fieldset>
@@ -285,8 +291,8 @@
     <section class="users-panel" aria-labelledby="users-table-title">
         <div class="users-panel-toolbar">
             <div>
-                <span class="section-eyebrow">Sistema</span>
-                <h2 id="users-table-title">Cuentas de acceso</h2>
+                <span class="section-eyebrow">Acceso al sistema</span>
+                <h2 id="users-table-title">Usuarios</h2>
             </div>
 
             <form class="users-filters" method="get" action="/configuracion/usuarios">
@@ -340,11 +346,11 @@
                         <td>{{ user.email }}</td>
                         <td>
                             {% if user.is_superuser %}
-                            <span class="role-badge is-admin"><i class="ti ti-shield-check" aria-hidden="true"></i> Administrador</span>
+                            <span class="role-badge is-admin"><i class="ti ti-shield-check" aria-hidden="true"></i> Administrador del sistema</span>
                             {% elif user.roles %}
                             <div class="table-role-list">
                                 {% for role in user.roles|sort(attribute='name') %}
-                                <span class="role-badge{% if not role.is_active %} is-inactive-role{% endif %}" title="{% if role.is_active %}Rol activo{% else %}Rol inactivo: no concede permisos{% endif %}">
+                                <span class="role-badge{% if not role.is_active %} is-inactive-role{% endif %}" title="{% if role.is_active %}Rol activo{% else %}Rol inactivo: sus permisos no se aplican{% endif %}">
                                     <i class="ti ti-shield" aria-hidden="true"></i> {{ role.name }}
                                 </span>
                                 {% endfor %}
@@ -407,7 +413,7 @@
 
         <footer class="users-panel-footer">
             <span>Mostrando {{ users|length }} de {{ total_users }} usuarios</span>
-            <span>Los usuarios inactivos no pueden iniciar sesión.</span>
+            <span>Un usuario inactivo no puede iniciar sesión. Un usuario sin roles no obtiene permisos por roles.</span>
         </footer>
     </section>
 </main>
