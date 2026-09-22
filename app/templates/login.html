@@ -39,12 +39,14 @@
                 <p>Usá tus credenciales para continuar.</p>
             </header>
 
-            <div class="login-alert" role="alert" hidden>
+            <div class="login-alert" role="alert" {% if not login_error %}hidden{% endif %}>
                 <i class="ti ti-alert-circle" aria-hidden="true"></i>
-                <span>Usuario o contraseña incorrectos.</span>
+                <span>{{ login_error or "" }}</span>
             </div>
 
-            <form class="login-form" novalidate>
+            <form class="login-form" method="post" action="/login" novalidate>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
                 <div class="form-field">
                     <label for="login-user">Usuario o correo</label>
                     <div class="login-input-wrap">
@@ -53,12 +55,13 @@
                             id="login-user"
                             name="username"
                             type="text"
+                            maxlength="254"
                             autocomplete="username"
                             placeholder="usuario@empresa.com"
-                            aria-describedby="login-user-error"
+                            value="{{ values.get('username', '') }}"
+                            required
                         >
                     </div>
-                    <span id="login-user-error" class="field-error" hidden>Ingresá un usuario válido.</span>
                 </div>
 
                 <div class="form-field">
@@ -72,15 +75,15 @@
                             id="login-password"
                             name="password"
                             type="password"
+                            maxlength="128"
                             autocomplete="current-password"
                             placeholder="Ingresá tu contraseña"
-                            aria-describedby="login-password-error"
+                            required
                         >
                     </div>
-                    <span id="login-password-error" class="field-error" hidden>La contraseña es obligatoria.</span>
                 </div>
 
-                <button class="login-submit" type="button">
+                <button class="login-submit" type="submit">
                     <span>Ingresar</span>
                     <i class="ti ti-arrow-right" aria-hidden="true"></i>
                 </button>

@@ -8,13 +8,14 @@ from fastapi import Depends, FastAPI, Form, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from starlette.middleware.sessions import SessionMiddleware
 
 from app.core.config import settings
 from app.core.database import database_is_ready, get_db
-from app.core.security import hash_password
+from app.core.security import hash_password, verify_password
 from app.models import User
 
 
@@ -39,12 +40,60 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.session_secret,
+    session_cookie="nerisoft_session",
+    max_age=8 * 60 * 60,
+    same_site="lax",
+    https_only=settings.session_https_only,
+)
+
 app.mount("/static", StaticFiles(directory=str(settings.static_dir)), name="static")
 
 
 def _users_exist(db: Session) -> bool:
     user_count = db.scalar(select(func.count(User.id))) or 0
     return user_count > 0
+
+
+def _csrf_token(request: Request) -> str:
+    token = request.session.get("csrf_token")
+    if not isinstance(token, str) or len(token) < 32:
+        token = secrets.token_urlsafe(32)
+        request.session["csrf_token"] = token
+    return token
+
+
+def _csrf_is_valid(request: Request, token: str) -> bool:
+    expected = request.session.get("csrf_token")
+    return (
+        isinstance(expected, str)
+        and bool(token)
+        and secrets.compare_digest(token, expected)
+    )
+
+
+def _authenticated_user(request: Request, db: Session) -> User | None:
+    user_id = request.session.get("user_id")
+    if not isinstance(user_id, int):
+        return None
+
+    user = db.get(User, user_id)
+    if user is None or not user.is_active:
+        request.session.clear()
+        return None
+
+    return user
+
+
+def _user_display(user: User) -> tuple[str, str]:
+    parts = [part for part in user.name.strip().split() if part]
+    first_name = parts[0] if parts else user.username
+    initials = "".join(part[0].upper() for part in parts[:2])
+    if not initials:
+        initials = user.username[:2].upper()
+    return first_name, initials
 
 
 def _setup_response(
@@ -68,14 +117,47 @@ def _setup_response(
     )
 
 
+def _login_response(
+    request: Request,
+    *,
+    error: str | None = None,
+    username: str = "",
+    status_code: int = status.HTTP_200_OK,
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="login.html",
+        context={
+            "app_name": settings.app_name,
+            "app_version": settings.app_version,
+            "csrf_token": _csrf_token(request),
+            "login_error": error,
+            "values": {"username": username},
+        },
+        status_code=status_code,
+    )
+
+
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
-def home(request: Request):
+def home(request: Request, db: Session = Depends(get_db)):
+    if not _users_exist(db):
+        return RedirectResponse(url="/setup", status_code=status.HTTP_303_SEE_OTHER)
+
+    user = _authenticated_user(request, db)
+    if user is None:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+
+    first_name, initials = _user_display(user)
     return templates.TemplateResponse(
         request=request,
         name="index.html",
         context={
             "app_name": settings.app_name,
             "app_version": settings.app_version,
+            "current_user": user,
+            "current_user_first_name": first_name,
+            "current_user_initials": initials,
+            "csrf_token": _csrf_token(request),
         },
     )
 
@@ -85,14 +167,83 @@ def login(request: Request, db: Session = Depends(get_db)):
     if not _users_exist(db):
         return RedirectResponse(url="/setup", status_code=status.HTTP_303_SEE_OTHER)
 
-    return templates.TemplateResponse(
-        request=request,
-        name="login.html",
-        context={
-            "app_name": settings.app_name,
-            "app_version": settings.app_version,
-        },
+    if _authenticated_user(request, db) is not None:
+        return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+
+    return _login_response(request)
+
+
+@app.post("/login", response_class=HTMLResponse, include_in_schema=False)
+def authenticate(
+    request: Request,
+    username: str = Form(""),
+    password: str = Form(""),
+    csrf_token: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    if not _users_exist(db):
+        return RedirectResponse(url="/setup", status_code=status.HTTP_303_SEE_OTHER)
+
+    identity = username.strip().lower()
+
+    if not _csrf_is_valid(request, csrf_token):
+        request.session.clear()
+        return _login_response(
+            request,
+            error="La sesión de acceso venció. Recargá la página e intentá nuevamente.",
+            username=identity,
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if not identity or not password:
+        return _login_response(
+            request,
+            error="Ingresá tu usuario o correo y contraseña.",
+            username=identity,
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        )
+
+    user = db.scalar(
+        select(User).where(
+            or_(
+                User.username == identity,
+                User.email == identity,
+            )
+        )
     )
+
+    valid_credentials = (
+        user is not None
+        and user.is_active
+        and verify_password(password, user.password_hash)
+    )
+
+    if not valid_credentials:
+        return _login_response(
+            request,
+            error="Usuario o contraseña incorrectos.",
+            username=identity,
+            status_code=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    request.session.clear()
+    request.session["user_id"] = user.id
+    request.session["csrf_token"] = secrets.token_urlsafe(32)
+
+    return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@app.post("/logout", include_in_schema=False)
+def logout(
+    request: Request,
+    csrf_token: str = Form(""),
+):
+    if not _csrf_is_valid(request, csrf_token):
+        request.session.clear()
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+
+    request.session.clear()
+    return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
 
 
 @app.get("/setup", response_class=HTMLResponse, include_in_schema=False)

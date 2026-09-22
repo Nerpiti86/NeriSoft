@@ -80,8 +80,70 @@ function applyVisibleDataConventions() {
     });
 }
 
+function applyAuthenticatedUser() {
+    const firstName = document.body.dataset.currentUserFirstName?.trim();
+    const initials = document.body.dataset.currentUserInitials?.trim();
+
+    if (firstName) {
+        const userName = document.querySelector(".user-name");
+        const greeting = document.querySelector(".dashboard-title-row h1");
+
+        if (userName) {
+            userName.textContent = firstName;
+        }
+
+        if (greeting) {
+            greeting.textContent = `Buen día, ${firstName}`;
+        }
+    }
+
+    if (initials) {
+        const avatar = document.querySelector(".user-avatar");
+        if (avatar) {
+            avatar.textContent = initials;
+        }
+    }
+}
+
+function installLogoutControl() {
+    const actions = document.querySelector(".topbar-actions");
+    const userControl = actions?.querySelector(".user-control");
+    const csrfToken = document.body.dataset.csrfToken?.trim();
+
+    if (!actions || !userControl || !csrfToken || actions.querySelector("[data-logout-form]")) {
+        return;
+    }
+
+    const form = document.createElement("form");
+    form.method = "post";
+    form.action = "/logout";
+    form.dataset.logoutForm = "";
+    form.setAttribute("aria-label", "Cerrar sesión");
+
+    const tokenInput = document.createElement("input");
+    tokenInput.type = "hidden";
+    tokenInput.name = "csrf_token";
+    tokenInput.value = csrfToken;
+
+    const button = document.createElement("button");
+    button.type = "submit";
+    button.className = "icon-button";
+    button.setAttribute("aria-label", "Cerrar sesión");
+    button.setAttribute("title", "Cerrar sesión");
+
+    const icon = document.createElement("i");
+    icon.className = "ti ti-logout";
+    icon.setAttribute("aria-hidden", "true");
+
+    button.append(icon);
+    form.append(tokenInput, button);
+    userControl.insertAdjacentElement("afterend", form);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     applyVisibleDataConventions();
+    applyAuthenticatedUser();
+    installLogoutControl();
 
     const shell = document.querySelector("[data-app-shell]");
     const toggle = document.getElementById("sidebar-toggle");
