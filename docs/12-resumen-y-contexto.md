@@ -21,6 +21,8 @@ Este documento es la fuente de contexto consolidado para continuar NERISOFT en u
 
 Durante pruebas locales se avanza una acción/comando por mensaje.
 
+No se ocultan problemas funcionales, de autorización o de renderizado mediante parches de CSS/JavaScript. La causa debe corregirse en la capa responsable (backend, template, datos o estilo según corresponda) y cualquier workaround previo debe eliminarse al aplicar la solución correcta.
+
 ## Stack actual
 
 - Python
@@ -216,4 +218,5 @@ Estado actual:
 - siguiente tarea: 9.4 Validación integral de permisos
 
 Antes de modificar, revisar main y docs relacionados. Mantener convenciones visuales, de seguridad y de datos.
+No tapar síntomas con CSS/JS: corregir la causa en la capa responsable y eliminar workarounds previos.
 ```
