@@ -3,8 +3,10 @@ from app.core.templates import templates
 
 def test_core_templates_parse() -> None:
     for template_name in (
-        "base.html",
+        "account.html",
         "authenticated.html",
+        "base.html",
+        "configuration.html",
         "index.html",
         "login.html",
         "roles.html",
