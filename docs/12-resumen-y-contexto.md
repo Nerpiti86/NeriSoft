@@ -2,7 +2,7 @@
 
 Actualizado: 22/09/2026
 
-Este documento es la fuente de contexto consolidado para continuar NERISOFT en un hilo nuevo.
+Este documento es la fuente de contexto consolidado para continuar NERISOFT. Para el próximo hilo leer primero [`13-inicio-proximo-hilo.md`](13-inicio-proximo-hilo.md).
 
 ## Proyecto
 
@@ -22,6 +22,129 @@ Este documento es la fuente de contexto consolidado para continuar NERISOFT en u
 Durante pruebas locales se avanza una acción/comando por mensaje.
 
 No se ocultan problemas funcionales, de autorización o de renderizado mediante parches de CSS/JavaScript. La causa debe corregirse en la capa responsable (backend, template, datos o estilo según corresponda) y cualquier workaround previo debe eliminarse al aplicar la solución correcta.
+
+## Decisión al cerrar este hilo
+
+Se decidió **dejar Roles y Permisos por ahora**.
+
+La Tarea 9.3.5 quedó completada y mergeada en `main` en el commit `1d2e9ab2bf553a2bb53e9dd4f545152754c3a404`. GitHub Actions run #14 terminó correctamente.
+
+La Tarea 9.4 — Validación integral de permisos — queda **pendiente**, pero deja de ser el próximo paso obligatorio.
+
+También se decidió **postergar Auditoría**. La razón es arquitectónica: todavía no existen suficientes operaciones reales de negocio para definir un motor de auditoría transversal con fundamento. No se construirá ahora un sistema genérico de eventos, snapshots o historial universal “por las dudas”.
+
+El próximo foco es:
+
+```text
+Configuración de empresa
+↓
+Clientes
+↓
+Proveedores
+↓
+Productos
+↓
+Depósitos / Stock
+↓
+Ventas
+```
+
+## Lógica de priorización
+
+Para decidir si una infraestructura, abstracción o módulo transversal debe construirse ahora:
+
+1. ¿Existe una necesidad real hoy?
+2. ¿Desbloquea la próxima operación real?
+3. ¿Tenemos suficiente información para diseñarlo correctamente?
+4. ¿Puede postergarse sin romper lo existente?
+5. ¿Estamos resolviendo un problema real o construyendo para un sistema imaginario?
+
+Patrón preferido:
+
+```text
+Necesidad concreta
+↓
+Dependencias mínimas
+↓
+Funcionalidad real
+↓
+Uso real
+↓
+Problemas reales
+↓
+Generalizar cuando aparezca un patrón
+```
+
+Regla:
+
+> No diseñar una capa transversal importante hasta tener uno o más casos reales que la justifiquen.
+
+Los permisos tuvieron una necesidad concreta porque ya existían operaciones administrativas. Auditoría todavía no tiene suficiente negocio real debajo.
+
+## Referencia funcional externa: Holistor Gestión ERP
+
+Referencia principal:
+
+https://holistor.atlassian.net/wiki/spaces/TDADGC/overview?homepageId=566427761
+
+Se adopta como **referencia funcional permanente**, no como especificación de NERISOFT.
+
+La documentación pública de Holistor organiza un ERP argentino maduro en áreas como Ventas, Compras, Stock, Tesorería, Impuestos, Contabilidad y Administración. Dentro de Administración incluye, entre otros, Empresa, Puntos de Venta, Talonarios, Tipos de Comprobante, Monedas, Condiciones Fiscales, Tipos de Documento, Provincias, Localidades, Alícuotas, Tipos de Cobro/Pago, Conceptos, Unidades de Negocio y parámetros.
+
+Uso correcto:
+
+- consultar qué entidades y dependencias utiliza un ERP real para resolver un circuito;
+- descubrir maestros que quizá sean necesarios;
+- contrastar nuestro diseño antes de inventar estructuras desde cero;
+- revisar particularidades del contexto argentino cuando lleguen los módulos correspondientes.
+
+Uso incorrecto:
+
+- copiar pantalla por pantalla;
+- copiar su UI;
+- implementar ahora todos sus parámetros;
+- crear maestros sin un circuito que los necesite;
+- trasladar a NERISOFT toda la complejidad acumulada de un ERP maduro.
+
+Regla:
+
+```text
+Holistor = mapa del universo posible
+NERISOFT = implementar solo lo necesario en la etapa actual
+```
+
+## Próximo bloque: Configuración de empresa
+
+El siguiente hilo debe empezar definiendo el alcance mínimo real.
+
+Candidatos iniciales:
+
+- razón social;
+- nombre comercial;
+- CUIT;
+- domicilio;
+- localidad;
+- provincia;
+- código postal;
+- teléfono;
+- email;
+- condición fiscal;
+- moneda principal.
+
+Estos campos son **alcance candidato**, no una especificación cerrada. Antes de implementar, revisar dependencias reales y decidir qué debe existir como dato propio de Empresa y qué merece ser maestro separado más adelante.
+
+No implementar ahora:
+
+- ARCA/CAE;
+- certificados digitales;
+- puntos de venta;
+- talonarios;
+- retenciones/percepciones;
+- SMTP;
+- parámetros contables;
+- grandes catálogos auxiliares que todavía no consume ninguna operación.
+
+Los maestros secundarios se introducen cuando el módulo que los necesita exista.
 
 ## Stack actual
 
@@ -72,6 +195,8 @@ No se ocultan problemas funcionales, de autorización o de renderizado mediante 
 - un gestor delegado solo puede asignar roles dentro de su propio alcance y no puede modificar sus propios roles;
 - para despliegue real en red se requiere HTTPS y `NERISOFT_SESSION_HTTPS_ONLY=true`.
 
+`9.4 — Validación integral de permisos` sigue pendiente y deberá retomarse, pero no bloquea Configuración de empresa.
+
 ## UI actual
 
 - viewport completo;
@@ -85,14 +210,14 @@ No se ocultan problemas funcionales, de autorización o de renderizado mediante 
 - Inicio y Configuración usan el mismo shell;
 - navegación interna usa HTMX y reemplaza solo `.workspace`;
 - fallback HTML normal si HTMX no está disponible;
-- Select NERISOFT reutilizable, con listeners globales únicos y limpieza de instancias al retirar nodos;
+- Select NERISOFT reutilizable;
 - Configuración tiene una portada propia en `/configuracion`;
-- Usuarios y Roles y permisos son destinos independientes dentro de Configuración, sin pestañas redundantes entre sí;
-- el nombre/avatar de la barra superior abre `/mi-cuenta` para consultar los datos y tipo de acceso de la sesión actual;
+- Usuarios y Roles y permisos son destinos independientes dentro de Configuración;
+- el nombre/avatar de la barra superior abre `/mi-cuenta`;
 - la tabla de Usuarios representa `Acceso` y no muestra al Administrador del sistema como si fuera un rol;
 - Roles y permisos permite alta, edición y activación/desactivación;
-- el listado de Roles y el formulario Nuevo/Editar rol son vistas diferenciadas y no se renderizan juntos;
-- la tabla de Roles se limita a información operativa y no muestra códigos técnicos ni metadatos secundarios;
+- el listado de Roles y el formulario Nuevo/Editar rol son vistas diferenciadas;
+- la tabla de Roles se limita a información operativa;
 - la selección de permisos se organiza primero por área funcional y después por grupo.
 
 ## Densidad y metadatos en tablas
@@ -105,7 +230,7 @@ Reglas:
 - evitar repetir tipo, estado, roles, permisos, badges, descripciones u otros datos secundarios cuando no aporten una decisión real;
 - no confundir alta densidad de información útil con alta cantidad de metadatos;
 - mover el detalle secundario a la ficha o vista del registro;
-- mantener la tabla visualmente liviana y escalable a medida que los módulos crecen.
+- mantener la tabla visualmente liviana y escalable.
 
 Regla corta:
 
@@ -115,8 +240,6 @@ Ficha = detalle completo
 ```
 
 ## Arquitectura de navegación de Configuración
-
-La navegación debe escalar sin agregar niveles innecesarios ni mezclar consulta personal con administración:
 
 ```text
 Configuración
@@ -128,42 +251,18 @@ Barra superior
 └── Mi cuenta
 ```
 
-Reglas:
+La portada de Configuración incorporará **Empresa** cuando el módulo exista. No crear niveles de navegación intermedios sin necesidad real.
 
-- el menú lateral `Configuración` apunta a `/configuracion`, no a una pantalla hija;
-- la portada de Configuración agrupa opciones por tema y solo incorpora áreas reales cuando se implementan;
-- `Usuarios` administra cuentas del sistema;
-- `Roles y permisos` administra roles parametrizables y sus permisos;
-- `Mi cuenta` es una vista personal de consulta y no sustituye a Gestión de Usuarios;
-- no agregar una pantalla intermedia `Accesos y seguridad`: es una categoría visual dentro de Configuración, no otro nivel de navegación;
-- los breadcrumbs de las pantallas hijas vuelven a `/configuracion`.
-
-## Terminología de acceso en la interfaz
-
-La UI debe mantener un único modelo mental y no mezclar sinónimos técnicos:
+## Terminología de acceso
 
 - **Usuario**: cuenta de una persona que puede iniciar sesión en NERISOFT.
-- **Rol**: conjunto reutilizable de permisos que se asigna a uno o más usuarios.
+- **Rol**: conjunto reutilizable de permisos.
 - **Permiso**: acción concreta que un rol habilita.
-- **Administrador del sistema**: cuenta con acceso total que no depende de roles para obtener permisos.
+- **Administrador del sistema**: acceso total que no depende de roles.
 
-Flujo que debe comunicar la interfaz:
-
-```text
-1. Crear un rol.
-2. Elegir los permisos de ese rol.
-3. Crear o editar un usuario.
-4. Asignarle uno o más roles.
-5. Los permisos de los roles asignados se combinan para definir el acceso del usuario.
-```
-
-En textos destinados al usuario final se evita usar `perfil`, `alcance` o `autorización` como sinónimos de rol/permisos. Esos términos pueden existir en documentación técnica o controles internos cuando sean precisos, pero la interfaz debe explicar la acción en lenguaje directo.
-
-El Administrador del sistema no debe representarse dentro de una columna o listado de Roles. En vistas de usuarios debe mostrarse como **tipo de acceso**. Los usuarios comunes se muestran como **Acceso por roles** y debajo pueden detallarse los roles asignados.
+El Administrador del sistema se representa como tipo de acceso, nunca como rol.
 
 ## Catálogo de permisos y crecimiento por módulos
-
-El motor RBAC es general, pero el catálogo visible debe representar únicamente funcionalidades que ya existen.
 
 Estado actual:
 
@@ -173,17 +272,13 @@ Sistema
 └── Roles y permisos
 ```
 
-Todos los permisos implementados actualmente pertenecen al área `Sistema`. No se deben crear permisos ficticios para Ventas, Compras, Stock, Tesorería, Contabilidad u otros módulos antes de implementar esas funciones.
-
-El nombre de un rol no concede acceso por sí mismo. Roles operativos como `Vendedor`, `Cajero` o `Compras` solo adquieren sentido cuando existen permisos funcionales que puedan asignárseles.
-
-Regla obligatoria para módulos futuros:
+No se crean permisos ficticios de módulos futuros.
 
 ```text
 Cada módulo nuevo debe definir, aplicar y probar sus permisos junto con su funcionalidad.
 ```
 
-La autorización backend sigue siendo la fuente de verdad. La UI puede ocultar o simplificar opciones, pero nunca reemplaza el control de permisos del servidor.
+Esto no obliga a terminar 9.4 antes de iniciar Configuración de empresa; significa que, al crear funcionalidad sensible nueva, sus permisos deben diseñarse con el propio módulo cuando corresponda.
 
 ## Assets locales
 
@@ -194,65 +289,6 @@ Geist 1.7.2
 Tabler Icons 3.35.0
 HTMX 2.0.7
 ```
-
-Instalación:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\vendor-assets.ps1
-```
-
-No existe fallback CDN de ejecución. Si falta un asset crítico, el arranque falla de forma explícita.
-
-## Convenciones visibles
-
-Comprobantes:
-
-```text
-FC  Factura
-NC  Nota de Crédito
-ND  Nota de Débito
-RC  Recibo
-OP  Orden de Pago
-OC  Orden de Compra
-RM  Remito
-PR  Presupuesto
-PD  Pedido
-```
-
-Letra fiscal:
-
-```text
-FC A 0004-00001842
-```
-
-El HTML debe emitir directamente estas abreviaturas; no se corrigen con JavaScript.
-
-Fechas:
-
-```text
-dd/mm/yyyy
-dd/mm/yyyy HH:mm
-```
-
-## Funcionalidad completada
-
-1. Bootstrap técnico.
-2. Shell principal.
-3. Dashboard visual base con datos de muestra.
-4. Login visual y luego funcional.
-5. Modelo `users` + Argon2.
-6. Configuración inicial del primer administrador.
-7. Sesiones + CSRF + logout + dashboard protegido.
-8. Gestión de usuarios: listar, buscar, filtrar, crear, editar, activar/desactivar.
-9. Select NERISOFT.
-10. Assets locales.
-11. Navegación parcial HTMX.
-12. Saneamiento técnico previo a Roles/Permisos: shell compartido, auth centralizado, fechas, setup, tests y documentación sincronizada.
-13. Tarea 9.1: modelo `roles` / `permissions`, asociaciones, catálogo y helpers de autorización.
-14. Tarea 9.2: gestión de roles, permisos y estado desde Configuración.
-15. Tarea 9.3: asignación de roles a usuarios y permisos granulares en Gestión de Usuarios.
-16. Reorganización de Configuración: portada propia, Usuarios/Roles como destinos independientes, Mi cuenta separada y representación explícita del tipo de acceso.
-17. Tarea 9.3.5: normalización de Roles y Permisos; alcance actual explícito en `Sistema`, formulario separado del listado, reducción de metadatos y regla de permisos por módulo futuro.
 
 ## Base de datos
 
@@ -268,8 +304,6 @@ Migraciones:
 0003_roles_permissions
 ```
 
-La Tarea 9.3.5 no requiere una migración nueva: clasifica el catálogo de aplicación y reorganiza UI/backend sin cambiar el esquema relacional existente.
-
 ## Tests
 
 ```powershell
@@ -279,67 +313,83 @@ python -m pytest -q
 
 GitHub Actions ejecuta compilación, migraciones sobre SQLite temporal, pytest y `node --check` para los JS principales en cada push a `main`.
 
+## Funcionalidad completada
+
+1. Bootstrap técnico.
+2. Shell principal.
+3. Dashboard visual base.
+4. Login funcional.
+5. Modelo `users` + Argon2.
+6. Primer administrador.
+7. Sesiones + CSRF + logout.
+8. Gestión de usuarios.
+9. Select NERISOFT.
+10. Assets locales.
+11. Navegación parcial HTMX.
+12. Saneamiento técnico previo a Roles/Permisos.
+13. Tarea 9.1: modelo/catálogo/helpers de Roles y Permisos.
+14. Tarea 9.2: gestión de roles.
+15. Tarea 9.3: asignación de roles y permisos granulares.
+16. Reorganización de Configuración y Mi cuenta.
+17. Tarea 9.3.5: normalización de Roles y Permisos.
+
 ## Próximo bloque
 
-La siguiente tarea funcional prevista es:
-
 ```text
-Tarea 9.4 — Validación integral de permisos
+Configuración de empresa
 ```
-
-9.4 valida integralmente el motor y los permisos que existen en ese momento; no pretende anticipar permisos de módulos todavía no implementados.
 
 Después:
 
 ```text
+Clientes
+→ Proveedores
+→ Productos
+→ Depósitos / Stock
+→ Ventas
+→ Cuenta corriente / cobranzas
+→ Compras
+→ Tesorería
+→ Contabilidad / Impuestos
+```
+
+Pendientes transversales que no deben confundirse con el próximo paso:
+
+```text
+9.4 Validación integral de permisos
 Auditoría
-→ Configuración de empresa
-→ Clientes
-→ resto de maestros y circuitos
+Seguridad operativa adicional
 ```
 
 ## Contexto breve para hilo nuevo
 
 ```text
 Estamos desarrollando NERISOFT, ERP administrativo/comercial/contable.
-Repo: Nerpiti86/NeriSoft, rama main, local D:\NeriSoft.
-Flujo: 1 tarea -> validar -> 1 commit en main -> git pull -> prueba local -> siguiente.
-En pruebas locales: una sola acción/comando por mensaje.
+Repo: Nerpiti86/NeriSoft, main, local D:\NeriSoft.
 
-Estado actual:
-- FastAPI + SQLAlchemy 2 + SQLite + Alembic
-- login/sesión/CSRF funcional
-- primer admin + Gestión de Usuarios funcional
-- shell compartido
-- assets Geist/Tabler/HTMX locales obligatorios
-- navegación parcial HTMX
-- Select NERISOFT
-- tests básicos + GitHub Actions
-- Roles y Permisos 9.1 y 9.2 completados
-- asignación de roles a usuarios y permisos granulares 9.3 completados
-- 9.3.5 normalizó Roles y Permisos: catálogo actual = Sistema, listado/formulario separados y UI sin códigos técnicos
-- Configuración tiene portada propia en /configuracion
-- Usuarios y Roles y permisos son pantallas hermanas, no pestañas entre sí
-- Mi cuenta se abre desde el usuario de la barra superior
-- siguiente tarea: 9.4 Validación integral de permisos existentes
+LEER PRIMERO docs/13-inicio-proximo-hilo.md.
 
-Terminología UI de acceso:
-Usuario = cuenta que entra al sistema.
-Rol = conjunto de permisos asignable a usuarios.
-Permiso = acción habilitada por un rol.
-Administrador del sistema = acceso total sin depender de roles.
-Administrador del sistema se representa como tipo de acceso, nunca como rol.
-No mezclar estos términos con “perfil”, “alcance” o “autorización” en textos de interfaz.
+Decisión actual:
+- dejamos Roles y Permisos por ahora;
+- 9.4 queda pendiente, no bloquea;
+- Auditoría se posterga hasta tener operaciones reales;
+- próximo foco: Configuración de empresa;
+- después: Clientes → Proveedores → Productos → Depósitos/Stock → Ventas.
 
-Catálogo actual:
-Sistema -> Usuarios / Roles y permisos.
-No inventar permisos de módulos futuros.
-Cada módulo nuevo define, aplica y prueba sus permisos junto con la funcionalidad.
+Referencia funcional:
+Holistor Gestión ERP:
+https://holistor.atlassian.net/wiki/spaces/TDADGC/overview?homepageId=566427761
+Usarla para descubrir dependencias/casos reales, NO para copiar UI ni implementar toda su complejidad.
 
-Regla de tablas:
-Tabla = resumen operativo; ficha = detalle completo.
-Mostrar solo metadatos que ayuden a identificar, comparar o actuar.
+Regla arquitectónica:
+primero necesidad concreta y operación real; generalizar después de observar patrones.
+No construir infraestructura imaginaria “por las dudas”.
 
-Antes de modificar, revisar main y docs relacionados. Mantener convenciones visuales, de seguridad y de datos.
-No tapar síntomas con CSS/JS: corregir la causa en la capa responsable y eliminar workarounds previos.
+UI:
+tabla = resumen operativo; ficha = detalle completo.
+No parches CSS/JS; resolver causa raíz.
+
+Trabajo:
+1 tarea -> validar -> commit/PR -> main -> pull local -> prueba.
+En pruebas locales, una acción/comando por mensaje.
 ```
