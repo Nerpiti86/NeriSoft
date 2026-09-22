@@ -1,6 +1,6 @@
 # 00 — Lectura rápida de NERISOFT
 
-> Entrada de 2 minutos para retomar el proyecto. Para el hilo siguiente, leer primero [`13-inicio-proximo-hilo.md`](13-inicio-proximo-hilo.md). Para contexto completo, ver [`12-resumen-y-contexto.md`](12-resumen-y-contexto.md).
+> Entrada de 2 minutos para retomar el proyecto. Para el hilo siguiente, leer primero [`HANDOFF-ACTUAL.md`](HANDOFF-ACTUAL.md). Para contexto completo, ver [`12-resumen-y-contexto.md`](12-resumen-y-contexto.md).
 
 Actualizado: 22/09/2026
 
@@ -242,7 +242,7 @@ D:\NeriSoft\data\nerisoft.db
 
 ## Dónde leer más
 
-- Inicio del próximo hilo: [`13-inicio-proximo-hilo.md`](13-inicio-proximo-hilo.md)
+- Inicio del próximo hilo: [`HANDOFF-ACTUAL.md`](HANDOFF-ACTUAL.md)
 - Arquitectura: [`01-arquitectura.md`](01-arquitectura.md)
 - Diseño UI: [`02-diseno-ui.md`](02-diseno-ui.md)
 - Datos y reglas: [`03-datos-y-reglas.md`](03-datos-y-reglas.md)
@@ -250,4 +250,4 @@ D:\NeriSoft\data\nerisoft.db
 - Flujo de trabajo: [`05-flujo-trabajo.md`](05-flujo-trabajo.md)
 - Contexto consolidado: [`12-resumen-y-contexto.md`](12-resumen-y-contexto.md)
 
-Regla práctica: para un hilo nuevo, empezar por `13-inicio-proximo-hilo.md`; después usar este archivo y abrir documentación específica solo cuando haga falta.
+Regla práctica: para un hilo nuevo, empezar por `HANDOFF-ACTUAL.md`; después usar este archivo y abrir documentación específica solo cuando haga falta.
