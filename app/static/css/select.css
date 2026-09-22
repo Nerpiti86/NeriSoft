@@ -1,0 +1,182 @@
+.sr-only,
+.nerisoft-select-native,
+.nerisoft-select-host-label--collapsed {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.nerisoft-select {
+    position: relative;
+    display: inline-flex;
+    width: var(--nerisoft-select-width, 160px);
+    min-width: 142px;
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+.nerisoft-select-trigger {
+    display: flex;
+    width: 100%;
+    height: 34px;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0 9px 0 10px;
+    border: 1px solid #d2d0ca;
+    border-radius: var(--radius-sm);
+    outline: none;
+    background: linear-gradient(180deg, #ffffff 0%, #fafaf8 100%);
+    color: #292824;
+    box-shadow: inset 0 1px rgb(255 255 255 / 90%), 0 1px 2px rgb(0 0 0 / 3%);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
+.nerisoft-select-trigger:hover {
+    border-color: #bbb8b0;
+    background: linear-gradient(180deg, #ffffff 0%, #f6f5f1 100%);
+}
+
+.nerisoft-select-trigger:focus-visible,
+.nerisoft-select.is-open .nerisoft-select-trigger {
+    border-color: #b58c36;
+    box-shadow: 0 0 0 2px rgb(200 162 74 / 13%), 0 1px 2px rgb(0 0 0 / 4%);
+}
+
+.nerisoft-select.is-disabled .nerisoft-select-trigger,
+.nerisoft-select-trigger:disabled {
+    border-color: #deddd8;
+    background: #f2f2ef;
+    color: #9b9890;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.nerisoft-select-value {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
+    font-weight: 560;
+    line-height: 1;
+}
+
+.nerisoft-select-chevron {
+    flex: 0 0 auto;
+    color: #817d74;
+    font-size: 15px;
+    transition: transform 140ms ease, color 120ms ease;
+}
+
+.nerisoft-select.is-open .nerisoft-select-chevron {
+    transform: rotate(180deg);
+    color: #98742a;
+}
+
+.nerisoft-select-menu {
+    position: fixed;
+    z-index: 1200;
+    min-width: 142px;
+    padding: 5px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: 1px solid #cfcdc5;
+    border-radius: var(--radius-md);
+    outline: none;
+    background: #ffffff;
+    box-shadow: 0 14px 36px rgb(0 0 0 / 14%), 0 3px 10px rgb(0 0 0 / 7%);
+}
+
+.nerisoft-select-menu[hidden] {
+    display: none;
+}
+
+.nerisoft-select-option {
+    display: flex;
+    min-height: 32px;
+    align-items: center;
+    gap: 9px;
+    padding: 0 7px 0 9px;
+    border-radius: 5px;
+    outline: none;
+    color: #3d3b36;
+    cursor: pointer;
+    font-size: 11px;
+    line-height: 1.25;
+    transition: background 90ms ease, color 90ms ease;
+}
+
+.nerisoft-select-option:hover,
+.nerisoft-select-option:focus {
+    background: #f4f3ef;
+    color: #1e1d1a;
+}
+
+.nerisoft-select-option.is-selected {
+    background: #fbf7eb;
+    color: #5f4716;
+    font-weight: 640;
+}
+
+.nerisoft-select-option.is-selected:hover,
+.nerisoft-select-option.is-selected:focus {
+    background: #f7efd8;
+}
+
+.nerisoft-select-option.is-disabled {
+    color: #aaa79f;
+    cursor: not-allowed;
+}
+
+.nerisoft-select-option.is-disabled:hover,
+.nerisoft-select-option.is-disabled:focus {
+    background: transparent;
+    color: #aaa79f;
+}
+
+.nerisoft-select-option-text {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nerisoft-select-check {
+    flex: 0 0 auto;
+    color: transparent;
+    font-size: 15px;
+}
+
+.nerisoft-select-option.is-selected .nerisoft-select-check {
+    color: #a27a2d;
+}
+
+.nerisoft-select-group {
+    padding: 8px 9px 4px;
+    color: #8c8981;
+    font-size: 9px;
+    font-weight: 720;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nerisoft-select-trigger,
+    .nerisoft-select-chevron,
+    .nerisoft-select-option {
+        transition: none;
+    }
+}

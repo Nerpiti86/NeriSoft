@@ -13,9 +13,11 @@
     <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}">
     {% block head %}{% endblock %}
     <link rel="stylesheet" href="{{ url_for('static', path='css/density.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/select.css') }}">
 
     <script src="https://unpkg.com/htmx.org@2.0.7" defer></script>
     <script src="{{ url_for('static', path='js/app.js') }}" defer></script>
+    <script src="{{ url_for('static', path='js/select.js') }}" defer></script>
 </head>
 <body
     data-csrf-token="{{ csrf_token|default('') }}"
