@@ -19,7 +19,8 @@ Completado:
 - Tarea 9.1: modelo, catálogo y helpers base de Roles y Permisos;
 - Tarea 9.2: gestión de roles, permisos y estado desde Configuración;
 - Tarea 9.3: asignación de roles a usuarios y permisos granulares en Gestión de Usuarios;
-- reorganización de Configuración: portada propia, Usuarios y Roles como destinos independientes, Mi cuenta separada y Administrador del sistema representado como tipo de acceso, no como rol.
+- reorganización de Configuración: portada propia, Usuarios y Roles como destinos independientes, Mi cuenta separada y Administrador del sistema representado como tipo de acceso, no como rol;
+- Tarea 9.3.5: normalización de Roles y Permisos, catálogo actual explícitamente limitado a Sistema, formulario separado del listado y UI reducida a información operativa.
 
 Siguiente bloque funcional previsto:
 
@@ -77,7 +78,11 @@ Completado:
 - protección de cuentas con permisos superiores al alcance del gestor;
 - Configuración con portada propia y navegación de Usuarios/Roles separada;
 - Mi cuenta separada de la administración de usuarios;
-- Administrador del sistema representado como tipo de acceso y no como rol.
+- Administrador del sistema representado como tipo de acceso y no como rol;
+- catálogo de permisos clasificado por área funcional, actualmente solo `Sistema`;
+- formulario de Roles separado visual y funcionalmente del listado;
+- códigos técnicos y metadatos secundarios retirados de la UI principal de Roles;
+- regla de crecimiento: cada módulo nuevo debe definir, aplicar y probar sus propios permisos junto con su funcionalidad.
 
 Pendiente:
 
