@@ -226,6 +226,50 @@
     text-align: center;
 }
 
+/*
+ * La cuenta administradora actual no depende de roles para autorizar acciones.
+ * Su tarjeta de administración ya comunica el estado relevante, por lo que el
+ * selector de roles deshabilitado sería información duplicada y confusa.
+ */
+.admin-check.is-locked {
+    min-height: 62px;
+    align-items: center;
+    padding: 11px 13px;
+    border-color: #dfd1ae;
+    background: #faf6ea;
+}
+
+.admin-check.is-locked .admin-check-box,
+.admin-check.is-locked input:checked + .admin-check-box,
+.admin-check.is-locked input[type="hidden"] + input:checked + .admin-check-box {
+    width: 30px;
+    height: 30px;
+    flex-basis: 30px;
+    margin-top: 0;
+    border: 1px solid #ddc994;
+    border-radius: 8px;
+    background: #f1e5c8;
+    color: #87661f;
+}
+
+.admin-check.is-locked .admin-check-box i {
+    font-size: 16px;
+}
+
+.admin-check.is-locked strong {
+    color: #3d3524;
+    font-size: 12px;
+}
+
+.admin-check.is-locked small {
+    color: #786844;
+    font-size: 10px;
+}
+
+.admin-check.is-locked + .role-assignment:disabled {
+    display: none;
+}
+
 .users-table th:nth-child(1) { width: 17%; }
 .users-table th:nth-child(2) { width: 11%; }
 .users-table th:nth-child(3) { width: 19%; }
