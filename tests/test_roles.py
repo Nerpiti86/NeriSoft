@@ -3,11 +3,14 @@ from sqlalchemy.orm import Session
 
 from app.core.database import Base
 from app.core.permissions import (
+    ALL_PERMISSION_CODES,
+    PERMISSION_DEFINITIONS,
     permission_selection_is_within_user_scope,
     role_is_assigned_to_user,
 )
 from app.core.role_validation import normalized_role_values, validate_role_values
 from app.models import Permission, Role, User
+from app.roles import _permission_sections
 
 
 def _user(username: str, *, is_superuser: bool = False) -> User:
@@ -42,6 +45,22 @@ def test_role_validation_rejects_invalid_lengths() -> None:
     errors = validate_role_values(values)
     assert "name" in errors
     assert "description" in errors
+
+
+def test_current_permission_catalog_is_explicitly_system_scoped() -> None:
+    assert {definition.area for definition in PERMISSION_DEFINITIONS} == {"Sistema"}
+    assert all(definition.code.startswith("system.") for definition in PERMISSION_DEFINITIONS)
+
+    sections = _permission_sections(ALL_PERMISSION_CODES)
+    assert len(sections) == 1
+
+    area_name, groups = sections[0]
+    assert area_name == "Sistema"
+    assert tuple(group_name for group_name, _ in groups) == (
+        "Usuarios",
+        "Roles y permisos",
+    )
+    assert sum(len(items) for _, items in groups) == len(PERMISSION_DEFINITIONS)
 
 
 def test_permission_selection_and_self_assignment_are_detected() -> None:

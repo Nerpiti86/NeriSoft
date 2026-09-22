@@ -90,7 +90,10 @@ No se ocultan problemas funcionales, de autorización o de renderizado mediante 
 - Usuarios y Roles y permisos son destinos independientes dentro de Configuración, sin pestañas redundantes entre sí;
 - el nombre/avatar de la barra superior abre `/mi-cuenta` para consultar los datos y tipo de acceso de la sesión actual;
 - la tabla de Usuarios representa `Acceso` y no muestra al Administrador del sistema como si fuera un rol;
-- Roles y permisos permite alta, edición y activación/desactivación.
+- Roles y permisos permite alta, edición y activación/desactivación;
+- el listado de Roles y el formulario Nuevo/Editar rol son vistas diferenciadas y no se renderizan juntos;
+- la tabla de Roles se limita a información operativa y no muestra códigos técnicos ni metadatos secundarios;
+- la selección de permisos se organiza primero por área funcional y después por grupo.
 
 ## Densidad y metadatos en tablas
 
@@ -157,6 +160,30 @@ Flujo que debe comunicar la interfaz:
 En textos destinados al usuario final se evita usar `perfil`, `alcance` o `autorización` como sinónimos de rol/permisos. Esos términos pueden existir en documentación técnica o controles internos cuando sean precisos, pero la interfaz debe explicar la acción en lenguaje directo.
 
 El Administrador del sistema no debe representarse dentro de una columna o listado de Roles. En vistas de usuarios debe mostrarse como **tipo de acceso**. Los usuarios comunes se muestran como **Acceso por roles** y debajo pueden detallarse los roles asignados.
+
+## Catálogo de permisos y crecimiento por módulos
+
+El motor RBAC es general, pero el catálogo visible debe representar únicamente funcionalidades que ya existen.
+
+Estado actual:
+
+```text
+Sistema
+├── Usuarios
+└── Roles y permisos
+```
+
+Todos los permisos implementados actualmente pertenecen al área `Sistema`. No se deben crear permisos ficticios para Ventas, Compras, Stock, Tesorería, Contabilidad u otros módulos antes de implementar esas funciones.
+
+El nombre de un rol no concede acceso por sí mismo. Roles operativos como `Vendedor`, `Cajero` o `Compras` solo adquieren sentido cuando existen permisos funcionales que puedan asignárseles.
+
+Regla obligatoria para módulos futuros:
+
+```text
+Cada módulo nuevo debe definir, aplicar y probar sus permisos junto con su funcionalidad.
+```
+
+La autorización backend sigue siendo la fuente de verdad. La UI puede ocultar o simplificar opciones, pero nunca reemplaza el control de permisos del servidor.
 
 ## Assets locales
 
@@ -225,6 +252,7 @@ dd/mm/yyyy HH:mm
 14. Tarea 9.2: gestión de roles, permisos y estado desde Configuración.
 15. Tarea 9.3: asignación de roles a usuarios y permisos granulares en Gestión de Usuarios.
 16. Reorganización de Configuración: portada propia, Usuarios/Roles como destinos independientes, Mi cuenta separada y representación explícita del tipo de acceso.
+17. Tarea 9.3.5: normalización de Roles y Permisos; alcance actual explícito en `Sistema`, formulario separado del listado, reducción de metadatos y regla de permisos por módulo futuro.
 
 ## Base de datos
 
@@ -239,6 +267,8 @@ Migraciones:
 0002_user_superuser
 0003_roles_permissions
 ```
+
+La Tarea 9.3.5 no requiere una migración nueva: clasifica el catálogo de aplicación y reorganiza UI/backend sin cambiar el esquema relacional existente.
 
 ## Tests
 
@@ -256,6 +286,8 @@ La siguiente tarea funcional prevista es:
 ```text
 Tarea 9.4 — Validación integral de permisos
 ```
+
+9.4 valida integralmente el motor y los permisos que existen en ese momento; no pretende anticipar permisos de módulos todavía no implementados.
 
 Después:
 
@@ -285,10 +317,11 @@ Estado actual:
 - tests básicos + GitHub Actions
 - Roles y Permisos 9.1 y 9.2 completados
 - asignación de roles a usuarios y permisos granulares 9.3 completados
+- 9.3.5 normalizó Roles y Permisos: catálogo actual = Sistema, listado/formulario separados y UI sin códigos técnicos
 - Configuración tiene portada propia en /configuracion
 - Usuarios y Roles y permisos son pantallas hermanas, no pestañas entre sí
 - Mi cuenta se abre desde el usuario de la barra superior
-- siguiente tarea: 9.4 Validación integral de permisos
+- siguiente tarea: 9.4 Validación integral de permisos existentes
 
 Terminología UI de acceso:
 Usuario = cuenta que entra al sistema.
@@ -297,6 +330,11 @@ Permiso = acción habilitada por un rol.
 Administrador del sistema = acceso total sin depender de roles.
 Administrador del sistema se representa como tipo de acceso, nunca como rol.
 No mezclar estos términos con “perfil”, “alcance” o “autorización” en textos de interfaz.
+
+Catálogo actual:
+Sistema -> Usuarios / Roles y permisos.
+No inventar permisos de módulos futuros.
+Cada módulo nuevo define, aplica y prueba sus permisos junto con la funcionalidad.
 
 Regla de tablas:
 Tabla = resumen operativo; ficha = detalle completo.
