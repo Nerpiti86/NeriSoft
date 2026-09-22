@@ -1,0 +1,57 @@
+{% extends "authenticated.html" %}
+
+{% block title %}{{ app_name }} · Configuración{% endblock %}
+
+{% block workspace %}
+<main class="workspace configuration-workspace">
+    <header class="workspace-header configuration-header">
+        <div>
+            <div class="settings-breadcrumb">Configuración</div>
+            <h1>Configuración</h1>
+            <p>Administrá las opciones generales de NERISOFT desde un único lugar.</p>
+        </div>
+    </header>
+
+    <section class="settings-section" aria-labelledby="access-settings-title">
+        <div class="settings-section-heading">
+            <span class="section-eyebrow">Seguridad</span>
+            <h2 id="access-settings-title">Accesos y seguridad</h2>
+            <p>Definí quién puede ingresar al sistema y qué acciones puede realizar.</p>
+        </div>
+
+        {% if can_view_users or can_view_roles %}
+        <div class="settings-card-grid">
+            {% if can_view_users %}
+            <a class="settings-card" href="/configuracion/usuarios">
+                <span class="settings-card-icon"><i class="ti ti-users" aria-hidden="true"></i></span>
+                <span class="settings-card-copy">
+                    <strong>Usuarios</strong>
+                    <small>Creá y administrá las cuentas que pueden ingresar a NERISOFT.</small>
+                </span>
+                <i class="ti ti-chevron-right settings-card-arrow" aria-hidden="true"></i>
+            </a>
+            {% endif %}
+
+            {% if can_view_roles %}
+            <a class="settings-card" href="/configuracion/roles">
+                <span class="settings-card-icon"><i class="ti ti-shield-lock" aria-hidden="true"></i></span>
+                <span class="settings-card-copy">
+                    <strong>Roles y permisos</strong>
+                    <small>Definí conjuntos de permisos para asignarlos a los usuarios.</small>
+                </span>
+                <i class="ti ti-chevron-right settings-card-arrow" aria-hidden="true"></i>
+            </a>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="settings-empty-state">
+            <i class="ti ti-lock" aria-hidden="true"></i>
+            <div>
+                <strong>No hay opciones de configuración disponibles</strong>
+                <span>Tu cuenta no tiene permisos para administrar esta sección.</span>
+            </div>
+        </div>
+        {% endif %}
+    </section>
+</main>
+{% endblock %}

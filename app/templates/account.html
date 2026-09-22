@@ -1,0 +1,90 @@
+{% extends "authenticated.html" %}
+
+{% block title %}{{ app_name }} · Mi cuenta{% endblock %}
+
+{% block workspace %}
+<main class="workspace account-workspace">
+    <header class="workspace-header account-header">
+        <div>
+            <div class="settings-breadcrumb">Mi cuenta</div>
+            <h1>Mi cuenta</h1>
+            <p>Consultá tus datos de acceso y cómo obtiene permisos tu cuenta.</p>
+        </div>
+    </header>
+
+    <section class="account-card" aria-labelledby="account-name">
+        <header class="account-identity">
+            <span class="account-avatar">{{ current_user_initials }}</span>
+            <div>
+                <h2 id="account-name">{{ current_user.name }}</h2>
+                <p>{{ current_user.username }} · {{ current_user.email }}</p>
+            </div>
+        </header>
+
+        <div class="account-facts">
+            <article>
+                <span>Estado</span>
+                <strong>{% if current_user.is_active %}Activo{% else %}Inactivo{% endif %}</strong>
+                <small>{% if current_user.is_active %}La cuenta puede iniciar sesión.{% else %}La cuenta no puede iniciar sesión.{% endif %}</small>
+            </article>
+
+            <article>
+                <span>Tipo de acceso</span>
+                {% if current_user.is_superuser %}
+                <strong>Administrador del sistema</strong>
+                <small>Acceso total a NERISOFT.</small>
+                {% else %}
+                <strong>Acceso por roles</strong>
+                <small>Los permisos provienen de los roles activos asignados.</small>
+                {% endif %}
+            </article>
+
+            <article>
+                <span>Permisos</span>
+                {% if current_user.is_superuser %}
+                <strong>Acceso total</strong>
+                <small>No depende de roles para autorizar acciones.</small>
+                {% else %}
+                <strong>{{ effective_permission_count }} efectivos</strong>
+                <small>Se combinan los permisos de todos los roles activos.</small>
+                {% endif %}
+            </article>
+        </div>
+
+        <div class="account-roles">
+            <div>
+                <span class="section-eyebrow">Acceso</span>
+                <h3>Roles</h3>
+            </div>
+
+            {% if current_user.is_superuser %}
+            <div class="account-role-note">
+                <i class="ti ti-shield-check" aria-hidden="true"></i>
+                <div>
+                    <strong>No requiere roles</strong>
+                    <span>Esta cuenta obtiene acceso total por ser Administrador del sistema.</span>
+                </div>
+            </div>
+            {% elif assigned_roles %}
+            <div class="account-role-list">
+                {% for role in assigned_roles %}
+                <span class="account-role-badge{% if not role.is_active %} is-inactive{% endif %}">
+                    <i class="ti ti-shield" aria-hidden="true"></i>
+                    {{ role.name }}
+                    {% if not role.is_active %}<small>Inactivo</small>{% endif %}
+                </span>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="account-role-note is-neutral">
+                <i class="ti ti-shield-off" aria-hidden="true"></i>
+                <div>
+                    <strong>Sin roles asignados</strong>
+                    <span>Esta cuenta no recibe permisos mediante roles.</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</main>
+{% endblock %}

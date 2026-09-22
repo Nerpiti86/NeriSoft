@@ -79,10 +79,12 @@ function updateShellNavigation(value = window.location.href) {
     const isHome = path === "/";
     const isUsers = path.startsWith("/configuracion/usuarios");
     const isRoles = path.startsWith("/configuracion/roles");
-    const isConfiguration = path.startsWith("/configuracion/");
+    const isConfiguration = path === "/configuracion" || path.startsWith("/configuracion/");
+    const isAccount = path === "/mi-cuenta";
 
     const homeLink = document.querySelector('.nav-item[title="Inicio"]');
     const configurationLink = document.querySelector('.nav-item[title="Configuración"]');
+    const accountLink = document.querySelector('.user-control[title="Mi cuenta"]');
 
     [[homeLink, isHome], [configurationLink, isConfiguration]].forEach(([link, active]) => {
         if (!link) {
@@ -97,12 +99,24 @@ function updateShellNavigation(value = window.location.href) {
         }
     });
 
+    if (accountLink) {
+        if (isAccount) {
+            accountLink.setAttribute("aria-current", "page");
+        } else {
+            accountLink.removeAttribute("aria-current");
+        }
+    }
+
     if (isHome) {
         document.title = `${window.NERISOFT.name} · Inicio`;
     } else if (isUsers) {
         document.title = `${window.NERISOFT.name} · Usuarios`;
     } else if (isRoles) {
         document.title = `${window.NERISOFT.name} · Roles y permisos`;
+    } else if (path === "/configuracion") {
+        document.title = `${window.NERISOFT.name} · Configuración`;
+    } else if (isAccount) {
+        document.title = `${window.NERISOFT.name} · Mi cuenta`;
     }
 }
 
@@ -143,14 +157,18 @@ function partialNavigationUrl(anchor) {
     }
 
     const isShellDestination = anchor.matches(
-        '.nav-item[title="Inicio"], .nav-item[title="Configuración"]'
+        '.nav-item[title="Inicio"], .nav-item[title="Configuración"], .user-control[title="Mi cuenta"]'
     );
-    const isConfigurationNavigation = Boolean(
+    const isWorkspaceNavigation = Boolean(
         anchor.closest(".workspace")
-        && url.pathname.startsWith("/configuracion/")
+        && (
+            url.pathname === "/configuracion"
+            || url.pathname.startsWith("/configuracion/")
+            || url.pathname === "/mi-cuenta"
+        )
     );
 
-    return isShellDestination || isConfigurationNavigation ? url : null;
+    return isShellDestination || isWorkspaceNavigation ? url : null;
 }
 
 function usersFilterUrl(form) {

@@ -86,8 +86,35 @@ No se ocultan problemas funcionales, de autorización o de renderizado mediante 
 - navegación interna usa HTMX y reemplaza solo `.workspace`;
 - fallback HTML normal si HTMX no está disponible;
 - Select NERISOFT reutilizable, con listeners globales únicos y limpieza de instancias al retirar nodos;
-- Usuarios muestra roles asignados y permite administrarlos según alcance;
+- Configuración tiene una portada propia en `/configuracion`;
+- Usuarios y Roles y permisos son destinos independientes dentro de Configuración, sin pestañas redundantes entre sí;
+- el nombre/avatar de la barra superior abre `/mi-cuenta` para consultar los datos y tipo de acceso de la sesión actual;
+- la tabla de Usuarios representa `Acceso` y no muestra al Administrador del sistema como si fuera un rol;
 - Roles y permisos permite alta, edición y activación/desactivación.
+
+## Arquitectura de navegación de Configuración
+
+La navegación debe escalar sin agregar niveles innecesarios ni mezclar consulta personal con administración:
+
+```text
+Configuración
+└── Accesos y seguridad
+    ├── Usuarios
+    └── Roles y permisos
+
+Barra superior
+└── Mi cuenta
+```
+
+Reglas:
+
+- el menú lateral `Configuración` apunta a `/configuracion`, no a una pantalla hija;
+- la portada de Configuración agrupa opciones por tema y solo incorpora áreas reales cuando se implementan;
+- `Usuarios` administra cuentas del sistema;
+- `Roles y permisos` administra roles parametrizables y sus permisos;
+- `Mi cuenta` es una vista personal de consulta y no sustituye a Gestión de Usuarios;
+- no agregar una pantalla intermedia `Accesos y seguridad`: es una categoría visual dentro de Configuración, no otro nivel de navegación;
+- los breadcrumbs de las pantallas hijas vuelven a `/configuracion`.
 
 ## Terminología de acceso en la interfaz
 
@@ -109,6 +136,8 @@ Flujo que debe comunicar la interfaz:
 ```
 
 En textos destinados al usuario final se evita usar `perfil`, `alcance` o `autorización` como sinónimos de rol/permisos. Esos términos pueden existir en documentación técnica o controles internos cuando sean precisos, pero la interfaz debe explicar la acción en lenguaje directo.
+
+El Administrador del sistema no debe representarse dentro de una columna o listado de Roles. En vistas de usuarios debe mostrarse como **tipo de acceso**. Los usuarios comunes se muestran como **Acceso por roles** y debajo pueden detallarse los roles asignados.
 
 ## Assets locales
 
@@ -176,6 +205,7 @@ dd/mm/yyyy HH:mm
 13. Tarea 9.1: modelo `roles` / `permissions`, asociaciones, catálogo y helpers de autorización.
 14. Tarea 9.2: gestión de roles, permisos y estado desde Configuración.
 15. Tarea 9.3: asignación de roles a usuarios y permisos granulares en Gestión de Usuarios.
+16. Reorganización de Configuración: portada propia, Usuarios/Roles como destinos independientes, Mi cuenta separada y representación explícita del tipo de acceso.
 
 ## Base de datos
 
@@ -236,6 +266,9 @@ Estado actual:
 - tests básicos + GitHub Actions
 - Roles y Permisos 9.1 y 9.2 completados
 - asignación de roles a usuarios y permisos granulares 9.3 completados
+- Configuración tiene portada propia en /configuracion
+- Usuarios y Roles y permisos son pantallas hermanas, no pestañas entre sí
+- Mi cuenta se abre desde el usuario de la barra superior
 - siguiente tarea: 9.4 Validación integral de permisos
 
 Terminología UI de acceso:
@@ -243,6 +276,7 @@ Usuario = cuenta que entra al sistema.
 Rol = conjunto de permisos asignable a usuarios.
 Permiso = acción habilitada por un rol.
 Administrador del sistema = acceso total sin depender de roles.
+Administrador del sistema se representa como tipo de acceso, nunca como rol.
 No mezclar estos términos con “perfil”, “alcance” o “autorización” en textos de interfaz.
 
 Antes de modificar, revisar main y docs relacionados. Mantener convenciones visuales, de seguridad y de datos.

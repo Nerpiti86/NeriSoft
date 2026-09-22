@@ -6,7 +6,7 @@
 <main class="workspace roles-workspace">
     <header class="workspace-header roles-header">
         <div>
-            <div class="users-breadcrumb">Configuración <i class="ti ti-chevron-right" aria-hidden="true"></i> Roles y permisos</div>
+            <div class="users-breadcrumb"><a href="/configuracion">Configuración</a> <i class="ti ti-chevron-right" aria-hidden="true"></i> Roles y permisos</div>
             <h1>Roles y permisos</h1>
             <p>Un rol reúne permisos que después se asignan a uno o más usuarios para definir qué pueden hacer en NERISOFT.</p>
         </div>
@@ -17,17 +17,6 @@
         </a>
         {% endif %}
     </header>
-
-    <nav class="config-tabs" aria-label="Configuración del sistema">
-        <a href="/configuracion/usuarios">
-            <i class="ti ti-users" aria-hidden="true"></i>
-            Usuarios
-        </a>
-        <a class="is-active" href="/configuracion/roles" aria-current="page">
-            <i class="ti ti-shield-lock" aria-hidden="true"></i>
-            Roles y permisos
-        </a>
-    </nav>
 
     {% if notice_message %}
     <div class="page-alert is-{{ notice_kind }}" role="status">
@@ -273,7 +262,7 @@
                         <td class="empty-users" colspan="6">
                             <i class="ti ti-shield-off" aria-hidden="true"></i>
                             <strong>Todavía no hay roles</strong>
-                            <span>Creá un rol, elegí sus permisos y después asignalo a uno o más usuarios desde la pestaña Usuarios.</span>
+                            <span>Creá un rol, elegí sus permisos y después asignalo a uno o más usuarios desde Usuarios.</span>
                         </td>
                     </tr>
                     {% endfor %}
