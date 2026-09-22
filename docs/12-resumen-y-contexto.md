@@ -57,11 +57,17 @@ Durante pruebas locales se avanza una acción/comando por mensaje.
 - Argon2;
 - usuarios inactivos rechazados;
 - sesión firmada, `HttpOnly`, `SameSite=Lax`, máximo 8 horas;
-- CSRF en login, logout y escrituras de Usuarios;
+- CSRF en login, logout y escrituras administrativas;
 - helpers de auth/CSRF centralizados;
 - `/setup` bloqueado cuando ya existen usuarios;
 - en una instalación vacía `/setup` solo acepta loopback por defecto;
 - `NERISOFT_SETUP_ALLOW_REMOTE=true` permite habilitar temporalmente setup remoto;
+- `superuser` mantiene bypass administrativo total;
+- permisos efectivos se obtienen desde roles activos;
+- roles y permisos cuentan con controles de alcance para evitar escalada;
+- Gestión de Usuarios usa permisos granulares para ver, crear, editar, cambiar estado y asignar roles;
+- un gestor delegado no puede modificar superusuarios ni usuarios con permisos efectivos superiores a los propios;
+- un gestor delegado solo puede asignar roles dentro de su propio alcance y no puede modificar sus propios roles;
 - para despliegue real en red se requiere HTTPS y `NERISOFT_SESSION_HTTPS_ONLY=true`.
 
 ## UI actual
@@ -74,10 +80,12 @@ Durante pruebas locales se avanza una acción/comando por mensaje.
 - radios 6/8/10 px;
 - números tabulares;
 - shell autenticado compartido en `authenticated.html`;
-- Inicio y Usuarios usan el mismo shell;
-- navegación Inicio ↔ Usuarios y GET internos de Usuarios usan HTMX y reemplazan solo `.workspace`;
+- Inicio y Configuración usan el mismo shell;
+- navegación interna usa HTMX y reemplaza solo `.workspace`;
 - fallback HTML normal si HTMX no está disponible;
-- Select NERISOFT reutilizable, con listeners globales únicos y limpieza de instancias al retirar nodos.
+- Select NERISOFT reutilizable, con listeners globales únicos y limpieza de instancias al retirar nodos;
+- Usuarios muestra roles asignados y permite administrarlos según alcance;
+- Roles y permisos permite alta, edición y activación/desactivación.
 
 ## Assets locales
 
@@ -142,6 +150,9 @@ dd/mm/yyyy HH:mm
 10. Assets locales.
 11. Navegación parcial HTMX.
 12. Saneamiento técnico previo a Roles/Permisos: shell compartido, auth centralizado, fechas, setup, tests y documentación sincronizada.
+13. Tarea 9.1: modelo `roles` / `permissions`, asociaciones, catálogo y helpers de autorización.
+14. Tarea 9.2: gestión de roles, permisos y estado desde Configuración.
+15. Tarea 9.3: asignación de roles a usuarios y permisos granulares en Gestión de Usuarios.
 
 ## Base de datos
 
@@ -154,6 +165,7 @@ Migraciones:
 ```text
 0001_users
 0002_user_superuser
+0003_roles_permissions
 ```
 
 ## Tests
@@ -163,14 +175,14 @@ python -m pip install -r requirements-dev.txt
 python -m pytest -q
 ```
 
-GitHub Actions ejecuta compilación, pytest y `node --check` para los JS principales en cada push a `main`.
+GitHub Actions ejecuta compilación, migraciones sobre SQLite temporal, pytest y `node --check` para los JS principales en cada push a `main`.
 
 ## Próximo bloque
 
 La siguiente tarea funcional prevista es:
 
 ```text
-Roles y Permisos
+Tarea 9.4 — Validación integral de permisos
 ```
 
 Después:
@@ -196,10 +208,12 @@ Estado actual:
 - primer admin + Gestión de Usuarios funcional
 - shell compartido
 - assets Geist/Tabler/HTMX locales obligatorios
-- navegación parcial HTMX entre Inicio y Usuarios
+- navegación parcial HTMX
 - Select NERISOFT
 - tests básicos + GitHub Actions
-- roles/permisos todavía no implementados
+- Roles y Permisos 9.1 y 9.2 completados
+- asignación de roles a usuarios y permisos granulares 9.3 completados
+- siguiente tarea: 9.4 Validación integral de permisos
 
-Antes de modificar, revisar main y docs relacionados. Mantener convenciones visuales y de datos.
+Antes de modificar, revisar main y docs relacionados. Mantener convenciones visuales, de seguridad y de datos.
 ```
