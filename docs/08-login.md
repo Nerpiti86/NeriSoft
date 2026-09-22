@@ -25,6 +25,7 @@ La pantalla mantiene el sistema visual aprobado de NERISOFT:
 - Sombras moderadas.
 - Interfaz desktop-first y legible al `100%` de zoom.
 - Sin introducir nuevas familias tipográficas.
+- Tabler Icons como librería de iconos del login, consistente con el resto del sistema.
 
 ## Estructura
 
@@ -41,6 +42,21 @@ El formulario visual contiene:
 - botón `Ingresar`
 - estado general de error preparado
 - estado de error por campo preparado
+
+## Botón principal
+
+El botón `Ingresar` usa el criterio visual general de NERISOFT:
+
+- fondo grafito oscuro
+- texto claro
+- borde dorado fino
+- icono Tabler de flecha en dorado
+- radio de `8px`
+- sombra moderada
+- elevación mínima al pasar el puntero
+- sin superficie dorada dominante ni degradado dorado fuerte
+
+El dorado se mantiene como acento de identidad y no como superficie principal del botón.
 
 ## Estados de error
 

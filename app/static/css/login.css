@@ -297,18 +297,27 @@
     justify-content: center;
     gap: 8px;
     margin-top: 2px;
-    border: 1px solid #9f7a31;
+    border: 1px solid rgb(200 162 74 / 58%);
     border-radius: var(--radius-md);
-    background: linear-gradient(180deg, #c8a24a 0%, #b68d38 100%);
-    color: #17130b;
-    box-shadow: 0 7px 16px rgb(114 84 27 / 18%), inset 0 1px rgb(255 255 255 / 24%);
+    background: linear-gradient(180deg, #292929 0%, #202020 100%);
+    color: #f7f5ef;
+    box-shadow: 0 6px 14px rgb(0 0 0 / 16%), inset 0 1px rgb(255 255 255 / 5%);
     cursor: pointer;
     font-size: 12px;
     font-weight: 720;
+    transition: transform 120ms ease, border-color 120ms ease, background 120ms ease, box-shadow 120ms ease;
 }
 
 .login-submit:hover {
-    background: linear-gradient(180deg, #d1ad56 0%, #bd943d 100%);
+    transform: translateY(-1px);
+    border-color: rgb(215 183 95 / 78%);
+    background: linear-gradient(180deg, #303030 0%, #252525 100%);
+    box-shadow: 0 8px 18px rgb(0 0 0 / 18%), inset 0 1px rgb(255 255 255 / 6%);
+}
+
+.login-submit:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgb(0 0 0 / 14%), inset 0 1px rgb(255 255 255 / 4%);
 }
 
 .login-submit:focus-visible,
@@ -319,6 +328,7 @@
 }
 
 .login-submit i {
+    color: var(--gold-400);
     font-size: 16px;
 }
 
