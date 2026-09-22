@@ -18,7 +18,8 @@ Completado:
 - tests básicos y workflow automático;
 - Tarea 9.1: modelo, catálogo y helpers base de Roles y Permisos;
 - Tarea 9.2: gestión de roles, permisos y estado desde Configuración;
-- Tarea 9.3: asignación de roles a usuarios y permisos granulares en Gestión de Usuarios.
+- Tarea 9.3: asignación de roles a usuarios y permisos granulares en Gestión de Usuarios;
+- reorganización de Configuración: portada propia, Usuarios y Roles como destinos independientes, Mi cuenta separada y Administrador del sistema representado como tipo de acceso, no como rol.
 
 Siguiente bloque funcional previsto:
 
@@ -73,7 +74,10 @@ Completado:
 - protección de roles asignados a la propia cuenta para gestores delegados;
 - asignación de roles a usuarios;
 - permisos granulares de consulta, alta, edición, estado y asignación de roles en Gestión de Usuarios;
-- protección de cuentas con permisos superiores al alcance del gestor.
+- protección de cuentas con permisos superiores al alcance del gestor;
+- Configuración con portada propia y navegación de Usuarios/Roles separada;
+- Mi cuenta separada de la administración de usuarios;
+- Administrador del sistema representado como tipo de acceso y no como rol.
 
 Pendiente:
 
