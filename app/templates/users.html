@@ -1,0 +1,439 @@
+{% extends "base.html" %}
+
+{% block title %}{{ app_name }} · Usuarios{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', path='css/users.css') }}">
+<script src="{{ url_for('static', path='js/setup.js') }}" defer></script>
+{% endblock %}
+
+{% block body %}
+<div class="app-shell" data-app-shell>
+    <aside class="sidebar" aria-label="Navegación principal">
+        <div class="sidebar-brand">
+            <span class="brand-mark" aria-hidden="true">
+                <i class="ti ti-diamond"></i>
+            </span>
+            <span class="brand-copy">
+                <strong>{{ app_name }}</strong>
+                <small>ADMINISTRÁ TU NEGOCIO</small>
+            </span>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Secciones">
+            <div class="sidebar-nav-primary">
+                <a class="nav-item" href="/" title="Inicio">
+                    <i class="ti ti-home" aria-hidden="true"></i>
+                    <span class="nav-label">Inicio</span>
+                </a>
+                <a class="nav-item" href="#" title="Ventas">
+                    <i class="ti ti-shopping-cart" aria-hidden="true"></i>
+                    <span class="nav-label">Ventas</span>
+                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
+                </a>
+                <a class="nav-item" href="#" title="Compras">
+                    <i class="ti ti-package" aria-hidden="true"></i>
+                    <span class="nav-label">Compras</span>
+                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
+                </a>
+                <a class="nav-item" href="#" title="Stock">
+                    <i class="ti ti-box" aria-hidden="true"></i>
+                    <span class="nav-label">Stock</span>
+                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
+                </a>
+                <a class="nav-item" href="#" title="Tesorería">
+                    <i class="ti ti-wallet" aria-hidden="true"></i>
+                    <span class="nav-label">Tesorería</span>
+                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
+                </a>
+                <a class="nav-item" href="#" title="Contabilidad">
+                    <i class="ti ti-chart-bar" aria-hidden="true"></i>
+                    <span class="nav-label">Contabilidad</span>
+                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
+                </a>
+                <a class="nav-item" href="#" title="Reportes">
+                    <i class="ti ti-file-report" aria-hidden="true"></i>
+                    <span class="nav-label">Reportes</span>
+                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
+                </a>
+            </div>
+
+            <div class="sidebar-nav-secondary">
+                <a class="nav-item is-active" href="/configuracion/usuarios" aria-current="page" title="Configuración">
+                    <i class="ti ti-settings" aria-hidden="true"></i>
+                    <span class="nav-label">Configuración</span>
+                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
+                </a>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button
+                id="sidebar-toggle"
+                class="sidebar-toggle"
+                type="button"
+                aria-label="Contraer menú"
+                aria-expanded="true"
+                title="Contraer menú"
+            >
+                <i class="ti ti-chevrons-left" aria-hidden="true"></i>
+                <span class="toggle-label">Contraer menú</span>
+            </button>
+            <div class="sidebar-meta">
+                <span>v{{ app_version }}</span>
+                <span>© 2026 {{ app_name }}</span>
+            </div>
+        </div>
+    </aside>
+
+    <section class="app-main">
+        <header class="topbar">
+            <label class="topbar-search">
+                <i class="ti ti-search" aria-hidden="true"></i>
+                <input
+                    type="search"
+                    name="global-search"
+                    placeholder="Buscar clientes, productos, comprobantes..."
+                    autocomplete="off"
+                    aria-label="Búsqueda global"
+                >
+                <span class="search-shortcut" aria-hidden="true">Ctrl K</span>
+            </label>
+
+            <div class="topbar-actions">
+                <button class="company-control" type="button" aria-label="Empresa actual">
+                    <span class="company-copy">
+                        <small>Empresa</small>
+                        <strong>Demo S.A.</strong>
+                    </span>
+                    <i class="ti ti-chevron-down" aria-hidden="true"></i>
+                </button>
+
+                <span class="topbar-separator" aria-hidden="true"></span>
+
+                <button class="icon-button notification-button" type="button" aria-label="Notificaciones" title="Notificaciones">
+                    <i class="ti ti-bell" aria-hidden="true"></i>
+                    <span class="notification-dot" aria-hidden="true"></span>
+                </button>
+
+                <span class="topbar-separator" aria-hidden="true"></span>
+
+                <button class="user-control" type="button" aria-label="Menú de usuario">
+                    <span class="user-avatar">{{ current_user_initials }}</span>
+                    <span class="user-name">{{ current_user_first_name }}</span>
+                    <i class="ti ti-chevron-down" aria-hidden="true"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="workspace users-workspace">
+            <header class="workspace-header users-header">
+                <div>
+                    <div class="users-breadcrumb">Configuración <i class="ti ti-chevron-right" aria-hidden="true"></i> Usuarios</div>
+                    <h1>Usuarios</h1>
+                    <p>Administrá quién puede ingresar a NERISOFT y el estado de cada cuenta.</p>
+                </div>
+                {% if form_mode != "create" %}
+                <a class="primary-button" href="/configuracion/usuarios/nuevo">
+                    <i class="ti ti-user-plus" aria-hidden="true"></i>
+                    Nuevo usuario
+                </a>
+                {% endif %}
+            </header>
+
+            {% if notice_message %}
+            <div class="page-alert is-{{ notice_kind }}" role="status">
+                <i class="ti {% if notice_kind == 'success' %}ti-circle-check{% else %}ti-alert-triangle{% endif %}" aria-hidden="true"></i>
+                <span>{{ notice_message }}</span>
+            </div>
+            {% endif %}
+
+            {% if errors.get('_form') and not form_mode %}
+            <div class="page-alert is-danger" role="alert">
+                <i class="ti ti-alert-circle" aria-hidden="true"></i>
+                <span>{{ errors.get('_form') }}</span>
+            </div>
+            {% endif %}
+
+            {% if form_mode %}
+            <section class="user-form-panel" aria-labelledby="user-form-title">
+                <div class="user-form-heading">
+                    <div>
+                        <span class="section-eyebrow">{% if form_mode == "create" %}Alta{% else %}Edición{% endif %}</span>
+                        <h2 id="user-form-title">{% if form_mode == "create" %}Nuevo usuario{% else %}Editar usuario{% endif %}</h2>
+                        <p>
+                            {% if form_mode == "create" %}
+                            Creá una cuenta con acceso inicial y definí si tendrá privilegios administrativos.
+                            {% else %}
+                            Actualizá los datos de acceso. La contraseña se administra por separado.
+                            {% endif %}
+                        </p>
+                    </div>
+                    <a class="icon-close" href="/configuracion/usuarios" aria-label="Cerrar formulario" title="Cerrar formulario">
+                        <i class="ti ti-x" aria-hidden="true"></i>
+                    </a>
+                </div>
+
+                {% if errors.get('_form') %}
+                <div class="form-alert" role="alert">
+                    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+                    <span>{{ errors.get('_form') }}</span>
+                </div>
+                {% endif %}
+
+                <form
+                    class="user-form"
+                    method="post"
+                    action="{% if form_mode == 'create' %}/configuracion/usuarios/nuevo{% else %}/configuracion/usuarios/{{ editing_user.id }}/editar{% endif %}"
+                    novalidate
+                >
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                    <div class="form-grid">
+                        <label class="field field-span-2">
+                            <span>Nombre completo</span>
+                            <input
+                                type="text"
+                                name="name"
+                                value="{{ values.get('name', '') }}"
+                                maxlength="120"
+                                autocomplete="name"
+                                required
+                                {% if errors.get('name') %}aria-invalid="true"{% endif %}
+                            >
+                            {% if errors.get('name') %}<small class="field-error">{{ errors.get('name') }}</small>{% endif %}
+                        </label>
+
+                        <label class="field">
+                            <span>Usuario</span>
+                            <input
+                                type="text"
+                                name="username"
+                                value="{{ values.get('username', '') }}"
+                                maxlength="64"
+                                autocomplete="username"
+                                spellcheck="false"
+                                required
+                                {% if errors.get('username') %}aria-invalid="true"{% endif %}
+                            >
+                            {% if errors.get('username') %}<small class="field-error">{{ errors.get('username') }}</small>{% endif %}
+                        </label>
+
+                        <label class="field">
+                            <span>Correo electrónico</span>
+                            <input
+                                type="email"
+                                name="email"
+                                value="{{ values.get('email', '') }}"
+                                maxlength="254"
+                                autocomplete="email"
+                                spellcheck="false"
+                                required
+                                {% if errors.get('email') %}aria-invalid="true"{% endif %}
+                            >
+                            {% if errors.get('email') %}<small class="field-error">{{ errors.get('email') }}</small>{% endif %}
+                        </label>
+
+                        {% if form_mode == "create" %}
+                        <label class="field">
+                            <span>Contraseña</span>
+                            <div class="password-control">
+                                <input
+                                    id="user-password"
+                                    type="password"
+                                    name="password"
+                                    minlength="10"
+                                    maxlength="128"
+                                    autocomplete="new-password"
+                                    required
+                                    {% if errors.get('password') %}aria-invalid="true"{% endif %}
+                                >
+                                <button class="password-toggle" type="button" data-password-toggle aria-controls="user-password" aria-label="Mostrar contraseña" aria-pressed="false">
+                                    <i class="ti ti-eye" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            {% if errors.get('password') %}<small class="field-error">{{ errors.get('password') }}</small>{% endif %}
+                        </label>
+
+                        <label class="field">
+                            <span>Repetir contraseña</span>
+                            <div class="password-control">
+                                <input
+                                    id="user-password-confirm"
+                                    type="password"
+                                    name="password_confirm"
+                                    minlength="10"
+                                    maxlength="128"
+                                    autocomplete="new-password"
+                                    required
+                                    {% if errors.get('password_confirm') %}aria-invalid="true"{% endif %}
+                                >
+                                <button class="password-toggle" type="button" data-password-toggle aria-controls="user-password-confirm" aria-label="Mostrar contraseña" aria-pressed="false">
+                                    <i class="ti ti-eye" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            {% if errors.get('password_confirm') %}<small class="field-error">{{ errors.get('password_confirm') }}</small>{% endif %}
+                        </label>
+                        {% endif %}
+                    </div>
+
+                    <label class="admin-check {% if form_mode == 'edit' and editing_user.id == current_user.id %}is-locked{% endif %}">
+                        {% if form_mode == "edit" and editing_user.id == current_user.id %}
+                        <input type="hidden" name="is_superuser" value="1">
+                        <input type="checkbox" checked disabled>
+                        {% else %}
+                        <input type="checkbox" name="is_superuser" value="1" {% if values.get('is_superuser') == '1' %}checked{% endif %}>
+                        {% endif %}
+                        <span class="admin-check-box" aria-hidden="true"><i class="ti ti-check"></i></span>
+                        <span>
+                            <strong>Administrador del sistema</strong>
+                            <small>
+                                {% if form_mode == "edit" and editing_user.id == current_user.id %}
+                                No podés quitarte permisos administrativos desde tu propia sesión.
+                                {% else %}
+                                Permite acceder a Configuración → Usuarios hasta que existan roles y permisos granulares.
+                                {% endif %}
+                            </small>
+                        </span>
+                    </label>
+
+                    <div class="form-actions">
+                        <a class="secondary-button" href="/configuracion/usuarios">Cancelar</a>
+                        <button class="primary-button" type="submit">
+                            <i class="ti ti-device-floppy" aria-hidden="true"></i>
+                            {% if form_mode == "create" %}Crear usuario{% else %}Guardar cambios{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </section>
+            {% endif %}
+
+            <section class="users-summary" aria-label="Resumen de usuarios">
+                <article>
+                    <span>Total</span>
+                    <strong>{{ total_users }}</strong>
+                </article>
+                <article>
+                    <span>Activos</span>
+                    <strong>{{ active_users }}</strong>
+                </article>
+                <article>
+                    <span>Administradores</span>
+                    <strong>{{ superusers }}</strong>
+                </article>
+            </section>
+
+            <section class="users-panel" aria-labelledby="users-table-title">
+                <div class="users-panel-toolbar">
+                    <div>
+                        <span class="section-eyebrow">Sistema</span>
+                        <h2 id="users-table-title">Cuentas de acceso</h2>
+                    </div>
+
+                    <form class="users-filters" method="get" action="/configuracion/usuarios">
+                        <label class="filter-search">
+                            <i class="ti ti-search" aria-hidden="true"></i>
+                            <input type="search" name="q" value="{{ search_value }}" placeholder="Buscar nombre, usuario o correo..." aria-label="Buscar usuarios">
+                        </label>
+                        <label class="filter-select">
+                            <span class="sr-only">Estado</span>
+                            <select name="estado" aria-label="Filtrar por estado">
+                                <option value="todos" {% if state_filter == 'todos' %}selected{% endif %}>Todos los estados</option>
+                                <option value="activos" {% if state_filter == 'activos' %}selected{% endif %}>Activos</option>
+                                <option value="inactivos" {% if state_filter == 'inactivos' %}selected{% endif %}>Inactivos</option>
+                            </select>
+                        </label>
+                        <button class="filter-button" type="submit">Aplicar</button>
+                        {% if search_value or state_filter != 'todos' %}
+                        <a class="clear-filter" href="/configuracion/usuarios" title="Limpiar filtros" aria-label="Limpiar filtros">
+                            <i class="ti ti-filter-off" aria-hidden="true"></i>
+                        </a>
+                        {% endif %}
+                    </form>
+                </div>
+
+                <div class="users-table-wrap">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Usuario</th>
+                                <th>Correo</th>
+                                <th>Tipo</th>
+                                <th>Estado</th>
+                                <th>Creado</th>
+                                <th class="actions-column">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr {% if user.id == current_user.id %}class="is-current-user"{% endif %}>
+                                <td>
+                                    <div class="user-cell">
+                                        <span class="table-avatar">{{ (user.name.split()[0][0] if user.name.split() else user.username[0])|upper }}{{ (user.name.split()[1][0] if user.name.split()|length > 1 else '')|upper }}</span>
+                                        <span>
+                                            <strong>{{ user.name }}</strong>
+                                            {% if user.id == current_user.id %}<small>Sesión actual</small>{% endif %}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="code-value">{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    {% if user.is_superuser %}
+                                    <span class="role-badge is-admin"><i class="ti ti-shield-check" aria-hidden="true"></i> Administrador</span>
+                                    {% else %}
+                                    <span class="role-badge"><i class="ti ti-user" aria-hidden="true"></i> Usuario</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if user.is_active %}
+                                    <span class="state-badge is-active">Activo</span>
+                                    {% else %}
+                                    <span class="state-badge is-inactive">Inactivo</span>
+                                    {% endif %}
+                                </td>
+                                <td class="date-value">{{ user.created_at.strftime('%d/%m/%Y %H:%M') if user.created_at else '—' }}</td>
+                                <td class="row-actions">
+                                    <a class="table-action" href="/configuracion/usuarios/{{ user.id }}/editar" title="Editar usuario">
+                                        <i class="ti ti-edit" aria-hidden="true"></i>
+                                        <span>Editar</span>
+                                    </a>
+                                    {% if user.id == current_user.id %}
+                                    <button class="table-action is-disabled" type="button" disabled title="No podés desactivar tu propia sesión">
+                                        <i class="ti ti-lock" aria-hidden="true"></i>
+                                        <span>Activo</span>
+                                    </button>
+                                    {% else %}
+                                    <form method="post" action="/configuracion/usuarios/{{ user.id }}/estado">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                        <button class="table-action {% if user.is_active %}is-danger{% else %}is-success{% endif %}" type="submit">
+                                            <i class="ti {% if user.is_active %}ti-user-off{% else %}ti-user-check{% endif %}" aria-hidden="true"></i>
+                                            <span>{% if user.is_active %}Desactivar{% else %}Activar{% endif %}</span>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td class="empty-users" colspan="7">
+                                    <i class="ti ti-users-minus" aria-hidden="true"></i>
+                                    <strong>No se encontraron usuarios</strong>
+                                    <span>Probá cambiando la búsqueda o el filtro de estado.</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <footer class="users-panel-footer">
+                    <span>Mostrando {{ users|length }} de {{ total_users }} usuarios</span>
+                    <span>Los usuarios inactivos no pueden iniciar sesión.</span>
+                </footer>
+            </section>
+        </main>
+    </section>
+</div>
+{% endblock %}

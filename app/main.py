@@ -17,6 +17,7 @@ from app.core.config import settings
 from app.core.database import database_is_ready, get_db
 from app.core.security import hash_password, verify_password
 from app.models import User
+from app.users import router as users_router
 
 
 templates = Jinja2Templates(directory=str(settings.templates_dir))
@@ -50,6 +51,7 @@ app.add_middleware(
 )
 
 app.mount("/static", StaticFiles(directory=str(settings.static_dir)), name="static")
+app.include_router(users_router)
 
 
 def _users_exist(db: Session) -> bool:

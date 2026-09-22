@@ -59,6 +59,13 @@ function applySidebarState(shell, toggle, collapsed) {
     }
 }
 
+function installConfigurationNavigation() {
+    const configurationLink = document.querySelector('.nav-item[title="Configuración"]');
+    if (configurationLink && configurationLink.getAttribute("href") === "#") {
+        configurationLink.setAttribute("href", "/configuracion/usuarios");
+    }
+}
+
 function applyVisibleDataConventions() {
     document.querySelectorAll(".document-number").forEach((node) => {
         node.textContent = abbreviateDocumentLabel(node.textContent);
@@ -141,6 +148,7 @@ function installLogoutControl() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    installConfigurationNavigation();
     applyVisibleDataConventions();
     applyAuthenticatedUser();
     installLogoutControl();
