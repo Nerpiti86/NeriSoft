@@ -2,15 +2,11 @@
 
 {% block title %}{{ app_name }} · Usuarios{% endblock %}
 
-{% block authenticated_head %}
-<link rel="stylesheet" href="{{ url_for('static', path='css/user-roles.css') }}">
-{% endblock %}
-
 {% block workspace %}
 <main class="workspace users-workspace">
     <header class="workspace-header users-header">
         <div>
-            <div class="users-breadcrumb">Configuración <i class="ti ti-chevron-right" aria-hidden="true"></i> Usuarios</div>
+            <div class="users-breadcrumb"><a href="/configuracion">Configuración</a> <i class="ti ti-chevron-right" aria-hidden="true"></i> Usuarios</div>
             <h1>Usuarios</h1>
             <p>Un usuario es una cuenta que puede ingresar a NERISOFT. Su acceso se define asignándole uno o más roles creados en Roles y permisos.</p>
         </div>
@@ -21,17 +17,6 @@
         </a>
         {% endif %}
     </header>
-
-    <nav class="config-tabs" aria-label="Configuración del sistema">
-        <a class="is-active" href="/configuracion/usuarios" aria-current="page">
-            <i class="ti ti-users" aria-hidden="true"></i>
-            Usuarios
-        </a>
-        <a href="/configuracion/roles">
-            <i class="ti ti-shield-lock" aria-hidden="true"></i>
-            Roles y permisos
-        </a>
-    </nav>
 
     {% if notice_message %}
     <div class="page-alert is-{{ notice_kind }}" role="status">
@@ -324,7 +309,7 @@
                         <th>Nombre</th>
                         <th>Usuario</th>
                         <th>Correo</th>
-                        <th>Roles</th>
+                        <th>Acceso</th>
                         <th>Estado</th>
                         <th>Creado</th>
                         <th class="actions-column">Acciones</th>
@@ -346,17 +331,25 @@
                         <td>{{ user.email }}</td>
                         <td>
                             {% if user.is_superuser %}
-                            <span class="role-badge is-admin"><i class="ti ti-shield-check" aria-hidden="true"></i> Administrador del sistema</span>
-                            {% elif user.roles %}
-                            <div class="table-role-list">
-                                {% for role in user.roles|sort(attribute='name') %}
-                                <span class="role-badge{% if not role.is_active %} is-inactive-role{% endif %}" title="{% if role.is_active %}Rol activo{% else %}Rol inactivo: sus permisos no se aplican{% endif %}">
-                                    <i class="ti ti-shield" aria-hidden="true"></i> {{ role.name }}
-                                </span>
-                                {% endfor %}
+                            <div class="access-summary is-admin">
+                                <strong><i class="ti ti-shield-check" aria-hidden="true"></i> Administrador del sistema</strong>
+                                <small>Acceso total · no requiere roles</small>
                             </div>
                             {% else %}
-                            <span class="role-badge"><i class="ti ti-user" aria-hidden="true"></i> Sin roles</span>
+                            <div class="access-summary">
+                                <strong>Por roles</strong>
+                                {% if user.roles %}
+                                <div class="table-role-list">
+                                    {% for role in user.roles|sort(attribute='name') %}
+                                    <span class="role-badge{% if not role.is_active %} is-inactive-role{% endif %}" title="{% if role.is_active %}Rol activo{% else %}Rol inactivo: sus permisos no se aplican{% endif %}">
+                                        <i class="ti ti-shield" aria-hidden="true"></i> {{ role.name }}
+                                    </span>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <small>Sin roles asignados</small>
+                                {% endif %}
+                            </div>
                             {% endif %}
                         </td>
                         <td>
@@ -413,7 +406,7 @@
 
         <footer class="users-panel-footer">
             <span>Mostrando {{ users|length }} de {{ total_users }} usuarios</span>
-            <span>Un usuario inactivo no puede iniciar sesión. Un usuario sin roles no obtiene permisos por roles.</span>
+            <span>El Administrador del sistema tiene acceso total; los demás usuarios obtienen permisos desde sus roles activos.</span>
         </footer>
     </section>
 </main>
