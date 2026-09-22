@@ -1,5 +1,6 @@
+from app.account import router as account_router
+from app.configuration import router as configuration_router
 from app.core.templates import templates
-from app.main import app
 
 
 def _template_source(name: str) -> str:
@@ -9,10 +10,17 @@ def _template_source(name: str) -> str:
     return source
 
 
+def _router_paths(router) -> set[str]:
+    return {
+        path
+        for route in router.routes
+        if (path := getattr(route, "path", None))
+    }
+
+
 def test_configuration_and_account_routes_are_registered() -> None:
-    paths = {path for route in app.routes if (path := getattr(route, "path", None))}
-    assert "/configuracion" in paths
-    assert "/mi-cuenta" in paths
+    assert "" in _router_paths(configuration_router)
+    assert "/mi-cuenta" in _router_paths(account_router)
 
 
 def test_configuration_children_do_not_render_sibling_tabs() -> None:
