@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}{{ app_name }} · Base técnica{% endblock %}
+
+{% block body %}
+<main class="bootstrap-screen">
+    <section class="bootstrap-card" aria-labelledby="page-title">
+        <div class="bootstrap-brand">
+            <span class="bootstrap-mark" aria-hidden="true">N</span>
+            <div>
+                <strong>{{ app_name }}</strong>
+                <span>v{{ app_version }}</span>
+            </div>
+        </div>
+
+        <h1 id="page-title">Base técnica operativa</h1>
+        <p>
+            FastAPI, SQLAlchemy 2, SQLite, Alembic, Jinja2, HTMX,
+            JavaScript y CSS propio ya están preparados.
+        </p>
+
+        <div class="bootstrap-status">
+            <i class="ti ti-circle-check" aria-hidden="true"></i>
+            <span>Listo para construir la interfaz de NERISOFT.</span>
+        </div>
+    </section>
+</main>
+{% endblock %}

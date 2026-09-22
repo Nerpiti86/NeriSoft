@@ -2,11 +2,7 @@
 
 ERP administrativo, comercial y contable para uso multiusuario en red local.
 
-## Estado
-
-Proyecto en etapa inicial de diseño y bootstrap técnico.
-
-## Stack oficial
+## Stack
 
 - Python
 - FastAPI
@@ -17,80 +13,133 @@ Proyecto en etapa inicial de diseño y bootstrap técnico.
 - HTMX
 - Vanilla JavaScript
 - CSS propio
-- Tabler Icons por CDN
+- Tabler Icons CDN
 - Uvicorn
 
-## Entorno previsto
+La arquitectura y las decisiones del proyecto están documentadas en [`docs/`](docs/).
 
-- Repositorio único: `Nerpiti86/NeriSoft`
-- Rama de trabajo: `main`
-- Instalación local prevista: `D:\NeriSoft`
-- Uso: multiusuario en red local
-- Base de datos: alojada únicamente en el servidor de NERISOFT
-- Los puestos cliente acceden por navegador HTTP; nunca acceden directamente al archivo SQLite
+## Estado actual
 
-## Principios del proyecto
+**Tarea 1 — Bootstrap técnico:** completada.
 
-1. Una tarea = un cambio coherente = un commit.
-2. `main` debe quedar ejecutable después de cada tarea.
-3. No se trabaja en ramas auxiliares salvo decisión explícita posterior.
-4. El código y la documentación oficial viven exclusivamente en este repositorio.
-5. La lógica de negocio debe estar centralizada y ser trazable.
-6. Las operaciones críticas deben ser transaccionales: o se completa todo, o no se guarda nada.
-7. Stock, cuentas corrientes, tesorería y contabilidad se modelan mediante movimientos; no se editan saldos finales de forma directa.
-8. La contabilidad estará integrada desde el inicio y será configurable, sin cuentas hardcodeadas.
+La aplicación ya incluye:
 
-## Diseño visual
+- servidor FastAPI;
+- configuración centralizada;
+- SQLAlchemy 2;
+- SQLite local en `data/nerisoft.db`;
+- modo WAL, claves foráneas y `busy_timeout` para la base SQLite;
+- Alembic preparado para las migraciones;
+- Jinja2;
+- HTMX por CDN;
+- Tabler Icons por CDN;
+- CSS y JavaScript propios;
+- endpoint de salud `/health`;
+- documentación automática de la API en `/api/docs`.
 
-- Nombre de producto: **NERISOFT**
-- Layout: 100% del viewport
-- Sidebar: colapsable
-- Paleta: grafito + dorado
-- Tipografía: Geist
-- Datos numéricos: `font-variant-numeric: tabular-nums`
-- Interfaz desktop-first, densa y orientada a productividad administrativa
+## Primera instalación en Windows
 
-## Convenciones de datos
+Abrir PowerShell en `D:\NeriSoft`.
 
-- Dinero: `BIGINT`, almacenado en centavos
-- Fechas: `DATE`
-- Fecha/hora: `DATETIME`
-- IDs internos: enteros como claves primarias
-- Formato visible argentino:
-  - Fecha: `22/09/2026`
-  - Importe: `$ 1.234.567,89`
+### 1. Crear el entorno virtual
 
-## Módulos previstos
-
-- Sistema
-- Ventas
-- Compras
-- Stock
-- Tesorería
-- Contabilidad
-- Reportes
-- Configuración
-
-Multiempresa queda fuera de la primera etapa. El diseño debe evitar dependencias innecesarias que dificulten incorporarla posteriormente.
-
-## Documentación
-
-- [Arquitectura](docs/01-arquitectura.md)
-- [Diseño de interfaz](docs/02-diseno-ui.md)
-- [Datos y reglas de negocio](docs/03-datos-y-reglas.md)
-- [Roadmap](docs/04-roadmap.md)
-- [Flujo de trabajo Git](docs/05-flujo-trabajo.md)
-
-## Flujo de actualización local
-
-Cuando una tarea haya sido finalizada y publicada en `main`:
-
-```bash
-git pull origin main
+```powershell
+cd D:\NeriSoft
+python -m venv .venv
 ```
 
-El directorio local previsto es:
+### 2. Activarlo
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+Si PowerShell bloquea la activación por política de ejecución, para la sesión actual se puede usar:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
+
+### 3. Instalar dependencias
+
+```powershell
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 4. Ejecutar NERISOFT
+
+Para desarrollo:
+
+```powershell
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+O bien:
+
+```powershell
+python run.py
+```
+
+### 5. Abrir en el navegador
+
+En el servidor:
 
 ```text
-D:\NeriSoft
+http://127.0.0.1:8000
+```
+
+Desde otra PC de la misma red, usar la IP local del servidor, por ejemplo:
+
+```text
+http://192.168.1.50:8000
+```
+
+## Verificación rápida
+
+```text
+http://127.0.0.1:8000/health
+```
+
+Debe responder con un estado `ok` para la aplicación y la base de datos.
+
+La documentación interactiva de FastAPI queda disponible en:
+
+```text
+http://127.0.0.1:8000/api/docs
+```
+
+## Base de datos
+
+Por defecto NERISOFT crea:
+
+```text
+D:\NeriSoft\data\nerisoft.db
+```
+
+El archivo SQLite es exclusivo del servidor de NERISOFT. Las PCs cliente acceden por HTTP y nunca deben abrir o compartir directamente el archivo `.db`.
+
+## Alembic
+
+Cuando existan modelos funcionales, las migraciones se crearán con:
+
+```powershell
+alembic revision --autogenerate -m "descripcion"
+alembic upgrade head
+```
+
+## Flujo de trabajo
+
+El desarrollo se realiza exclusivamente en `main` y sigue la regla:
+
+```text
+1 tarea -> validación -> 1 commit -> push a main -> pull local -> prueba
+```
+
+Para actualizar la instalación local después de cada tarea:
+
+```powershell
+cd D:\NeriSoft
+git pull origin main
 ```
