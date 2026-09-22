@@ -23,6 +23,8 @@ Ya están implementados y funcionando:
 - roles y permisos;
 - asignación de uno o más roles a usuarios;
 - permisos granulares y controles contra escalada;
+- catálogo actual de permisos organizado explícitamente bajo el área `Sistema`;
+- formulario de Roles separado del listado para no mezclar tareas ni sobrecargar la pantalla;
 - Configuración con portada propia;
 - Usuarios y Roles y permisos como destinos independientes;
 - Mi cuenta separado de la administración de usuarios;
@@ -54,6 +56,26 @@ Crear rol → elegir permisos → crear usuario → asignar rol(es) → obtener 
 ```
 
 Nunca mostrar `Administrador del sistema` dentro de una columna o concepto llamado `Roles`.
+
+### Alcance actual del catálogo
+
+Hoy los permisos implementados pertenecen solamente al área **Sistema**:
+
+```text
+Sistema
+├── Usuarios
+└── Roles y permisos
+```
+
+No se crean permisos ficticios de Ventas, Compras, Stock, Tesorería u otros módulos antes de que exista su funcionalidad.
+
+Regla de crecimiento:
+
+```text
+Cada módulo nuevo define, aplica y prueba sus propios permisos junto con su funcionalidad.
+```
+
+Un rol operativo futuro como `Vendedor` o `Cajero` solo cobra sentido cuando existen permisos funcionales que pueda recibir. El nombre del rol por sí mismo no concede acceso.
 
 ## Navegación de Configuración
 
