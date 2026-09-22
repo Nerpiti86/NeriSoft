@@ -32,9 +32,10 @@ NERISOFT ya cuenta con:
 - gestión de usuarios;
 - Select NERISOFT;
 - assets críticos locales;
-- navegación parcial HTMX con shell persistente entre Inicio y Usuarios;
+- navegación parcial HTMX con shell persistente entre Inicio y Configuración;
 - saneamiento técnico previo a Roles y Permisos;
 - base técnica de Roles y Permisos: modelo, catálogo, autorización y migración;
+- gestión de roles: alta, edición, permisos y activación/desactivación;
 - tests unitarios básicos y validación automática en GitHub Actions.
 
 El resumen consolidado para continuar el proyecto está en [`docs/12-resumen-y-contexto.md`](docs/12-resumen-y-contexto.md).

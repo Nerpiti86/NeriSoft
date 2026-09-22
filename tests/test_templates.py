@@ -7,6 +7,7 @@ def test_core_templates_parse() -> None:
         "authenticated.html",
         "index.html",
         "login.html",
+        "roles.html",
         "setup.html",
         "users.html",
     ):

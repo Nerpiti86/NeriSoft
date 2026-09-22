@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 
 from sqlalchemy import select
@@ -100,6 +101,14 @@ def has_permission(db: Session, user: User, code: str) -> bool:
     return code in permission_codes_for_user(db, user)
 
 
+def permission_selection_is_within_user_scope(
+    db: Session,
+    user: User,
+    codes: Iterable[str],
+) -> bool:
+    return set(codes).issubset(permission_codes_for_user(db, user))
+
+
 def role_permission_codes(db: Session, role_id: int) -> frozenset[str]:
     statement = (
         select(Permission.code)
@@ -113,3 +122,15 @@ def role_is_within_user_scope(db: Session, role_id: int, user: User) -> bool:
     if user.is_superuser:
         return True
     return role_permission_codes(db, role_id).issubset(permission_codes_for_user(db, user))
+
+
+def role_is_assigned_to_user(db: Session, role_id: int, user_id: int) -> bool:
+    statement = (
+        select(user_roles.c.role_id)
+        .where(
+            user_roles.c.role_id == role_id,
+            user_roles.c.user_id == user_id,
+        )
+        .limit(1)
+    )
+    return db.scalar(statement) is not None

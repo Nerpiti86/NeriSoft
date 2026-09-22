@@ -1,0 +1,290 @@
+{% extends "authenticated.html" %}
+
+{% block title %}{{ app_name }} · Roles y permisos{% endblock %}
+
+{% block workspace %}
+<main class="workspace roles-workspace">
+    <header class="workspace-header roles-header">
+        <div>
+            <div class="users-breadcrumb">Configuración <i class="ti ti-chevron-right" aria-hidden="true"></i> Roles y permisos</div>
+            <h1>Roles y permisos</h1>
+            <p>Definí perfiles de acceso reutilizables y controlá qué acciones habilita cada uno.</p>
+        </div>
+        {% if can_create_role and not form_mode %}
+        <a class="primary-button" href="/configuracion/roles/nuevo">
+            <i class="ti ti-shield-plus" aria-hidden="true"></i>
+            Nuevo rol
+        </a>
+        {% endif %}
+    </header>
+
+    <nav class="config-tabs" aria-label="Configuración del sistema">
+        <a href="/configuracion/usuarios">
+            <i class="ti ti-users" aria-hidden="true"></i>
+            Usuarios
+        </a>
+        <a class="is-active" href="/configuracion/roles" aria-current="page">
+            <i class="ti ti-shield-lock" aria-hidden="true"></i>
+            Roles y permisos
+        </a>
+    </nav>
+
+    {% if notice_message %}
+    <div class="page-alert is-{{ notice_kind }}" role="status">
+        <i class="ti {% if notice_kind == 'success' %}ti-circle-check{% else %}ti-alert-triangle{% endif %}" aria-hidden="true"></i>
+        <span>{{ notice_message }}</span>
+    </div>
+    {% endif %}
+
+    {% if errors.get('_form') and not form_mode %}
+    <div class="page-alert is-danger" role="alert">
+        <i class="ti ti-alert-circle" aria-hidden="true"></i>
+        <span>{{ errors.get('_form') }}</span>
+    </div>
+    {% endif %}
+
+    {% if form_mode %}
+    <section class="role-form-panel" aria-labelledby="role-form-title">
+        <div class="role-form-heading">
+            <div>
+                <span class="section-eyebrow">{% if form_mode == "create" %}Alta{% else %}Edición{% endif %}</span>
+                <h2 id="role-form-title">{% if form_mode == "create" %}Nuevo rol{% else %}Editar rol{% endif %}</h2>
+                <p>
+                    {% if form_mode == "create" %}
+                    Creá un perfil y marcá únicamente los permisos que necesite.
+                    {% else %}
+                    Los cambios de permisos se aplican a todos los usuarios que tengan este rol.
+                    {% endif %}
+                </p>
+            </div>
+            <a class="icon-close" href="/configuracion/roles" aria-label="Cerrar formulario" title="Cerrar formulario">
+                <i class="ti ti-x" aria-hidden="true"></i>
+            </a>
+        </div>
+
+        {% if errors.get('_form') %}
+        <div class="form-alert" role="alert">
+            <i class="ti ti-alert-circle" aria-hidden="true"></i>
+            <span>{{ errors.get('_form') }}</span>
+        </div>
+        {% endif %}
+
+        <form
+            class="role-form"
+            method="post"
+            action="{% if form_mode == 'create' %}/configuracion/roles/nuevo{% else %}/configuracion/roles/{{ editing_role.id }}/editar{% endif %}"
+            novalidate
+        >
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+            <div class="role-form-fields">
+                <label class="field">
+                    <span>Nombre del rol</span>
+                    <input
+                        type="text"
+                        name="name"
+                        value="{{ values.get('name', '') }}"
+                        minlength="2"
+                        maxlength="80"
+                        autocomplete="off"
+                        required
+                        {% if errors.get('name') %}aria-invalid="true"{% endif %}
+                    >
+                    {% if errors.get('name') %}<small class="field-error">{{ errors.get('name') }}</small>{% endif %}
+                </label>
+
+                <label class="field role-description-field">
+                    <span>Descripción</span>
+                    <textarea
+                        name="description"
+                        maxlength="255"
+                        rows="2"
+                        placeholder="Ej.: puede consultar usuarios y administrar perfiles operativos."
+                        {% if errors.get('description') %}aria-invalid="true"{% endif %}
+                    >{{ values.get('description', '') }}</textarea>
+                    {% if errors.get('description') %}<small class="field-error">{{ errors.get('description') }}</small>{% endif %}
+                </label>
+            </div>
+
+            <div class="permissions-heading">
+                <div>
+                    <span class="section-eyebrow">Alcance</span>
+                    <h3>Permisos incluidos</h3>
+                    <p>Solo podés otorgar permisos que formen parte de tu propio alcance efectivo.</p>
+                </div>
+                <span class="permission-selection-count">{{ selected_permission_codes|length }} seleccionados</span>
+            </div>
+
+            {% if errors.get('permissions') %}
+            <div class="inline-field-error" role="alert">
+                <i class="ti ti-alert-circle" aria-hidden="true"></i>
+                {{ errors.get('permissions') }}
+            </div>
+            {% endif %}
+
+            <div class="permission-groups">
+                {% for group_name, group_permissions in permission_groups %}
+                <section class="permission-group" aria-labelledby="permission-group-{{ loop.index }}">
+                    <header>
+                        <span class="permission-group-icon"><i class="ti {% if group_name == 'Usuarios' %}ti-users{% else %}ti-shield-lock{% endif %}" aria-hidden="true"></i></span>
+                        <div>
+                            <h4 id="permission-group-{{ loop.index }}">{{ group_name }}</h4>
+                            <small>{{ group_permissions|length }} permisos disponibles</small>
+                        </div>
+                    </header>
+                    <div class="permission-options">
+                        {% for permission in group_permissions %}
+                        <label class="permission-option">
+                            <input
+                                type="checkbox"
+                                name="permissions"
+                                value="{{ permission.code }}"
+                                {% if permission.code in selected_permission_codes %}checked{% endif %}
+                            >
+                            <span class="permission-check" aria-hidden="true"><i class="ti ti-check"></i></span>
+                            <span class="permission-copy">
+                                <strong>{{ permission.name }}</strong>
+                                <small>{{ permission.description }}</small>
+                                <code>{{ permission.code }}</code>
+                            </span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endfor %}
+            </div>
+
+            <p class="permission-empty-note">
+                <i class="ti ti-info-circle" aria-hidden="true"></i>
+                Un rol puede guardarse sin permisos; en ese estado no habilita ninguna acción.
+            </p>
+
+            <div class="form-actions">
+                <a class="secondary-button" href="/configuracion/roles">Cancelar</a>
+                <button class="primary-button" type="submit">
+                    <i class="ti ti-device-floppy" aria-hidden="true"></i>
+                    {% if form_mode == "create" %}Crear rol{% else %}Guardar cambios{% endif %}
+                </button>
+            </div>
+        </form>
+    </section>
+    {% endif %}
+
+    <section class="users-summary" aria-label="Resumen de roles">
+        <article>
+            <span>Total</span>
+            <strong>{{ total_roles }}</strong>
+        </article>
+        <article>
+            <span>Activos</span>
+            <strong>{{ active_roles }}</strong>
+        </article>
+        <article>
+            <span>Usuarios con rol</span>
+            <strong>{{ users_with_roles }}</strong>
+        </article>
+    </section>
+
+    <section class="users-panel roles-panel" aria-labelledby="roles-table-title">
+        <div class="users-panel-toolbar">
+            <div>
+                <span class="section-eyebrow">Seguridad</span>
+                <h2 id="roles-table-title">Perfiles de acceso</h2>
+            </div>
+            <span class="roles-toolbar-note">Superusuario conserva acceso total fuera del esquema de roles.</span>
+        </div>
+
+        <div class="users-table-wrap">
+            <table class="users-table roles-table">
+                <thead>
+                    <tr>
+                        <th>Rol</th>
+                        <th>Alcance</th>
+                        <th>Usuarios</th>
+                        <th>Estado</th>
+                        <th>Actualizado</th>
+                        <th class="actions-column">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for role in roles %}
+                    {% set manageable = manageable_roles.get(role.id, False) %}
+                    <tr>
+                        <td>
+                            <div class="role-name-cell">
+                                <span class="role-table-icon"><i class="ti ti-shield-lock" aria-hidden="true"></i></span>
+                                <span>
+                                    <strong>{{ role.name }}</strong>
+                                    <small>{{ role.description or 'Sin descripción' }}</small>
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="role-scope-cell">
+                                <strong>{{ role.permissions|length }} permisos</strong>
+                                <span>
+                                    {% for module in role_permission_modules.get(role.id, ()) %}
+                                    <small>{{ module }}</small>
+                                    {% else %}
+                                    <small>Sin alcance</small>
+                                    {% endfor %}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="code-value">{{ role.users|length }}</td>
+                        <td>
+                            {% if role.is_active %}
+                            <span class="state-badge is-active">Activo</span>
+                            {% else %}
+                            <span class="state-badge is-inactive">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="date-value">{{ role.updated_at|datetime_ar }}</td>
+                        <td class="row-actions">
+                            {% if can_edit_role and manageable %}
+                            <a class="table-action" href="/configuracion/roles/{{ role.id }}/editar" title="Editar rol">
+                                <i class="ti ti-edit" aria-hidden="true"></i>
+                                <span>Editar</span>
+                            </a>
+                            {% elif can_edit_role %}
+                            <button class="table-action is-disabled" type="button" disabled title="Este rol está fuera de tu alcance o asignado a tu cuenta">
+                                <i class="ti ti-lock" aria-hidden="true"></i>
+                                <span>Protegido</span>
+                            </button>
+                            {% endif %}
+
+                            {% if can_change_role_status and manageable %}
+                            <form method="post" action="/configuracion/roles/{{ role.id }}/estado">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <button class="table-action {% if role.is_active %}is-danger{% else %}is-success{% endif %}" type="submit">
+                                    <i class="ti {% if role.is_active %}ti-shield-off{% else %}ti-shield-check{% endif %}" aria-hidden="true"></i>
+                                    <span>{% if role.is_active %}Desactivar{% else %}Activar{% endif %}</span>
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            {% if not can_edit_role and not can_change_role_status %}
+                            <span class="read-only-action"><i class="ti ti-eye" aria-hidden="true"></i> Solo lectura</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td class="empty-users" colspan="6">
+                            <i class="ti ti-shield-off" aria-hidden="true"></i>
+                            <strong>Todavía no hay roles</strong>
+                            <span>Creá el primer perfil para empezar a delegar acceso sin usar superusuario.</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <footer class="users-panel-footer">
+            <span>{{ total_roles }} roles definidos.</span>
+            <span>Los roles inactivos conservan asignaciones pero no conceden permisos.</span>
+        </footer>
+    </section>
+</main>
+{% endblock %}

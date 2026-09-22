@@ -3,6 +3,7 @@
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', path='css/dashboard.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', path='css/users.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='css/roles.css') }}">
 <script src="{{ url_for('static', path='js/setup.js') }}" defer></script>
 {% block authenticated_head %}{% endblock %}
 {% endblock %}
@@ -60,7 +61,7 @@
             </div>
 
             <div class="sidebar-nav-secondary">
-                <a class="nav-item{% if current_path.startswith('/configuracion/usuarios') %} is-active{% endif %}" href="/configuracion/usuarios" {% if current_path.startswith('/configuracion/usuarios') %}aria-current="page"{% endif %} title="Configuración">
+                <a class="nav-item{% if current_path.startswith('/configuracion/') %} is-active{% endif %}" href="/configuracion/usuarios" {% if current_path.startswith('/configuracion/') %}aria-current="page"{% endif %} title="Configuración">
                     <i class="ti ti-settings" aria-hidden="true"></i>
                     <span class="nav-label">Configuración</span>
                     <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>

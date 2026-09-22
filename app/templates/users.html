@@ -18,6 +18,17 @@
         {% endif %}
     </header>
 
+    <nav class="config-tabs" aria-label="Configuración del sistema">
+        <a class="is-active" href="/configuracion/usuarios" aria-current="page">
+            <i class="ti ti-users" aria-hidden="true"></i>
+            Usuarios
+        </a>
+        <a href="/configuracion/roles">
+            <i class="ti ti-shield-lock" aria-hidden="true"></i>
+            Roles y permisos
+        </a>
+    </nav>
+
     {% if notice_message %}
     <div class="page-alert is-{{ notice_kind }}" role="status">
         <i class="ti {% if notice_kind == 'success' %}ti-circle-check{% else %}ti-alert-triangle{% endif %}" aria-hidden="true"></i>
@@ -168,7 +179,7 @@
                         {% if form_mode == "edit" and editing_user.id == current_user.id %}
                         No podés quitarte permisos administrativos desde tu propia sesión.
                         {% else %}
-                        Permite acceder a Configuración → Usuarios hasta que existan roles y permisos granulares.
+                        Otorga acceso total fuera del esquema de roles. Reservalo para administración técnica.
                         {% endif %}
                     </small>
                 </span>

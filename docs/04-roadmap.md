@@ -16,12 +16,13 @@ Completado:
 - navegación parcial HTMX con shell persistente;
 - saneamiento técnico previo a Roles y Permisos;
 - tests básicos y workflow automático;
-- Tarea 9.1: modelo, catálogo y helpers base de Roles y Permisos.
+- Tarea 9.1: modelo, catálogo y helpers base de Roles y Permisos;
+- Tarea 9.2: gestión de roles, permisos y estado desde Configuración.
 
 Siguiente bloque funcional previsto:
 
 ```text
-Tarea 9.2 — Gestión de Roles y Permisos
+Tarea 9.3 — Asignación de roles a usuarios
 ```
 
 ## Etapa 0 — Base técnica ✅
@@ -63,11 +64,15 @@ Completado:
 - modelo relacional de roles y permisos;
 - catálogo inicial de permisos de Sistema;
 - helpers para permisos efectivos y control de alcance;
-- `superuser` como bypass administrativo total.
+- `superuser` como bypass administrativo total;
+- alta y edición de roles;
+- asignación de permisos a roles;
+- activación/desactivación de roles;
+- prevención de escalada por edición de roles fuera del alcance propio;
+- protección de roles asignados a la propia cuenta para gestores delegados.
 
 Pendiente:
 
-- interfaz de gestión de roles;
 - asignación de roles a usuarios;
 - reemplazo progresivo de controles `superuser` por permisos granulares;
 - cambio de contraseña;
@@ -257,8 +262,8 @@ A implementar contra normativa vigente al momento del desarrollo:
 ## Próximas tareas naturales
 
 ```text
-9.2 Gestión de Roles y Permisos
-→ 9.3 Asignación de roles a usuarios
+9.3 Asignación de roles a usuarios
+→ 9.4 Validación integral de permisos
 → Auditoría
 → Configuración de empresa
 → Clientes

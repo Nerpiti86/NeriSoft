@@ -78,11 +78,13 @@ function updateShellNavigation(value = window.location.href) {
     const path = pagePath(value);
     const isHome = path === "/";
     const isUsers = path.startsWith("/configuracion/usuarios");
+    const isRoles = path.startsWith("/configuracion/roles");
+    const isConfiguration = path.startsWith("/configuracion/");
 
     const homeLink = document.querySelector('.nav-item[title="Inicio"]');
     const configurationLink = document.querySelector('.nav-item[title="Configuración"]');
 
-    [[homeLink, isHome], [configurationLink, isUsers]].forEach(([link, active]) => {
+    [[homeLink, isHome], [configurationLink, isConfiguration]].forEach(([link, active]) => {
         if (!link) {
             return;
         }
@@ -99,7 +101,21 @@ function updateShellNavigation(value = window.location.href) {
         document.title = `${window.NERISOFT.name} · Inicio`;
     } else if (isUsers) {
         document.title = `${window.NERISOFT.name} · Usuarios`;
+    } else if (isRoles) {
+        document.title = `${window.NERISOFT.name} · Roles y permisos`;
     }
+}
+
+function updatePermissionSelectionCount() {
+    const counter = document.querySelector(".permission-selection-count");
+    if (!counter) {
+        return;
+    }
+
+    const selected = document.querySelectorAll(
+        '.permission-option input[name="permissions"]:checked'
+    ).length;
+    counter.textContent = `${selected} seleccionados`;
 }
 
 function partialNavigationUrl(anchor) {
@@ -129,12 +145,12 @@ function partialNavigationUrl(anchor) {
     const isShellDestination = anchor.matches(
         '.nav-item[title="Inicio"], .nav-item[title="Configuración"]'
     );
-    const isUsersNavigation = Boolean(
+    const isConfigurationNavigation = Boolean(
         anchor.closest(".workspace")
-        && url.pathname.startsWith("/configuracion/usuarios")
+        && url.pathname.startsWith("/configuracion/")
     );
 
-    return isShellDestination || isUsersNavigation ? url : null;
+    return isShellDestination || isConfigurationNavigation ? url : null;
 }
 
 function usersFilterUrl(form) {
@@ -216,6 +232,7 @@ function redirectedHtmxRequest(event) {
 
 function initializeDynamicContent(route = window.location.href) {
     updateShellNavigation(route);
+    updatePermissionSelectionCount();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -242,6 +259,12 @@ document.addEventListener("click", (event) => {
 
     if (runPartialNavigation(url, anchor)) {
         event.preventDefault();
+    }
+});
+
+document.addEventListener("change", (event) => {
+    if (event.target.matches?.('.permission-option input[name="permissions"]')) {
+        updatePermissionSelectionCount();
     }
 });
 

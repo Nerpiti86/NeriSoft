@@ -25,6 +25,7 @@ from app.core.security import hash_password, verify_password
 from app.core.templates import templates
 from app.core.user_validation import normalized_user_values, validate_user_identity
 from app.models import User
+from app.roles import router as roles_router
 from app.users import router as users_router
 
 
@@ -58,6 +59,7 @@ app.add_middleware(
 
 app.mount("/static", StaticFiles(directory=str(settings.static_dir)), name="static")
 app.include_router(users_router)
+app.include_router(roles_router)
 
 
 def _users_exist(db: Session) -> bool:
