@@ -2,7 +2,7 @@
 
 Actualizado: 22/09/2026
 
-Este documento es la fuente de contexto consolidado para continuar NERISOFT. Para el próximo hilo leer primero [`13-inicio-proximo-hilo.md`](13-inicio-proximo-hilo.md).
+Este documento es la fuente de contexto consolidado para continuar NERISOFT. Para el próximo hilo leer primero [`HANDOFF-ACTUAL.md`](HANDOFF-ACTUAL.md).
 
 ## Proyecto
 
@@ -367,7 +367,7 @@ Seguridad operativa adicional
 Estamos desarrollando NERISOFT, ERP administrativo/comercial/contable.
 Repo: Nerpiti86/NeriSoft, main, local D:\NeriSoft.
 
-LEER PRIMERO docs/13-inicio-proximo-hilo.md.
+LEER PRIMERO docs/HANDOFF-ACTUAL.md.
 
 Decisión actual:
 - dejamos Roles y Permisos por ahora;
