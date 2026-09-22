@@ -56,6 +56,7 @@ class Settings:
     )
     session_secret: str = field(default_factory=_load_or_create_session_secret)
     session_https_only: bool = _env_bool("NERISOFT_SESSION_HTTPS_ONLY", False)
+    setup_allow_remote: bool = _env_bool("NERISOFT_SETUP_ALLOW_REMOTE", False)
     base_dir: Path = BASE_DIR
     data_dir: Path = DATA_DIR
     templates_dir: Path = TEMPLATES_DIR

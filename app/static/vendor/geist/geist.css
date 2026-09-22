@@ -1,8 +1,6 @@
 @font-face {
     font-family: "Geist";
-    src:
-        url("./Geist-Variable.woff2") format("woff2"),
-        url("https://raw.githubusercontent.com/vercel/geist-font/v1.7.2/packages/next/dist/fonts/geist-sans/Geist-Variable.woff2") format("woff2");
+    src: url("./Geist-Variable.woff2") format("woff2");
     font-style: normal;
     font-weight: 100 900;
     font-display: optional;

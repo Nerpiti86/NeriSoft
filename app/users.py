@@ -1,99 +1,21 @@
 from __future__ import annotations
 
-import re
-import secrets
-
 from fastapi import APIRouter, Depends, Form, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.core.auth import csrf_is_valid, csrf_token, superuser_or_redirect, user_display
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import hash_password
+from app.core.templates import templates
+from app.core.user_validation import normalized_user_values, validate_user_identity
 from app.models import User
 
 
 router = APIRouter(prefix="/configuracion/usuarios", include_in_schema=False)
-templates = Jinja2Templates(directory=str(settings.templates_dir))
-USERNAME_RE = re.compile(r"^[a-z0-9._-]+$")
-EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-
-
-def _csrf_token(request: Request) -> str:
-    token = request.session.get("csrf_token")
-    if not isinstance(token, str) or len(token) < 32:
-        token = secrets.token_urlsafe(32)
-        request.session["csrf_token"] = token
-    return token
-
-
-def _csrf_is_valid(request: Request, token: str) -> bool:
-    expected = request.session.get("csrf_token")
-    return (
-        isinstance(expected, str)
-        and bool(token)
-        and secrets.compare_digest(token, expected)
-    )
-
-
-def _authenticated_user(request: Request, db: Session) -> User | None:
-    user_id = request.session.get("user_id")
-    if not isinstance(user_id, int):
-        return None
-
-    user = db.get(User, user_id)
-    if user is None or not user.is_active:
-        request.session.clear()
-        return None
-
-    return user
-
-
-def _superuser_or_redirect(request: Request, db: Session) -> User | RedirectResponse:
-    user = _authenticated_user(request, db)
-    if user is None:
-        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
-    if not user.is_superuser:
-        return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
-    return user
-
-
-def _user_display(user: User) -> tuple[str, str]:
-    parts = [part for part in user.name.strip().split() if part]
-    first_name = parts[0] if parts else user.username
-    initials = "".join(part[0].upper() for part in parts[:2])
-    if not initials:
-        initials = user.username[:2].upper()
-    return first_name, initials
-
-
-def _normalized_user_values(name: str, username: str, email: str) -> dict[str, str]:
-    return {
-        "name": name.strip(),
-        "username": username.strip().lower(),
-        "email": email.strip().lower(),
-    }
-
-
-def _validate_user_identity(values: dict[str, str]) -> dict[str, str]:
-    errors: dict[str, str] = {}
-    clean_name = values["name"]
-    clean_username = values["username"]
-    clean_email = values["email"]
-
-    if len(clean_name) < 2 or len(clean_name) > 120:
-        errors["name"] = "Ingresá un nombre válido de hasta 120 caracteres."
-
-    if not 3 <= len(clean_username) <= 64 or not USERNAME_RE.fullmatch(clean_username):
-        errors["username"] = "Usá entre 3 y 64 caracteres: letras, números, punto, guion o guion bajo."
-
-    if len(clean_email) > 254 or not EMAIL_RE.fullmatch(clean_email):
-        errors["email"] = "Ingresá un correo electrónico válido."
-
-    return errors
 
 
 def _duplicate_identity_errors(
@@ -171,7 +93,7 @@ def _users_response(
     }
     notice_payload = notices.get(notice_key or "")
 
-    first_name, initials = _user_display(current_user)
+    first_name, initials = user_display(current_user)
     return templates.TemplateResponse(
         request=request,
         name="users.html",
@@ -181,7 +103,7 @@ def _users_response(
             "current_user": current_user,
             "current_user_first_name": first_name,
             "current_user_initials": initials,
-            "csrf_token": _csrf_token(request),
+            "csrf_token": csrf_token(request),
             "users": users,
             "total_users": total_users,
             "active_users": active_users,
@@ -201,7 +123,7 @@ def _users_response(
 
 @router.get("", response_class=HTMLResponse)
 def users_list(request: Request, db: Session = Depends(get_db)):
-    current_user = _superuser_or_redirect(request, db)
+    current_user = superuser_or_redirect(request, db)
     if isinstance(current_user, RedirectResponse):
         return current_user
     return _users_response(request, db, current_user)
@@ -209,7 +131,7 @@ def users_list(request: Request, db: Session = Depends(get_db)):
 
 @router.get("/nuevo", response_class=HTMLResponse)
 def new_user(request: Request, db: Session = Depends(get_db)):
-    current_user = _superuser_or_redirect(request, db)
+    current_user = superuser_or_redirect(request, db)
     if isinstance(current_user, RedirectResponse):
         return current_user
     return _users_response(request, db, current_user, form_mode="create")
@@ -224,18 +146,18 @@ def create_user(
     password: str = Form(""),
     password_confirm: str = Form(""),
     is_superuser: str = Form(""),
-    csrf_token: str = Form(""),
+    csrf_token_value: str = Form("", alias="csrf_token"),
     db: Session = Depends(get_db),
 ):
-    current_user = _superuser_or_redirect(request, db)
+    current_user = superuser_or_redirect(request, db)
     if isinstance(current_user, RedirectResponse):
         return current_user
 
-    values = _normalized_user_values(name, username, email)
+    values = normalized_user_values(name, username, email)
     values["is_superuser"] = "1" if is_superuser == "1" else ""
-    errors = _validate_user_identity(values)
+    errors = validate_user_identity(values)
 
-    if not _csrf_is_valid(request, csrf_token):
+    if not csrf_is_valid(request, csrf_token_value):
         errors["_form"] = "La sesión del formulario venció. Recargá la página e intentá nuevamente."
 
     if not 10 <= len(password) <= 128:
@@ -295,7 +217,7 @@ def create_user(
 
 @router.get("/{user_id}/editar", response_class=HTMLResponse)
 def edit_user(user_id: int, request: Request, db: Session = Depends(get_db)):
-    current_user = _superuser_or_redirect(request, db)
+    current_user = superuser_or_redirect(request, db)
     if isinstance(current_user, RedirectResponse):
         return current_user
 
@@ -330,10 +252,10 @@ def update_user(
     username: str = Form(""),
     email: str = Form(""),
     is_superuser: str = Form(""),
-    csrf_token: str = Form(""),
+    csrf_token_value: str = Form("", alias="csrf_token"),
     db: Session = Depends(get_db),
 ):
-    current_user = _superuser_or_redirect(request, db)
+    current_user = superuser_or_redirect(request, db)
     if isinstance(current_user, RedirectResponse):
         return current_user
 
@@ -344,11 +266,11 @@ def update_user(
             status_code=status.HTTP_303_SEE_OTHER,
         )
 
-    values = _normalized_user_values(name, username, email)
+    values = normalized_user_values(name, username, email)
     values["is_superuser"] = "1" if is_superuser == "1" else ""
-    errors = _validate_user_identity(values)
+    errors = validate_user_identity(values)
 
-    if not _csrf_is_valid(request, csrf_token):
+    if not csrf_is_valid(request, csrf_token_value):
         errors["_form"] = "La sesión del formulario venció. Recargá la página e intentá nuevamente."
 
     errors.update(
@@ -403,14 +325,14 @@ def update_user(
 def toggle_user_status(
     user_id: int,
     request: Request,
-    csrf_token: str = Form(""),
+    csrf_token_value: str = Form("", alias="csrf_token"),
     db: Session = Depends(get_db),
 ):
-    current_user = _superuser_or_redirect(request, db)
+    current_user = superuser_or_redirect(request, db)
     if isinstance(current_user, RedirectResponse):
         return current_user
 
-    if not _csrf_is_valid(request, csrf_token):
+    if not csrf_is_valid(request, csrf_token_value):
         return _users_response(
             request,
             db,

@@ -1,6 +1,6 @@
 # Assets de interfaz locales
 
-NERISOFT sirve Geist, Tabler Icons y HTMX desde `app/static/vendor/` para evitar dependencias visuales de CDNs durante el uso normal.
+NERISOFT sirve Geist, Tabler Icons y HTMX exclusivamente desde `app/static/vendor/` durante la ejecución normal.
 
 Los binarios y archivos de terceros se generan localmente con:
 
@@ -16,6 +16,8 @@ El script fija versiones concretas y descarga:
 
 Los archivos generados se excluyen de Git para no inflar el repositorio con binarios reproducibles. Este README y `geist.css` sí se versionan.
 
-Mientras un asset local todavía no exista, `base.html` conserva un fallback remoto para no dejar la interfaz inutilizable. Después de ejecutar el script, el navegador debe resolver los recursos desde `/static/vendor/...`.
+NERISOFT no usa fallback remoto durante la ejecución. Si falta un asset crítico, el arranque falla con un mensaje que indica ejecutar `scripts/vendor-assets.ps1`.
 
-Las licencias de los terceros también se descargan junto con cada paquete.
+El instalador valida tamaños mínimos, informa el SHA-256 de cada descarga nueva y elimina la referencia al source map de Tabler para evitar solicitudes `404` innecesarias.
+
+Las licencias de terceros se descargan junto con cada paquete.

@@ -1,0 +1,61 @@
+.nav-item[aria-disabled="true"] {
+    cursor: default;
+    opacity: .48;
+}
+
+.nav-item[aria-disabled="true"]:hover {
+    border-color: transparent;
+    background: transparent;
+    color: #e7e5df;
+}
+
+.topbar-search:has(input:disabled) {
+    opacity: .72;
+}
+
+.topbar-search:has(input:disabled):focus-within {
+    border-color: rgb(255 255 255 / 13%);
+    background: rgb(255 255 255 / 5%);
+    box-shadow: inset 0 1px rgb(255 255 255 / 3%), 0 3px 10px rgb(0 0 0 / 8%);
+}
+
+.user-control {
+    cursor: default;
+}
+
+.user-control:hover {
+    background: transparent;
+}
+
+.company-control:disabled,
+.icon-button:disabled,
+.period-control:disabled,
+.panel-link:disabled,
+.alert-item:disabled,
+.login-text-action:disabled {
+    cursor: default;
+}
+
+.company-control:disabled,
+.icon-button:disabled {
+    opacity: .68;
+}
+
+.company-control:disabled:hover,
+.icon-button:disabled:hover {
+    background: transparent;
+}
+
+.period-control:disabled,
+.panel-link:disabled,
+.login-text-action:disabled {
+    opacity: .72;
+}
+
+.alert-item:disabled {
+    opacity: 1;
+}
+
+.alert-item:disabled:hover {
+    background: #ffffff;
+}

@@ -4,9 +4,9 @@ Actualizado: 22/09/2026
 
 ## Objetivo
 
-NERISOFT deja de depender de la velocidad de Internet para renderizar tipografía, iconos y HTMX durante el uso normal.
+NERISOFT no depende de Internet para renderizar tipografía, iconos ni HTMX durante la operación normal.
 
-Los recursos se descargan una sola vez al servidor y luego FastAPI los sirve desde `/static/vendor/` junto con el resto de la aplicación.
+Los recursos se descargan una vez al servidor y luego FastAPI los sirve desde `/static/vendor/`.
 
 ## Versiones fijadas
 
@@ -14,11 +14,7 @@ Los recursos se descargan una sola vez al servidor y luego FastAPI los sirve des
 - Tabler Icons Webfont `3.35.0`;
 - HTMX `2.0.7`.
 
-Estas versiones preservan el aspecto y comportamiento existentes sin introducir actualizaciones implícitas.
-
 ## Instalación
-
-Desde la raíz del repositorio:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\vendor-assets.ps1
@@ -27,18 +23,19 @@ powershell -ExecutionPolicy Bypass -File .\scripts\vendor-assets.ps1
 El script:
 
 1. crea los directorios necesarios;
-2. descarga los assets fijados;
-3. valida tamaños mínimos para detectar descargas vacías o incompletas;
-4. descarga las licencias de terceros;
-5. conserva archivos existentes válidos salvo que se use `-Force`.
+2. descarga las versiones fijadas;
+3. valida tamaños mínimos;
+4. informa SHA-256 de descargas nuevas;
+5. descarga licencias;
+6. elimina del CSS de Tabler la referencia al source map que generaba un `404` de diagnóstico.
 
-Para volver a descargarlos:
+Para forzar descarga:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\vendor-assets.ps1 -Force
 ```
 
-## Archivos locales críticos
+## Archivos críticos
 
 ```text
 app/static/vendor/geist/Geist-Variable.woff2
@@ -47,64 +44,51 @@ app/static/vendor/tabler/fonts/tabler-icons.woff2
 app/static/vendor/htmx/htmx.min.js
 ```
 
-El CSS local de Geist está versionado en:
+## Sin fallback remoto
+
+`base.html` referencia exclusivamente recursos locales.
+
+`app/core/assets.py` valida los cuatro archivos críticos durante el lifespan de FastAPI. Si falta alguno, el arranque se detiene con un error que indica ejecutar el instalador.
+
+Esto evita una situación peligrosa para diagnóstico:
 
 ```text
-app/static/vendor/geist/geist.css
+asset local faltante
+↓
+fallback CDN silencioso
+↓
+interfaz aparentemente funcional pero dependiente de Internet
 ```
 
-## Estrategia de carga
+Ahora la condición es explícita:
 
-`base.html` ahora intenta primero los recursos locales.
-
-Geist y Tabler Icons se pre-cargan como fuentes críticas para reducir cambios de métrica y aparición tardía de iconos.
-
-Mientras el servidor todavía no tenga los archivos generados, se conserva un fallback remoto para no dejar la interfaz inutilizable. Después de ejecutar el script, el navegador debe resolver esos recursos desde `127.0.0.1` o desde el servidor LAN.
+```text
+asset local presente -> NERISOFT arranca
+asset local faltante -> NERISOFT no arranca
+```
 
 ## Git
 
-Los binarios y archivos de terceros reproducibles se excluyen de Git. El repositorio versiona:
+Los binarios reproducibles y licencias descargadas siguen excluidos de Git. El repositorio versiona:
 
-- el script de instalación;
-- las versiones fijadas;
-- el CSS propio de Geist;
-- la configuración de carga;
-- la documentación.
+- script de instalación;
+- versiones fijadas;
+- CSS local de Geist;
+- validación de arranque;
+- documentación.
 
-Así se evita inflar el historial con binarios y se mantiene un procedimiento reproducible para cualquier servidor nuevo.
-
-## Relación con los artefactos visuales
-
-La carga anterior dependía directamente de:
-
-- Google Fonts;
-- jsDelivr;
-- unpkg.
-
-Una respuesta lenta de cualquiera de esos servicios podía provocar:
-
-- cambio de fuente después del primer render;
-- cambios en ancho/alto del texto;
-- iconos que aparecían tarde;
-- reflow del layout;
-- artefactos amplificados por transiciones de página completa.
-
-Con los assets locales, la interfaz deja de depender de esas latencias durante la operación normal.
-
-## Diagnóstico de Uvicorn
-
-Una línea como:
+## Diagnóstico
 
 ```text
-GET /.well-known/appspecific/com.chrome.devtools.json 404 Not Found
+GET /.well-known/appspecific/com.chrome.devtools.json 404
 ```
 
-proviene de Chrome/DevTools y no representa un error funcional de NERISOFT.
-
-Una respuesta:
+proviene de Chrome/DevTools y no representa un error de NERISOFT.
 
 ```text
 304 Not Modified
 ```
 
 indica uso normal de caché del navegador.
+
+Después de volver a ejecutar el instalador actualizado, Tabler deja de solicitar `tabler-icons.min.css.map`.

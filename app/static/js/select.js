@@ -2,6 +2,7 @@
 
 (() => {
     const SELECTOR = "select:not([multiple]):not([data-native-select])";
+    const instances = new WeakMap();
     let instanceCounter = 0;
     let openInstance = null;
 
@@ -76,10 +77,13 @@
             this.optionNodes = [];
             this.hostLabel = select.closest("label");
             this.collapsedHostLabel = hostLabelCanCollapse(this.hostLabel, select);
+            this.originalTabIndex = select.getAttribute("tabindex");
+            this.resetHandler = null;
 
             this.build();
             this.bind();
             this.syncFromNative();
+            instances.set(select, this);
         }
 
         build() {
@@ -244,34 +248,12 @@
 
             this.select.addEventListener("change", () => this.syncFromNative());
 
-            this.select.form?.addEventListener("reset", () => {
-                window.setTimeout(() => this.syncFromNative(), 0);
-            });
-
-            document.addEventListener("pointerdown", (event) => {
-                if (!this.isOpen()) {
-                    return;
-                }
-                if (!this.root.contains(event.target) && !this.menu.contains(event.target)) {
-                    this.close();
-                }
-            });
-
-            window.addEventListener("resize", () => {
-                if (this.isOpen()) {
-                    this.positionMenu();
-                }
-            });
-
-            window.addEventListener(
-                "scroll",
-                () => {
-                    if (this.isOpen()) {
-                        this.positionMenu();
-                    }
-                },
-                true,
-            );
+            if (this.select.form) {
+                this.resetHandler = () => {
+                    window.setTimeout(() => this.syncFromNative(), 0);
+                };
+                this.select.form.addEventListener("reset", this.resetHandler);
+            }
         }
 
         enabledOptionNodes() {
@@ -381,13 +363,13 @@
             this.menu.hidden = true;
             this.trigger.setAttribute("aria-expanded", "false");
 
-            if (restoreFocus) {
+            if (restoreFocus && this.trigger.isConnected) {
                 this.trigger.focus({ preventScroll: true });
             }
         }
 
         positionMenu() {
-            if (this.menu.hidden) {
+            if (this.menu.hidden || !this.trigger.isConnected) {
                 return;
             }
 
@@ -418,22 +400,90 @@
                 this.menu.style.left = `${Math.round(correctedLeft)}px`;
             }
         }
+
+        destroy() {
+            if (this.isOpen()) {
+                this.close();
+            }
+
+            if (this.resetHandler && this.select.form) {
+                this.select.form.removeEventListener("reset", this.resetHandler);
+            }
+
+            this.menu.remove();
+            this.root.remove();
+            this.select.classList.remove("nerisoft-select-native");
+            delete this.select.dataset.nerisoftSelectEnhanced;
+            if (this.originalTabIndex === null) {
+                this.select.removeAttribute("tabindex");
+            } else {
+                this.select.setAttribute("tabindex", this.originalTabIndex);
+            }
+            if (this.collapsedHostLabel) {
+                this.hostLabel?.classList.remove("nerisoft-select-host-label--collapsed");
+            }
+            instances.delete(this.select);
+        }
     }
 
     function enhanceSelects(root = document) {
-        root.querySelectorAll(SELECTOR).forEach((select) => {
-            if (select.dataset.nerisoftSelectEnhanced === "true") {
+        const scope = root instanceof Element || root instanceof Document ? root : document;
+        scope.querySelectorAll(SELECTOR).forEach((select) => {
+            if (select.dataset.nerisoftSelectEnhanced === "true" || instances.has(select)) {
                 return;
             }
             new NerisoftSelect(select);
         });
     }
 
+    function destroyWithin(root) {
+        if (!(root instanceof Element) && !(root instanceof Document)) {
+            return;
+        }
+
+        const candidates = [];
+        if (root instanceof HTMLSelectElement && root.matches(SELECTOR)) {
+            candidates.push(root);
+        }
+        candidates.push(...root.querySelectorAll("select[data-nerisoft-select-enhanced='true']"));
+
+        candidates.forEach((select) => {
+            instances.get(select)?.destroy();
+        });
+    }
+
+    document.addEventListener("pointerdown", (event) => {
+        if (!openInstance) {
+            return;
+        }
+        if (!openInstance.root.contains(event.target) && !openInstance.menu.contains(event.target)) {
+            openInstance.close();
+        }
+    });
+
+    window.addEventListener("resize", () => {
+        openInstance?.positionMenu();
+    });
+
+    window.addEventListener(
+        "scroll",
+        () => {
+            openInstance?.positionMenu();
+        },
+        true,
+    );
+
     document.addEventListener("DOMContentLoaded", () => {
         enhanceSelects();
 
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
+                mutation.removedNodes.forEach((node) => {
+                    if (node instanceof Element) {
+                        destroyWithin(node);
+                    }
+                });
+
                 mutation.addedNodes.forEach((node) => {
                     if (!(node instanceof Element)) {
                         return;
@@ -454,5 +504,8 @@
         observer.observe(document.body, { childList: true, subtree: true });
     });
 
-    window.NERISOFTSelect = Object.freeze({ enhance: enhanceSelects });
+    window.NERISOFTSelect = Object.freeze({
+        enhance: enhanceSelects,
+        destroyWithin,
+    });
 })();

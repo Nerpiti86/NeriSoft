@@ -1,0 +1,13 @@
+from app.core.templates import templates
+
+
+def test_core_templates_parse() -> None:
+    for template_name in (
+        "base.html",
+        "authenticated.html",
+        "index.html",
+        "login.html",
+        "setup.html",
+        "users.html",
+    ):
+        templates.get_template(template_name)

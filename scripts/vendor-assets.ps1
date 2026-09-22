@@ -90,7 +90,28 @@ function Get-VendoredAsset {
     }
 
     Move-Item $temp $destination -Force
-    Write-Host "OK   $($Asset.Name) ($size bytes)"
+    $hash = (Get-FileHash -Algorithm SHA256 -Path $destination).Hash.ToLowerInvariant()
+    Write-Host "OK   $($Asset.Name) ($size bytes, sha256 $hash)"
+}
+
+function Remove-TablerSourceMapReference {
+    $tablerCss = Join-Path $repoRoot "app/static/vendor/tabler/tabler-icons.min.css"
+    if (-not (Test-Path $tablerCss)) {
+        return
+    }
+
+    $content = [System.IO.File]::ReadAllText($tablerCss)
+    $cleanContent = [System.Text.RegularExpressions.Regex]::Replace(
+        $content,
+        "/\*# sourceMappingURL=tabler-icons\.min\.css\.map \*/\s*$",
+        ""
+    )
+
+    if ($cleanContent -ne $content) {
+        $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+        [System.IO.File]::WriteAllText($tablerCss, $cleanContent, $utf8NoBom)
+        Write-Host "OK   referencia source map de Tabler eliminada"
+    }
 }
 
 Write-Host "NERISOFT - instalando assets locales"
@@ -100,6 +121,8 @@ Write-Host ""
 foreach ($asset in $assets) {
     Get-VendoredAsset -Asset $asset
 }
+
+Remove-TablerSourceMapReference
 
 $required = @(
     "app/static/vendor/geist/Geist-Variable.woff2",
@@ -120,4 +143,4 @@ if ($missing.Count -gt 0) {
 }
 
 Write-Host ""
-Write-Host "Assets locales listos. NERISOFT ya puede servir tipografia, iconos y HTMX desde /static/vendor/."
+Write-Host "Assets locales listos. NERISOFT sirve tipografia, iconos y HTMX exclusivamente desde /static/vendor/."

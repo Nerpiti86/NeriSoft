@@ -11,23 +11,43 @@ La primera etapa aplica navegación parcial a:
 - Inicio;
 - Configuración → Usuarios;
 - alta/edición/cancelación de usuarios mediante enlaces GET;
-- búsqueda y filtro GET de usuarios.
+- búsqueda y filtros GET de usuarios.
 
 Las operaciones POST continúan usando navegación normal en esta etapa.
 
-## Estrategia
+## Shell compartido
 
-NERISOFT mantiene las rutas FastAPI existentes y las respuestas HTML completas.
+Las pantallas autenticadas extienden:
+
+```text
+app/templates/authenticated.html
+```
+
+Ese template contiene una única implementación de:
+
+- sidebar;
+- topbar;
+- usuario actual;
+- logout;
+- accesos de navegación.
+
+Inicio y Usuarios aportan únicamente su bloque `.workspace`.
+
+Esto evita divergencias entre pantallas y elimina la necesidad de corregir usuario, enlaces o logout después con JavaScript.
+
+## Estrategia HTMX
+
+Las rutas FastAPI existentes continúan devolviendo HTML completo.
 
 Cuando HTMX está disponible, `app/static/js/app.js` usa `htmx.ajax()` para:
 
-1. solicitar la misma URL que usaría una navegación normal;
-2. seleccionar únicamente `.workspace` de la respuesta;
-3. reemplazar únicamente el `.workspace` actual;
+1. solicitar la misma URL que una navegación normal;
+2. seleccionar `.workspace` de la respuesta;
+3. reemplazar el workspace actual;
 4. conservar sidebar y topbar montados;
-5. actualizar la URL del navegador y el historial.
+5. actualizar URL e historial.
 
-Parámetros principales:
+Parámetros:
 
 ```text
 target: .workspace
@@ -36,17 +56,17 @@ swap: outerHTML swap:60ms settle:100ms
 push: URL solicitada
 ```
 
-No se agregan endpoints parciales paralelos.
-
 ## Fallback
 
-Los enlaces conservan `href` reales y los formularios GET conservan `action` y `method`.
+Los enlaces conservan `href` reales y los formularios GET conservan `action`/`method` reales.
 
-Si HTMX no está disponible, JavaScript falla o el navegador no puede ejecutar la mejora progresiva, la navegación continúa funcionando como una carga HTML tradicional.
+Sin HTMX la navegación sigue funcionando como HTML tradicional.
 
-## Recursos visuales
+La autorización continúa siendo responsabilidad exclusiva del backend.
 
-Dashboard y Usuarios usan hojas de estilo distintas. Como el `head` no se reemplaza durante la navegación parcial, al iniciar una sesión autenticada se precargan localmente:
+## Assets de pantallas autenticadas
+
+`authenticated.html` carga desde el inicio:
 
 ```text
 /static/css/dashboard.css
@@ -54,61 +74,49 @@ Dashboard y Usuarios usan hojas de estilo distintas. Como el `head` no se reempl
 /static/js/setup.js
 ```
 
-Esto evita que el workspace nuevo aparezca un instante sin sus estilos o sin comportamiento de controles.
+Así un workspace obtenido por HTMX nunca depende de modificar el `<head>` durante el swap.
 
-## Inicialización después de un swap
+## Filtros GET de Usuarios
 
-Después de cada reemplazo del workspace se vuelven a aplicar únicamente las mejoras que dependen del contenido dinámico:
+La lógica vive únicamente en `app/static/js/app.js`.
 
-- abreviaturas visibles de comprobantes;
-- clases de fechas y códigos;
-- saludo del usuario;
-- estado activo de Inicio/Configuración;
-- título del documento;
-- controles de visibilidad de contraseña.
+El formulario `.users-filters` se serializa una sola vez con `FormData`. La petición HTMX usa el propio workspace como `source`, por lo que no vuelve a adjuntar los campos del formulario.
 
-El Select NERISOFT ya posee un `MutationObserver`, por lo que los selects nuevos se mejoran automáticamente.
-
-Antes de retirar un workspace se eliminan los menús flotantes del Select NERISOFT para no dejar nodos huérfanos en `document.body`.
-
-## Filtros GET de usuarios
-
-Los filtros construyen una única URL a partir de `FormData` y la envían mediante HTMX sin volver a serializar el formulario como `source`.
-
-Esto evita duplicaciones como:
+Forma correcta:
 
 ```text
-?q=&estado=activos&q=&estado=activos
+/configuracion/usuarios?q=&estado=activos
 ```
 
-La forma correcta queda:
+No existe ya `partial-filters.js` ni una segunda implementación paralela.
 
-```text
-?q=&estado=activos
-```
+## Select NERISOFT y swaps
 
-El ajuste se implementa en `app/static/js/partial-filters.js`, que intercepta únicamente `.users-filters` y deja intactos los demás formularios.
+`select.js` mantiene un único conjunto de listeners globales para:
+
+- clic exterior;
+- resize;
+- scroll.
+
+Las instancias individuales ya no registran listeners globales repetidos.
+
+Un `MutationObserver` detecta selects retirados del DOM y destruye su instancia/menu flotante. Esto evita acumular listeners o nodos huérfanos durante navegaciones HTMX prolongadas.
 
 ## Redirecciones
 
-Si una petición HTMX termina en otra ruta por una redirección del servidor —por ejemplo sesión vencida o usuario inexistente— NERISOFT cancela el swap parcial y realiza una navegación normal a la URL final.
-
-La autorización sigue siendo responsabilidad exclusiva del backend.
+Si una petición HTMX termina en otra ruta por redirección del servidor —por ejemplo sesión vencida— se cancela el swap parcial y se realiza navegación normal a la URL final.
 
 ## Movimiento
 
-La transición ya no fotografía ni anima el documento completo.
+Solo el workspace usa una transición corta:
 
-Solo el workspace usa:
-
-- salida de 60 ms;
-- entrada/asentamiento de 100 ms;
-- opacidad mínima;
-- desplazamiento vertical de 1–2 px.
+- salida 60 ms;
+- asentamiento 100 ms;
+- opacidad/desplazamiento mínimos.
 
 `prefers-reduced-motion` continúa anulando prácticamente todo movimiento.
 
-## Alcance deliberadamente fuera de esta etapa
+## Fuera de alcance
 
 Todavía no se convierten a navegación parcial:
 
@@ -119,22 +127,4 @@ Todavía no se convierten a navegación parcial:
 - setup inicial;
 - módulos aún no implementados.
 
-Las mutaciones se migrarán en una tarea separada cuando se defina de forma uniforme cómo manejar validaciones, redirects, notices y CSRF con HTMX.
-
-## Criterio de aceptación
-
-En la secuencia:
-
-```text
-Inicio
-→ Configuración → Usuarios
-→ Nuevo usuario
-→ Cancelar
-→ Editar usuario
-→ Cancelar
-→ Inicio
-```
-
-sidebar y topbar deben permanecer visualmente estables y las operaciones GET deben reemplazar solo el workspace.
-
-Al aplicar filtros de usuarios, cada parámetro debe aparecer una sola vez en la URL solicitada.
+Las mutaciones se migrarán cuando exista una política uniforme para validaciones, redirects, notices y CSRF con HTMX.

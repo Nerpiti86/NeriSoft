@@ -1,351 +1,227 @@
-{% extends "base.html" %}
+{% extends "authenticated.html" %}
 
 {% block title %}{{ app_name }} · Inicio{% endblock %}
 
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', path='css/dashboard.css') }}">
-{% endblock %}
-
-{% block body %}
-<div class="app-shell" data-app-shell>
-    <aside class="sidebar" aria-label="Navegación principal">
-        <div class="sidebar-brand">
-            <span class="brand-mark" aria-hidden="true">
-                <i class="ti ti-diamond"></i>
-            </span>
-            <span class="brand-copy">
-                <strong>{{ app_name }}</strong>
-                <small>ADMINISTRÁ TU NEGOCIO</small>
-            </span>
+{% block workspace %}
+<main class="workspace dashboard-workspace">
+    <header class="dashboard-header">
+        <div>
+            <div class="dashboard-title-row">
+                <h1>Buen día, {{ current_user_first_name }}</h1>
+                <span class="mock-badge">Datos de muestra</span>
+            </div>
+            <p>Resumen general de la operación de hoy.</p>
         </div>
 
-        <nav class="sidebar-nav" aria-label="Secciones">
-            <div class="sidebar-nav-primary">
-                <a class="nav-item is-active" href="#" aria-current="page" title="Inicio">
-                    <i class="ti ti-home" aria-hidden="true"></i>
-                    <span class="nav-label">Inicio</span>
-                </a>
-                <a class="nav-item" href="#" title="Ventas">
-                    <i class="ti ti-shopping-cart" aria-hidden="true"></i>
-                    <span class="nav-label">Ventas</span>
-                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
-                </a>
-                <a class="nav-item" href="#" title="Compras">
-                    <i class="ti ti-package" aria-hidden="true"></i>
-                    <span class="nav-label">Compras</span>
-                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
-                </a>
-                <a class="nav-item" href="#" title="Stock">
-                    <i class="ti ti-box" aria-hidden="true"></i>
-                    <span class="nav-label">Stock</span>
-                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
-                </a>
-                <a class="nav-item" href="#" title="Tesorería">
-                    <i class="ti ti-wallet" aria-hidden="true"></i>
-                    <span class="nav-label">Tesorería</span>
-                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
-                </a>
-                <a class="nav-item" href="#" title="Contabilidad">
-                    <i class="ti ti-chart-bar" aria-hidden="true"></i>
-                    <span class="nav-label">Contabilidad</span>
-                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
-                </a>
-                <a class="nav-item" href="#" title="Reportes">
-                    <i class="ti ti-file-report" aria-hidden="true"></i>
-                    <span class="nav-label">Reportes</span>
-                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
-                </a>
+        <button class="period-control" type="button" aria-label="Período del dashboard" disabled title="Disponible cuando el dashboard use datos reales">
+            <i class="ti ti-calendar" aria-hidden="true"></i>
+            <span>Este mes</span>
+            <i class="ti ti-chevron-down" aria-hidden="true"></i>
+        </button>
+    </header>
+
+    <section class="dashboard-grid" aria-label="Resumen del negocio">
+        <article class="metric-card">
+            <div class="metric-card-top">
+                <span class="metric-icon"><i class="ti ti-currency-dollar" aria-hidden="true"></i></span>
+                <span class="metric-trend is-positive"><i class="ti ti-trending-up" aria-hidden="true"></i> 12,4%</span>
             </div>
+            <span class="metric-label">Ventas del mes</span>
+            <strong class="metric-value">$ 18.642.380,00</strong>
+            <small>vs. $ 16.581.420,00 mes anterior</small>
+        </article>
 
-            <div class="sidebar-nav-secondary">
-                <a class="nav-item" href="#" title="Configuración">
-                    <i class="ti ti-settings" aria-hidden="true"></i>
-                    <span class="nav-label">Configuración</span>
-                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
-                </a>
+        <article class="metric-card">
+            <div class="metric-card-top">
+                <span class="metric-icon"><i class="ti ti-file-invoice" aria-hidden="true"></i></span>
+                <span class="metric-trend is-positive"><i class="ti ti-trending-up" aria-hidden="true"></i> 8,1%</span>
             </div>
-        </nav>
+            <span class="metric-label">Comprobantes emitidos</span>
+            <strong class="metric-value">248</strong>
+            <small>19 emitidos durante el día</small>
+        </article>
 
-        <div class="sidebar-footer">
-            <button
-                id="sidebar-toggle"
-                class="sidebar-toggle"
-                type="button"
-                aria-label="Contraer menú"
-                aria-expanded="true"
-                title="Contraer menú"
-            >
-                <i class="ti ti-chevrons-left" aria-hidden="true"></i>
-                <span class="toggle-label">Contraer menú</span>
-            </button>
-            <div class="sidebar-meta">
-                <span>v{{ app_version }}</span>
-                <span>© 2026 {{ app_name }}</span>
+        <article class="metric-card">
+            <div class="metric-card-top">
+                <span class="metric-icon"><i class="ti ti-users" aria-hidden="true"></i></span>
+                <span class="metric-trend is-neutral">42 cuentas</span>
             </div>
-        </div>
-    </aside>
+            <span class="metric-label">Cuentas por cobrar</span>
+            <strong class="metric-value">$ 4.286.740,00</strong>
+            <small>$ 712.300,00 vencidos</small>
+        </article>
 
-    <section class="app-main">
-        <header class="topbar">
-            <label class="topbar-search">
-                <i class="ti ti-search" aria-hidden="true"></i>
-                <input
-                    type="search"
-                    name="global-search"
-                    placeholder="Buscar clientes, productos, comprobantes..."
-                    autocomplete="off"
-                    aria-label="Búsqueda global"
-                >
-                <span class="search-shortcut" aria-hidden="true">Ctrl K</span>
-            </label>
-
-            <div class="topbar-actions">
-                <button class="company-control" type="button" aria-label="Empresa actual">
-                    <span class="company-copy">
-                        <small>Empresa</small>
-                        <strong>Demo S.A.</strong>
-                    </span>
-                    <i class="ti ti-chevron-down" aria-hidden="true"></i>
-                </button>
-
-                <span class="topbar-separator" aria-hidden="true"></span>
-
-                <button class="icon-button notification-button" type="button" aria-label="Notificaciones" title="Notificaciones">
-                    <i class="ti ti-bell" aria-hidden="true"></i>
-                    <span class="notification-dot" aria-hidden="true"></span>
-                </button>
-
-                <span class="topbar-separator" aria-hidden="true"></span>
-
-                <button class="user-control" type="button" aria-label="Menú de usuario">
-                    <span class="user-avatar">NS</span>
-                    <span class="user-name">Nicolás</span>
-                    <i class="ti ti-chevron-down" aria-hidden="true"></i>
-                </button>
+        <article class="metric-card">
+            <div class="metric-card-top">
+                <span class="metric-icon"><i class="ti ti-wallet" aria-hidden="true"></i></span>
+                <span class="metric-trend is-positive"><i class="ti ti-arrow-up-right" aria-hidden="true"></i> 4,7%</span>
             </div>
-        </header>
+            <span class="metric-label">Saldo de tesorería</span>
+            <strong class="metric-value">$ 9.874.220,00</strong>
+            <small>Caja y bancos consolidados</small>
+        </article>
 
-        <main class="workspace dashboard-workspace">
-            <header class="dashboard-header">
+        <article class="metric-card">
+            <div class="metric-card-top">
+                <span class="metric-icon is-warning"><i class="ti ti-box" aria-hidden="true"></i></span>
+                <span class="metric-trend is-warning">7 críticos</span>
+            </div>
+            <span class="metric-label">Stock bajo</span>
+            <strong class="metric-value">23</strong>
+            <small>productos debajo del mínimo</small>
+        </article>
+    </section>
+
+    <section class="dashboard-main-grid">
+        <article class="dashboard-panel sales-panel">
+            <header class="panel-header">
                 <div>
-                    <div class="dashboard-title-row">
-                        <h1>Buen día, Nicolás</h1>
-                        <span class="mock-badge">Datos de muestra</span>
-                    </div>
-                    <p>Resumen general de la operación de hoy.</p>
+                    <span class="panel-eyebrow">Ventas</span>
+                    <h2>Últimos 30 días</h2>
                 </div>
-
-                <button class="period-control" type="button" aria-label="Período del dashboard">
-                    <i class="ti ti-calendar" aria-hidden="true"></i>
-                    <span>Este mes</span>
-                    <i class="ti ti-chevron-down" aria-hidden="true"></i>
-                </button>
+                <div class="chart-summary">
+                    <strong>$ 21,8 M</strong>
+                    <span>Total acumulado</span>
+                </div>
             </header>
 
-            <section class="dashboard-grid" aria-label="Resumen del negocio">
-                <article class="metric-card">
-                    <div class="metric-card-top">
-                        <span class="metric-icon"><i class="ti ti-currency-dollar" aria-hidden="true"></i></span>
-                        <span class="metric-trend is-positive"><i class="ti ti-trending-up" aria-hidden="true"></i> 12,4%</span>
-                    </div>
-                    <span class="metric-label">Ventas del mes</span>
-                    <strong class="metric-value">$ 18.642.380,00</strong>
-                    <small>vs. $ 16.581.420,00 mes anterior</small>
-                </article>
-
-                <article class="metric-card">
-                    <div class="metric-card-top">
-                        <span class="metric-icon"><i class="ti ti-file-invoice" aria-hidden="true"></i></span>
-                        <span class="metric-trend is-positive"><i class="ti ti-trending-up" aria-hidden="true"></i> 8,1%</span>
-                    </div>
-                    <span class="metric-label">Comprobantes emitidos</span>
-                    <strong class="metric-value">248</strong>
-                    <small>19 emitidos durante el día</small>
-                </article>
-
-                <article class="metric-card">
-                    <div class="metric-card-top">
-                        <span class="metric-icon"><i class="ti ti-users" aria-hidden="true"></i></span>
-                        <span class="metric-trend is-neutral">42 cuentas</span>
-                    </div>
-                    <span class="metric-label">Cuentas por cobrar</span>
-                    <strong class="metric-value">$ 4.286.740,00</strong>
-                    <small>$ 712.300,00 vencidos</small>
-                </article>
-
-                <article class="metric-card">
-                    <div class="metric-card-top">
-                        <span class="metric-icon"><i class="ti ti-wallet" aria-hidden="true"></i></span>
-                        <span class="metric-trend is-positive"><i class="ti ti-arrow-up-right" aria-hidden="true"></i> 4,7%</span>
-                    </div>
-                    <span class="metric-label">Saldo de tesorería</span>
-                    <strong class="metric-value">$ 9.874.220,00</strong>
-                    <small>Caja y bancos consolidados</small>
-                </article>
-
-                <article class="metric-card">
-                    <div class="metric-card-top">
-                        <span class="metric-icon is-warning"><i class="ti ti-box" aria-hidden="true"></i></span>
-                        <span class="metric-trend is-warning">7 críticos</span>
-                    </div>
-                    <span class="metric-label">Stock bajo</span>
-                    <strong class="metric-value">23</strong>
-                    <small>productos debajo del mínimo</small>
-                </article>
-            </section>
-
-            <section class="dashboard-main-grid">
-                <article class="dashboard-panel sales-panel">
-                    <header class="panel-header">
-                        <div>
-                            <span class="panel-eyebrow">Ventas</span>
-                            <h2>Últimos 30 días</h2>
-                        </div>
-                        <div class="chart-summary">
-                            <strong>$ 21,8 M</strong>
-                            <span>Total acumulado</span>
-                        </div>
-                    </header>
-
-                    <div class="sales-chart" role="img" aria-label="Gráfico de ventas de los últimos 30 días">
-                        <div class="chart-y-labels" aria-hidden="true">
-                            <span>$ 1,2 M</span>
-                            <span>$ 900 k</span>
-                            <span>$ 600 k</span>
-                            <span>$ 300 k</span>
-                            <span>$ 0</span>
-                        </div>
-                        <div class="chart-plot">
-                            <span class="grid-line line-1"></span>
-                            <span class="grid-line line-2"></span>
-                            <span class="grid-line line-3"></span>
-                            <span class="grid-line line-4"></span>
-                            <span class="grid-line line-5"></span>
-                            <svg class="chart-svg" viewBox="0 0 1000 260" preserveAspectRatio="none" aria-hidden="true">
-                                <defs>
-                                    <linearGradient id="salesArea" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stop-color="#c8a24a" stop-opacity="0.30" />
-                                        <stop offset="100%" stop-color="#c8a24a" stop-opacity="0.02" />
-                                    </linearGradient>
-                                </defs>
-                                <path class="chart-area" d="M0,230 L45,204 L92,214 L138,178 L186,188 L232,145 L278,162 L325,120 L372,137 L418,101 L466,116 L512,72 L558,89 L605,57 L651,86 L698,47 L744,72 L791,39 L837,64 L884,30 L930,48 L970,24 L1000,34 L1000,260 L0,260 Z"></path>
-                                <path class="chart-line" d="M0,230 L45,204 L92,214 L138,178 L186,188 L232,145 L278,162 L325,120 L372,137 L418,101 L466,116 L512,72 L558,89 L605,57 L651,86 L698,47 L744,72 L791,39 L837,64 L884,30 L930,48 L970,24 L1000,34"></path>
-                            </svg>
-                            <div class="chart-x-labels" aria-hidden="true">
-                                <span>24 Ago</span>
-                                <span>31 Ago</span>
-                                <span>7 Sep</span>
-                                <span>14 Sep</span>
-                                <span>22 Sep</span>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="dashboard-panel alerts-panel">
-                    <header class="panel-header compact">
-                        <div>
-                            <span class="panel-eyebrow">Atención</span>
-                            <h2>Alertas y pendientes</h2>
-                        </div>
-                        <span class="panel-count">5</span>
-                    </header>
-
-                    <div class="alert-list">
-                        <button class="alert-item" type="button">
-                            <span class="alert-icon is-danger"><i class="ti ti-alert-triangle" aria-hidden="true"></i></span>
-                            <span class="alert-copy"><strong>3 comprobantes vencidos</strong><small>Clientes con saldo vencido mayor a 30 días</small></span>
-                            <i class="ti ti-chevron-right" aria-hidden="true"></i>
-                        </button>
-                        <button class="alert-item" type="button">
-                            <span class="alert-icon is-warning"><i class="ti ti-box" aria-hidden="true"></i></span>
-                            <span class="alert-copy"><strong>7 productos críticos</strong><small>Requieren reposición inmediata</small></span>
-                            <i class="ti ti-chevron-right" aria-hidden="true"></i>
-                        </button>
-                        <button class="alert-item" type="button">
-                            <span class="alert-icon is-info"><i class="ti ti-calendar-due" aria-hidden="true"></i></span>
-                            <span class="alert-copy"><strong>2 pagos programados</strong><small>Vencen dentro de las próximas 48 horas</small></span>
-                            <i class="ti ti-chevron-right" aria-hidden="true"></i>
-                        </button>
-                        <button class="alert-item" type="button">
-                            <span class="alert-icon"><i class="ti ti-file-invoice" aria-hidden="true"></i></span>
-                            <span class="alert-copy"><strong>Libro IVA pendiente</strong><small>Septiembre todavía no fue revisado</small></span>
-                            <i class="ti ti-chevron-right" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                </article>
-            </section>
-
-            <section class="dashboard-lower-grid">
-                <article class="dashboard-panel table-panel recent-documents-panel">
-                    <header class="panel-header compact">
-                        <div>
-                            <span class="panel-eyebrow">Actividad</span>
-                            <h2>Comprobantes recientes</h2>
-                        </div>
-                        <button class="panel-link" type="button">Ver todos <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
-                    </header>
-                    <div class="table-scroll">
-                        <table class="data-table">
-                            <thead>
-                                <tr><th>Comprobante</th><th>Cliente</th><th>Fecha</th><th class="align-right">Total</th><th>Estado</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td class="document-number">FAC A 0004-00001842</td><td>Distribuidora Norte S.A.</td><td>22/09/2026</td><td class="amount">$ 486.420,00</td><td><span class="status-badge is-success">Emitida</span></td></tr>
-                                <tr><td class="document-number">FAC B 0004-00002591</td><td>Ferretería Central</td><td>22/09/2026</td><td class="amount">$ 118.740,00</td><td><span class="status-badge is-success">Emitida</span></td></tr>
-                                <tr><td class="document-number">NCA A 0004-00000163</td><td>Comercial del Sur S.R.L.</td><td>21/09/2026</td><td class="amount">-$ 32.580,00</td><td><span class="status-badge is-neutral">Aplicada</span></td></tr>
-                                <tr><td class="document-number">FAC A 0004-00001841</td><td>Servicios Delta S.A.</td><td>21/09/2026</td><td class="amount">$ 906.300,00</td><td><span class="status-badge is-warning">Pendiente</span></td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </article>
-
-                <article class="dashboard-panel table-panel receivables-panel">
-                    <header class="panel-header compact">
-                        <div>
-                            <span class="panel-eyebrow">Clientes</span>
-                            <h2>Cuentas por cobrar</h2>
-                        </div>
-                        <button class="panel-link" type="button">Detalle <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
-                    </header>
-                    <div class="table-scroll">
-                        <table class="data-table compact-table">
-                            <thead>
-                                <tr><th>Cliente</th><th class="align-right">Saldo</th><th>Vencimiento</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>Servicios Delta S.A.</td><td class="amount">$ 906.300,00</td><td><span class="due-date is-danger">12 días vencido</span></td></tr>
-                                <tr><td>Distribuidora Norte S.A.</td><td class="amount">$ 486.420,00</td><td><span class="due-date">28/09/2026</span></td></tr>
-                                <tr><td>Metalúrgica Oeste</td><td class="amount">$ 371.900,00</td><td><span class="due-date">30/09/2026</span></td></tr>
-                                <tr><td>Comercial del Sur S.R.L.</td><td class="amount">$ 264.800,00</td><td><span class="due-date">05/10/2026</span></td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </article>
-            </section>
-
-            <section class="dashboard-panel table-panel stock-panel">
-                <header class="panel-header compact">
-                    <div>
-                        <span class="panel-eyebrow">Inventario</span>
-                        <h2>Productos con stock bajo</h2>
-                    </div>
-                    <button class="panel-link" type="button">Ir a Stock <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
-                </header>
-                <div class="table-scroll">
-                    <table class="data-table">
-                        <thead>
-                            <tr><th>Código</th><th>Producto</th><th>Depósito</th><th class="align-right">Actual</th><th class="align-right">Mínimo</th><th>Situación</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="document-number">ART-0182</td><td>Tóner LaserJet 85A</td><td>Central</td><td class="amount">2</td><td class="amount">10</td><td><span class="status-badge is-danger">Crítico</span></td></tr>
-                            <tr><td class="document-number">ART-0417</td><td>Resma A4 80 g</td><td>Central</td><td class="amount">14</td><td class="amount">25</td><td><span class="status-badge is-warning">Bajo</span></td></tr>
-                            <tr><td class="document-number">ART-0064</td><td>Mouse inalámbrico</td><td>Sucursal</td><td class="amount">4</td><td class="amount">8</td><td><span class="status-badge is-warning">Bajo</span></td></tr>
-                        </tbody>
-                    </table>
+            <div class="sales-chart" role="img" aria-label="Gráfico de ventas de los últimos 30 días">
+                <div class="chart-y-labels" aria-hidden="true">
+                    <span>$ 1,2 M</span>
+                    <span>$ 900 k</span>
+                    <span>$ 600 k</span>
+                    <span>$ 300 k</span>
+                    <span>$ 0</span>
                 </div>
-            </section>
-        </main>
+                <div class="chart-plot">
+                    <span class="grid-line line-1"></span>
+                    <span class="grid-line line-2"></span>
+                    <span class="grid-line line-3"></span>
+                    <span class="grid-line line-4"></span>
+                    <span class="grid-line line-5"></span>
+                    <svg class="chart-svg" viewBox="0 0 1000 260" preserveAspectRatio="none" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="salesArea" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#c8a24a" stop-opacity="0.30" />
+                                <stop offset="100%" stop-color="#c8a24a" stop-opacity="0.02" />
+                            </linearGradient>
+                        </defs>
+                        <path class="chart-area" d="M0,230 L45,204 L92,214 L138,178 L186,188 L232,145 L278,162 L325,120 L372,137 L418,101 L466,116 L512,72 L558,89 L605,57 L651,86 L698,47 L744,72 L791,39 L837,64 L884,30 L930,48 L970,24 L1000,34 L1000,260 L0,260 Z"></path>
+                        <path class="chart-line" d="M0,230 L45,204 L92,214 L138,178 L186,188 L232,145 L278,162 L325,120 L372,137 L418,101 L466,116 L512,72 L558,89 L605,57 L651,86 L698,47 L744,72 L791,39 L837,64 L884,30 L930,48 L970,24 L1000,34"></path>
+                    </svg>
+                    <div class="chart-x-labels" aria-hidden="true">
+                        <span>24 Ago</span>
+                        <span>31 Ago</span>
+                        <span>7 Sep</span>
+                        <span>14 Sep</span>
+                        <span>22 Sep</span>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="dashboard-panel alerts-panel">
+            <header class="panel-header compact">
+                <div>
+                    <span class="panel-eyebrow">Atención</span>
+                    <h2>Alertas y pendientes</h2>
+                </div>
+                <span class="panel-count">4</span>
+            </header>
+
+            <div class="alert-list">
+                <button class="alert-item" type="button" disabled>
+                    <span class="alert-icon is-danger"><i class="ti ti-alert-triangle" aria-hidden="true"></i></span>
+                    <span class="alert-copy"><strong>3 comprobantes vencidos</strong><small>Clientes con saldo vencido mayor a 30 días</small></span>
+                    <i class="ti ti-chevron-right" aria-hidden="true"></i>
+                </button>
+                <button class="alert-item" type="button" disabled>
+                    <span class="alert-icon is-warning"><i class="ti ti-box" aria-hidden="true"></i></span>
+                    <span class="alert-copy"><strong>7 productos críticos</strong><small>Requieren reposición inmediata</small></span>
+                    <i class="ti ti-chevron-right" aria-hidden="true"></i>
+                </button>
+                <button class="alert-item" type="button" disabled>
+                    <span class="alert-icon is-info"><i class="ti ti-calendar-due" aria-hidden="true"></i></span>
+                    <span class="alert-copy"><strong>2 pagos programados</strong><small>Vencen dentro de las próximas 48 horas</small></span>
+                    <i class="ti ti-chevron-right" aria-hidden="true"></i>
+                </button>
+                <button class="alert-item" type="button" disabled>
+                    <span class="alert-icon"><i class="ti ti-file-invoice" aria-hidden="true"></i></span>
+                    <span class="alert-copy"><strong>Libro IVA pendiente</strong><small>Septiembre todavía no fue revisado</small></span>
+                    <i class="ti ti-chevron-right" aria-hidden="true"></i>
+                </button>
+            </div>
+        </article>
     </section>
-</div>
+
+    <section class="dashboard-lower-grid">
+        <article class="dashboard-panel table-panel recent-documents-panel">
+            <header class="panel-header compact">
+                <div>
+                    <span class="panel-eyebrow">Actividad</span>
+                    <h2>Comprobantes recientes</h2>
+                </div>
+                <button class="panel-link" type="button" disabled>Ver todos <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+            </header>
+            <div class="table-scroll">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Comprobante</th><th>Cliente</th><th>Fecha</th><th class="align-right">Total</th><th>Estado</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="document-number">FC A 0004-00001842</td><td>Distribuidora Norte S.A.</td><td class="date-value">22/09/2026</td><td class="amount">$ 486.420,00</td><td><span class="status-badge is-success">Emitida</span></td></tr>
+                        <tr><td class="document-number">FC B 0004-00002591</td><td>Ferretería Central</td><td class="date-value">22/09/2026</td><td class="amount">$ 118.740,00</td><td><span class="status-badge is-success">Emitida</span></td></tr>
+                        <tr><td class="document-number">NC A 0004-00000163</td><td>Comercial del Sur S.R.L.</td><td class="date-value">21/09/2026</td><td class="amount">-$ 32.580,00</td><td><span class="status-badge is-neutral">Aplicada</span></td></tr>
+                        <tr><td class="document-number">FC A 0004-00001841</td><td>Servicios Delta S.A.</td><td class="date-value">21/09/2026</td><td class="amount">$ 906.300,00</td><td><span class="status-badge is-warning">Pendiente</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </article>
+
+        <article class="dashboard-panel table-panel receivables-panel">
+            <header class="panel-header compact">
+                <div>
+                    <span class="panel-eyebrow">Clientes</span>
+                    <h2>Cuentas por cobrar</h2>
+                </div>
+                <button class="panel-link" type="button" disabled>Detalle <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+            </header>
+            <div class="table-scroll">
+                <table class="data-table compact-table">
+                    <thead>
+                        <tr><th>Cliente</th><th class="align-right">Saldo</th><th>Vencimiento</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Servicios Delta S.A.</td><td class="amount">$ 906.300,00</td><td><span class="due-date is-danger">12 días vencido</span></td></tr>
+                        <tr><td>Distribuidora Norte S.A.</td><td class="amount">$ 486.420,00</td><td><span class="due-date date-value">28/09/2026</span></td></tr>
+                        <tr><td>Metalúrgica Oeste</td><td class="amount">$ 371.900,00</td><td><span class="due-date date-value">30/09/2026</span></td></tr>
+                        <tr><td>Comercial del Sur S.R.L.</td><td class="amount">$ 264.800,00</td><td><span class="due-date date-value">05/10/2026</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </article>
+    </section>
+
+    <section class="dashboard-panel table-panel stock-panel">
+        <header class="panel-header compact">
+            <div>
+                <span class="panel-eyebrow">Inventario</span>
+                <h2>Productos con stock bajo</h2>
+            </div>
+            <button class="panel-link" type="button" disabled>Ir a Stock <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+        </header>
+        <div class="table-scroll">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Código</th><th>Producto</th><th>Depósito</th><th class="align-right">Actual</th><th class="align-right">Mínimo</th><th>Situación</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="code-value">ART-0182</td><td>Tóner LaserJet 85A</td><td>Central</td><td class="amount">2</td><td class="amount">10</td><td><span class="status-badge is-danger">Crítico</span></td></tr>
+                    <tr><td class="code-value">ART-0417</td><td>Resma A4 80 g</td><td>Central</td><td class="amount">14</td><td class="amount">25</td><td><span class="status-badge is-warning">Bajo</span></td></tr>
+                    <tr><td class="code-value">ART-0064</td><td>Mouse inalámbrico</td><td>Sucursal</td><td class="amount">4</td><td class="amount">8</td><td><span class="status-badge is-warning">Bajo</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
 {% endblock %}

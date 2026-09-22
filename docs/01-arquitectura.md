@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-NERISOFT será un ERP administrativo, comercial y contable pensado para una empresa inicialmente, con múltiples usuarios conectados por red local.
+NERISOFT es un ERP administrativo, comercial y contable pensado inicialmente para una empresa, con múltiples usuarios conectados por red local.
 
 La prioridad es mantener una arquitectura simple, mantenible y trazable, evitando complejidad innecesaria.
 
@@ -28,7 +28,10 @@ La prioridad es mantener una arquitectura simple, mantenible y trazable, evitand
 - HTMX
 - Vanilla JavaScript
 - CSS propio
-- Tabler Icons por CDN
+- Geist local
+- Tabler Icons Webfont local
+
+Los assets visuales críticos se sirven desde `app/static/vendor/`. No se depende de CDNs durante la ejecución normal.
 
 ### Servidor
 
@@ -51,20 +54,21 @@ Los puestos cliente nunca deben abrir, montar o escribir directamente el archivo
 
 SQLite es válido para la primera etapa si la aplicación centraliza todos los accesos a través del servidor.
 
-Configuración prevista:
+Configuración actual:
 
 ```sql
 PRAGMA journal_mode=WAL;
 PRAGMA foreign_keys=ON;
+PRAGMA synchronous=NORMAL;
 PRAGMA busy_timeout=5000;
 ```
 
 Reglas:
 
-- Transacciones cortas.
-- Nunca mantener una transacción abierta mientras el usuario está editando una pantalla.
-- La transacción comienza al confirmar una operación.
-- Toda operación compuesta debe ser atómica.
+- transacciones cortas;
+- nunca mantener una transacción abierta mientras el usuario edita una pantalla;
+- la transacción comienza al confirmar una operación;
+- toda operación compuesta debe ser atómica.
 
 Ejemplo:
 
@@ -86,40 +90,93 @@ Ante cualquier error:
 ROLLBACK
 ```
 
+## Shell y navegación
+
+Las pantallas autenticadas reutilizan `authenticated.html` como shell compartido.
+
+HTMX mejora progresivamente la navegación entre páginas compatibles:
+
+```text
+sidebar + topbar permanecen montados
+            ↓
+solo cambia .workspace
+```
+
+Las rutas FastAPI continúan devolviendo HTML completo. Si JavaScript o HTMX no están disponibles, los enlaces conservan navegación HTML normal.
+
+La autorización nunca depende de HTMX: siempre se valida en backend.
+
+## Seguridad base
+
+- contraseñas con Argon2 mediante `pwdlib`;
+- sesión firmada de Starlette;
+- cookie `HttpOnly`, `SameSite=Lax`, máximo 8 horas;
+- CSRF en operaciones de escritura existentes;
+- usuarios inactivos no pueden mantener acceso;
+- helpers de autenticación y CSRF centralizados en `app/core/auth.py`;
+- `/setup` solo se admite desde loopback por defecto mientras la instalación está vacía;
+- para producción en red debe utilizarse HTTPS y `NERISOFT_SESSION_HTTPS_ONLY=true`.
+
+## Assets locales
+
+NERISOFT requiere localmente:
+
+- Geist `v1.7.2`;
+- Tabler Icons Webfont `3.35.0`;
+- HTMX `2.0.7`.
+
+Se instalan con:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\vendor-assets.ps1
+```
+
+Si faltan assets críticos, el arranque se detiene con un error explícito en lugar de recurrir silenciosamente a Internet.
+
+## Formateo
+
+El formateo visible se centraliza progresivamente en `app/core/formatting.py`.
+
+Los `DATETIME` sin zona horaria provenientes de `CURRENT_TIMESTAMP` de SQLite se interpretan como UTC y se convierten a `America/Argentina/Cordoba` para su presentación.
+
 ## Migración futura
 
 El código debe evitar depender innecesariamente de particularidades de SQLite para facilitar una futura migración a PostgreSQL si la concurrencia o el volumen lo requieren.
 
-## Estructura inicial prevista
+## Estructura actual relevante
 
 ```text
 nerisoft/
 ├── app/
 │   ├── main.py
+│   ├── users.py
 │   ├── core/
+│   │   ├── assets.py
+│   │   ├── auth.py
 │   │   ├── config.py
 │   │   ├── database.py
+│   │   ├── formatting.py
 │   │   ├── security.py
-│   │   ├── permissions.py
-│   │   └── formatting.py
+│   │   ├── templates.py
+│   │   └── user_validation.py
 │   ├── models/
-│   ├── schemas/
-│   ├── services/
-│   ├── routes/
-│   ├── accounting/
 │   ├── templates/
+│   │   ├── base.html
+│   │   └── authenticated.html
 │   └── static/
 │       ├── css/
 │       ├── js/
-│       └── img/
+│       └── vendor/
 ├── alembic/
+├── scripts/
 ├── tests/
-├── alembic.ini
+├── .github/workflows/
 ├── requirements.txt
+├── requirements-dev.txt
 └── run.py
 ```
 
-No se crearán capas adicionales por costumbre. Cualquier `repository`, abstracción o servicio adicional deberá justificar su existencia.
+No se crearán capas adicionales por costumbre. Cada abstracción debe reducir duplicación o aislar una responsabilidad real.
 
 ## Módulos funcionales
 
@@ -160,13 +217,11 @@ NERISOFT
 
 Multiempresa no forma parte de la primera versión.
 
-Aun así, deben evitarse decisiones que hagan imposible incorporarla más adelante. No se agregará `empresa_id` indiscriminadamente desde el inicio si no aporta valor real todavía, pero tampoco se hardcodearán datos societarios dentro de lógica de negocio.
+Deben evitarse decisiones que impidan incorporarla más adelante, pero no se agregará `empresa_id` indiscriminadamente antes de necesitarlo. Mientras Configuración de Empresa no esté implementada, el shell muestra un estado neutro `Sin configurar` y no hardcodea una sociedad ficticia.
 
 ## Contabilidad integrada
 
 La contabilidad forma parte de la operación, no de un proceso diferido opcional.
-
-Ejemplo conceptual:
 
 ```text
 Factura
@@ -176,19 +231,14 @@ Factura
 └── Asiento contable
 ```
 
-Las relaciones entre documentos, movimientos y asientos deben ser explícitas y navegables.
+Las cuentas contables se asignarán mediante configuración y nunca mediante constantes de negocio hardcodeadas.
 
-## Configuración contable
+## Validación automática
 
-Las cuentas contables no se hardcodean en el código.
+El proyecto mantiene tests básicos en `tests/` y un workflow en `.github/workflows/tests.yml` que ejecuta:
 
-Ejemplo:
+- compilación de Python;
+- pytest;
+- validación de sintaxis de JavaScript.
 
-```text
-Ventas mercaderías  -> 4.1.01.001 Ventas
-IVA débito fiscal   -> 2.1.03.001 IVA Débito Fiscal
-Clientes            -> 1.1.03.001 Deudores por Ventas
-Caja                -> 1.1.01.001 Caja
-```
-
-Las reglas podrán evolucionar por categoría, producto, tipo de operación u otra dimensión si el negocio lo requiere.
+Las pruebas locales de interfaz siguen siendo obligatorias después de cada tarea.

@@ -3,34 +3,7 @@
 const SIDEBAR_STORAGE_KEY = "nerisoft.sidebar.collapsed";
 const PARTIAL_SWAP = "outerHTML swap:60ms settle:100ms";
 
-const DOCUMENT_PREFIXES = Object.freeze({
-    FAC: "FC",
-    NCA: "NC",
-    NDA: "ND",
-    REC: "RC",
-    OP: "OP",
-    OC: "OC",
-    REM: "RM",
-    PRE: "PR",
-    PED: "PD",
-});
-
-function abbreviateDocumentLabel(value) {
-    const text = String(value ?? "").trim();
-    if (!text) {
-        return text;
-    }
-
-    const [prefix, ...rest] = text.split(/\s+/);
-    const abbreviation = DOCUMENT_PREFIXES[prefix];
-    return abbreviation ? [abbreviation, ...rest].join(" ") : text;
-}
-
-window.NERISOFT = Object.freeze({
-    name: "NERISOFT",
-    documentAbbreviations: DOCUMENT_PREFIXES,
-    abbreviateDocumentLabel,
-});
+window.NERISOFT = Object.freeze({ name: "NERISOFT" });
 
 function readSidebarState() {
     try {
@@ -60,114 +33,37 @@ function applySidebarState(shell, toggle, collapsed) {
     }
 }
 
-function installShellDestinations() {
-    const homeLink = document.querySelector('.nav-item[title="Inicio"]');
-    if (homeLink && homeLink.getAttribute("href") === "#") {
-        homeLink.setAttribute("href", "/");
-    }
+function installSidebarControl() {
+    const shell = document.querySelector("[data-app-shell]");
+    const toggle = document.getElementById("sidebar-toggle");
 
-    const configurationLink = document.querySelector('.nav-item[title="Configuración"]');
-    if (configurationLink && configurationLink.getAttribute("href") === "#") {
-        configurationLink.setAttribute("href", "/configuracion/usuarios");
-    }
-}
-
-function ensureStylesheet(path) {
-    const exists = Array.from(document.querySelectorAll('link[rel="stylesheet"][href]')).some((link) => {
-        try {
-            return new URL(link.href, window.location.href).pathname === path;
-        } catch {
-            return false;
-        }
-    });
-
-    if (exists) {
+    if (!shell || !toggle) {
         return;
     }
 
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = path;
-    link.dataset.nerisoftSharedAsset = "";
-    document.head.append(link);
-}
+    applySidebarState(shell, toggle, readSidebarState());
 
-function ensureScript(path) {
-    const exists = Array.from(document.querySelectorAll("script[src]")).some((script) => {
-        try {
-            return new URL(script.src, window.location.href).pathname === path;
-        } catch {
-            return false;
-        }
-    });
-
-    if (exists) {
+    if (toggle.dataset.nerisoftSidebarBound === "true") {
         return;
     }
 
-    const script = document.createElement("script");
-    script.src = path;
-    script.dataset.nerisoftSharedAsset = "";
-    document.head.append(script);
-}
-
-function preloadAuthenticatedAssets() {
-    if (!document.querySelector("[data-app-shell]")) {
-        return;
-    }
-
-    ensureStylesheet("/static/css/dashboard.css");
-    ensureStylesheet("/static/css/users.css");
-    ensureScript("/static/js/setup.js");
-}
-
-function applyVisibleDataConventions(root = document) {
-    const scope = root instanceof Element ? root : document;
-
-    scope.querySelectorAll(".document-number").forEach((node) => {
-        node.textContent = abbreviateDocumentLabel(node.textContent);
-    });
-
-    scope.querySelectorAll(".recent-documents-panel tbody td:nth-child(3)").forEach((node) => {
-        node.classList.add("date-value");
-    });
-
-    scope.querySelectorAll(".due-date").forEach((node) => {
-        if (/\b\d{2}\/\d{2}\/\d{4}\b/.test(node.textContent ?? "")) {
-            node.classList.add("date-value");
-        }
-    });
-
-    scope.querySelectorAll(".stock-panel tbody td:first-child").forEach((node) => {
-        node.classList.remove("document-number");
-        node.classList.add("code-value");
+    toggle.dataset.nerisoftSidebarBound = "true";
+    toggle.addEventListener("click", () => {
+        const collapsed = !shell.classList.contains("sidebar-collapsed");
+        applySidebarState(shell, toggle, collapsed);
+        writeSidebarState(collapsed);
     });
 }
 
-function applyAuthenticatedUser(root = document) {
-    const firstName = document.body.dataset.currentUserFirstName?.trim();
-    const initials = document.body.dataset.currentUserInitials?.trim();
-    const scope = root instanceof Element ? root : document;
-
-    if (firstName) {
-        const userName = document.querySelector(".user-name");
-        const greeting = scope.querySelector(".dashboard-title-row h1");
-
-        if (userName) {
-            userName.textContent = firstName;
-        }
-
-        if (greeting) {
-            greeting.textContent = `Buen día, ${firstName}`;
-        }
-    }
-
-    if (initials) {
-        const avatar = document.querySelector(".user-avatar");
-        if (avatar) {
-            avatar.textContent = initials;
-        }
-    }
+function isPlainPrimaryClick(event) {
+    return (
+        event.button === 0
+        && !event.defaultPrevented
+        && !event.metaKey
+        && !event.ctrlKey
+        && !event.shiftKey
+        && !event.altKey
+    );
 }
 
 function pagePath(value = window.location.href) {
@@ -206,76 +102,12 @@ function updateShellNavigation(value = window.location.href) {
     }
 }
 
-function installLogoutControl() {
-    const actions = document.querySelector(".topbar-actions");
-    const userControl = actions?.querySelector(".user-control");
-    const csrfToken = document.body.dataset.csrfToken?.trim();
-
-    if (!actions || !userControl || !csrfToken || actions.querySelector("[data-logout-form]")) {
-        return;
-    }
-
-    const form = document.createElement("form");
-    form.method = "post";
-    form.action = "/logout";
-    form.dataset.logoutForm = "";
-    form.setAttribute("aria-label", "Cerrar sesión");
-
-    const tokenInput = document.createElement("input");
-    tokenInput.type = "hidden";
-    tokenInput.name = "csrf_token";
-    tokenInput.value = csrfToken;
-
-    const button = document.createElement("button");
-    button.type = "submit";
-    button.className = "icon-button";
-    button.setAttribute("aria-label", "Cerrar sesión");
-    button.setAttribute("title", "Cerrar sesión");
-
-    const icon = document.createElement("i");
-    icon.className = "ti ti-logout";
-    icon.setAttribute("aria-hidden", "true");
-
-    button.append(icon);
-    form.append(tokenInput, button);
-    userControl.insertAdjacentElement("afterend", form);
-}
-
-function installSidebarControl() {
-    const shell = document.querySelector("[data-app-shell]");
-    const toggle = document.getElementById("sidebar-toggle");
-
-    if (!shell || !toggle) {
-        return;
-    }
-
-    applySidebarState(shell, toggle, readSidebarState());
-
-    if (toggle.dataset.nerisoftSidebarBound === "true") {
-        return;
-    }
-
-    toggle.dataset.nerisoftSidebarBound = "true";
-    toggle.addEventListener("click", () => {
-        const collapsed = !shell.classList.contains("sidebar-collapsed");
-        applySidebarState(shell, toggle, collapsed);
-        writeSidebarState(collapsed);
-    });
-}
-
-function isPlainPrimaryClick(event) {
-    return (
-        event.button === 0
-        && !event.defaultPrevented
-        && !event.metaKey
-        && !event.ctrlKey
-        && !event.shiftKey
-        && !event.altKey
-    );
-}
-
 function partialNavigationUrl(anchor) {
     if (!(anchor instanceof HTMLAnchorElement)) {
+        return null;
+    }
+
+    if (anchor.getAttribute("aria-disabled") === "true") {
         return null;
     }
 
@@ -306,7 +138,12 @@ function partialNavigationUrl(anchor) {
 }
 
 function usersFilterUrl(form) {
-    if (!(form instanceof HTMLFormElement) || !form.closest(".workspace")) {
+    if (!(form instanceof HTMLFormElement) || !form.matches(".users-filters")) {
+        return null;
+    }
+
+    const workspace = form.closest(".workspace");
+    if (!(workspace instanceof Element)) {
         return null;
     }
 
@@ -328,11 +165,7 @@ function usersFilterUrl(form) {
         }
     }
     action.search = params.toString();
-    return action;
-}
-
-function cleanDetachedSelectMenus() {
-    document.querySelectorAll(".nerisoft-select-menu").forEach((menu) => menu.remove());
+    return { url: action, workspace };
 }
 
 function runPartialNavigation(url, source) {
@@ -341,9 +174,7 @@ function runPartialNavigation(url, source) {
         return false;
     }
 
-    cleanDetachedSelectMenus();
     const path = `${url.pathname}${url.search}${url.hash}`;
-
     window.htmx.ajax("GET", path, {
         source,
         target: workspace,
@@ -383,21 +214,22 @@ function redirectedHtmxRequest(event) {
     return false;
 }
 
-function initializeDynamicContent(root = document, route = window.location.href) {
-    applyVisibleDataConventions(root);
-    applyAuthenticatedUser(root);
+function initializeDynamicContent(route = window.location.href) {
     updateShellNavigation(route);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    installShellDestinations();
-    preloadAuthenticatedAssets();
-    installLogoutControl();
     installSidebarControl();
     initializeDynamicContent();
 });
 
 document.addEventListener("click", (event) => {
+    const disabledAnchor = event.target.closest?.('a[aria-disabled="true"]');
+    if (disabledAnchor) {
+        event.preventDefault();
+        return;
+    }
+
     if (!isPlainPrimaryClick(event)) {
         return;
     }
@@ -414,13 +246,12 @@ document.addEventListener("click", (event) => {
 });
 
 document.addEventListener("submit", (event) => {
-    const form = event.target;
-    const url = usersFilterUrl(form);
-    if (!url) {
+    const request = usersFilterUrl(event.target);
+    if (!request) {
         return;
     }
 
-    if (runPartialNavigation(url, form)) {
+    if (runPartialNavigation(request.url, request.workspace)) {
         event.preventDefault();
     }
 });
@@ -436,9 +267,9 @@ document.addEventListener("htmx:afterSwap", (event) => {
     }
 
     const route = event.detail?.requestConfig?.path ?? window.location.href;
-    initializeDynamicContent(workspace, route);
+    initializeDynamicContent(route);
 });
 
 document.addEventListener("htmx:historyRestore", () => {
-    initializeDynamicContent(document, window.location.href);
+    initializeDynamicContent(window.location.href);
 });

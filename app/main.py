@@ -1,34 +1,40 @@
 from __future__ import annotations
 
-import re
 import secrets
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, Form, Request, status
+from fastapi import Depends, FastAPI, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from starlette.middleware.sessions import SessionMiddleware
 
+from app.core.assets import ensure_vendor_assets_ready
+from app.core.auth import (
+    authenticated_user,
+    csrf_is_valid,
+    csrf_token,
+    setup_request_is_allowed,
+    user_display,
+)
 from app.core.config import settings
 from app.core.database import database_is_ready, get_db
 from app.core.security import hash_password, verify_password
+from app.core.templates import templates
+from app.core.user_validation import normalized_user_values, validate_user_identity
 from app.models import User
 from app.users import router as users_router
 
 
-templates = Jinja2Templates(directory=str(settings.templates_dir))
 SETUP_TOKEN = secrets.token_urlsafe(32)
-USERNAME_RE = re.compile(r"^[a-z0-9._-]+$")
-EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     settings.data_dir.mkdir(parents=True, exist_ok=True)
+    ensure_vendor_assets_ready()
     database_is_ready()
     yield
 
@@ -59,43 +65,16 @@ def _users_exist(db: Session) -> bool:
     return user_count > 0
 
 
-def _csrf_token(request: Request) -> str:
-    token = request.session.get("csrf_token")
-    if not isinstance(token, str) or len(token) < 32:
-        token = secrets.token_urlsafe(32)
-        request.session["csrf_token"] = token
-    return token
-
-
-def _csrf_is_valid(request: Request, token: str) -> bool:
-    expected = request.session.get("csrf_token")
-    return (
-        isinstance(expected, str)
-        and bool(token)
-        and secrets.compare_digest(token, expected)
+def _require_setup_access(request: Request) -> None:
+    if setup_request_is_allowed(request, allow_remote=settings.setup_allow_remote):
+        return
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail=(
+            "La configuración inicial debe realizarse desde el servidor de NERISOFT. "
+            "Para habilitarla temporalmente desde la LAN usá NERISOFT_SETUP_ALLOW_REMOTE=true."
+        ),
     )
-
-
-def _authenticated_user(request: Request, db: Session) -> User | None:
-    user_id = request.session.get("user_id")
-    if not isinstance(user_id, int):
-        return None
-
-    user = db.get(User, user_id)
-    if user is None or not user.is_active:
-        request.session.clear()
-        return None
-
-    return user
-
-
-def _user_display(user: User) -> tuple[str, str]:
-    parts = [part for part in user.name.strip().split() if part]
-    first_name = parts[0] if parts else user.username
-    initials = "".join(part[0].upper() for part in parts[:2])
-    if not initials:
-        initials = user.username[:2].upper()
-    return first_name, initials
 
 
 def _setup_response(
@@ -132,7 +111,7 @@ def _login_response(
         context={
             "app_name": settings.app_name,
             "app_version": settings.app_version,
-            "csrf_token": _csrf_token(request),
+            "csrf_token": csrf_token(request),
             "login_error": error,
             "values": {"username": username},
         },
@@ -145,11 +124,11 @@ def home(request: Request, db: Session = Depends(get_db)):
     if not _users_exist(db):
         return RedirectResponse(url="/setup", status_code=status.HTTP_303_SEE_OTHER)
 
-    user = _authenticated_user(request, db)
+    user = authenticated_user(request, db)
     if user is None:
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
 
-    first_name, initials = _user_display(user)
+    first_name, initials = user_display(user)
     return templates.TemplateResponse(
         request=request,
         name="index.html",
@@ -159,7 +138,7 @@ def home(request: Request, db: Session = Depends(get_db)):
             "current_user": user,
             "current_user_first_name": first_name,
             "current_user_initials": initials,
-            "csrf_token": _csrf_token(request),
+            "csrf_token": csrf_token(request),
         },
     )
 
@@ -169,7 +148,7 @@ def login(request: Request, db: Session = Depends(get_db)):
     if not _users_exist(db):
         return RedirectResponse(url="/setup", status_code=status.HTTP_303_SEE_OTHER)
 
-    if _authenticated_user(request, db) is not None:
+    if authenticated_user(request, db) is not None:
         return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
 
     return _login_response(request)
@@ -180,7 +159,7 @@ def authenticate(
     request: Request,
     username: str = Form(""),
     password: str = Form(""),
-    csrf_token: str = Form(""),
+    csrf_token_value: str = Form("", alias="csrf_token"),
     db: Session = Depends(get_db),
 ):
     if not _users_exist(db):
@@ -188,7 +167,7 @@ def authenticate(
 
     identity = username.strip().lower()
 
-    if not _csrf_is_valid(request, csrf_token):
+    if not csrf_is_valid(request, csrf_token_value):
         request.session.clear()
         return _login_response(
             request,
@@ -238,9 +217,9 @@ def authenticate(
 @app.post("/logout", include_in_schema=False)
 def logout(
     request: Request,
-    csrf_token: str = Form(""),
+    csrf_token_value: str = Form("", alias="csrf_token"),
 ):
-    if not _csrf_is_valid(request, csrf_token):
+    if not csrf_is_valid(request, csrf_token_value):
         request.session.clear()
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -252,6 +231,7 @@ def logout(
 def setup(request: Request, db: Session = Depends(get_db)):
     if _users_exist(db):
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    _require_setup_access(request)
     return _setup_response(request)
 
 
@@ -268,28 +248,13 @@ def create_initial_admin(
 ):
     if _users_exist(db):
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    _require_setup_access(request)
 
-    clean_name = name.strip()
-    clean_username = username.strip().lower()
-    clean_email = email.strip().lower()
-    values = {
-        "name": clean_name,
-        "username": clean_username,
-        "email": clean_email,
-    }
-    errors: dict[str, str] = {}
+    values = normalized_user_values(name, username, email)
+    errors = validate_user_identity(values)
 
     if not secrets.compare_digest(setup_token, SETUP_TOKEN):
         errors["_form"] = "La sesión de configuración venció. Recargá la página e intentá nuevamente."
-
-    if len(clean_name) < 2 or len(clean_name) > 120:
-        errors["name"] = "Ingresá un nombre válido de hasta 120 caracteres."
-
-    if not 3 <= len(clean_username) <= 64 or not USERNAME_RE.fullmatch(clean_username):
-        errors["username"] = "Usá entre 3 y 64 caracteres: letras, números, punto, guion o guion bajo."
-
-    if len(clean_email) > 254 or not EMAIL_RE.fullmatch(clean_email):
-        errors["email"] = "Ingresá un correo electrónico válido."
 
     if not 10 <= len(password) <= 128:
         errors["password"] = "La contraseña debe tener entre 10 y 128 caracteres."
@@ -306,9 +271,9 @@ def create_initial_admin(
         )
 
     user = User(
-        name=clean_name,
-        username=clean_username,
-        email=clean_email,
+        name=values["name"],
+        username=values["username"],
+        email=values["email"],
         password_hash=hash_password(password),
         is_active=True,
         is_superuser=True,

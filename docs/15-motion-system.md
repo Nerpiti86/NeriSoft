@@ -4,7 +4,7 @@ Actualizado: 22/09/2026
 
 ## Objetivo
 
-NERISOFT mantiene una capa de movimiento corta y funcional para controles, paneles y popovers, sin animar todavía la navegación completa entre páginas.
+NERISOFT mantiene una capa de movimiento corta y funcional para controles, paneles, popovers y reemplazos parciales de workspace.
 
 ## Principios
 
@@ -33,31 +33,35 @@ Reglas:
 - respetar `prefers-reduced-motion`;
 - no ocultar problemas de carga mediante animaciones.
 
-## Corrección de navegación
+## Navegación
 
-La primera prueba utilizó View Transitions sobre páginas completas. En la prueba real se observaron artefactos al coincidir la transición con la carga tardía de Geist y Tabler Icons desde Internet.
+La primera prueba con View Transitions de documentos completos se descartó porque amplificaba artefactos de carga.
 
-Por esa razón se retira temporalmente:
+El enfoque vigente es estructural:
 
-- `@view-transition`;
-- nombres de transición para sidebar/topbar/workspace;
-- fade de entrada global del workspace;
-- `@starting-style` de página completa.
+```text
+sidebar + topbar permanecen montados
+            ↓
+HTMX reemplaza solo .workspace
+```
 
-La navegación vuelve a ser directa y estable mientras se corrige primero el origen de los saltos visuales: los assets externos.
+El workspace utiliza una salida breve de 60 ms y asentamiento de 100 ms. No se anima el documento completo.
 
 ## Movimiento que permanece
 
-Se conservan microtransiciones de bajo costo para:
-
-- formulario de alta/edición de usuarios;
+- alta/edición de usuarios;
 - avisos de estado;
 - Select NERISOFT;
 - sidebar expandida/contraída;
-- hover/focus de controles y paneles.
+- hover/focus de controles;
+- swap parcial del workspace.
 
-## Próxima evolución
+## Reduced motion
 
-Si luego de estabilizar tipografía e iconos la navegación completa continúa sintiéndose brusca, el siguiente enfoque será mantener el shell persistente y reemplazar únicamente el workspace mediante HTMX.
+Con `prefers-reduced-motion: reduce` las animaciones y transiciones se reducen prácticamente a cero.
 
-Eso evita animar dos documentos completos y permite una transición realmente estructural.
+## Regla futura
+
+Los módulos nuevos deben integrarse a la misma navegación parcial solo cuando sus GET puedan devolver una `.workspace` compatible sin alterar autorización ni semántica del backend.
+
+Las mutaciones POST no se convierten automáticamente a HTMX: requieren una estrategia uniforme para errores, notices, redirects y CSRF.

@@ -27,7 +27,7 @@
 
         <div class="login-brand-footer">
             <span>v{{ app_version }}</span>
-            <span>NERISOFT · 2026</span>
+            <span>NERISOFT · {{ current_year() }}</span>
         </div>
     </aside>
 
@@ -67,7 +67,7 @@
                 <div class="form-field">
                     <div class="field-label-row">
                         <label for="login-password">Contraseña</label>
-                        <button class="login-text-action" type="button" tabindex="-1">¿Olvidaste tu contraseña?</button>
+                        <button class="login-text-action" type="button" disabled title="Recuperación de contraseña disponible en una etapa posterior">¿Olvidaste tu contraseña?</button>
                     </div>
                     <div class="login-input-wrap">
                         <i class="ti ti-lock" aria-hidden="true"></i>

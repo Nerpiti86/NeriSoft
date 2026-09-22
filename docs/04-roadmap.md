@@ -1,10 +1,29 @@
 # 04 — Roadmap de NERISOFT
 
-El desarrollo se realizará por etapas cerradas. Cada etapa se divide en tareas pequeñas; una tarea debe dejar `main` en estado ejecutable.
+El desarrollo se realiza por etapas cerradas. Cada tarea debe dejar `main` ejecutable y verificable.
 
-## Etapa 0 — Base técnica
+## Estado actual — 22/09/2026
 
-Objetivo: proyecto arrancando limpio.
+Completado:
+
+- base técnica FastAPI + SQLAlchemy + SQLite + Alembic;
+- sistema visual, shell y dashboard de referencia;
+- login funcional y sesión;
+- configuración inicial del administrador;
+- gestión de usuarios;
+- Select NERISOFT;
+- assets locales de Geist, Tabler Icons y HTMX;
+- navegación parcial HTMX con shell persistente;
+- saneamiento técnico previo a Roles y Permisos;
+- tests básicos y workflow automático.
+
+Siguiente bloque funcional previsto:
+
+```text
+Roles y permisos
+```
+
+## Etapa 0 — Base técnica ✅
 
 - estructura FastAPI
 - Uvicorn
@@ -12,18 +31,12 @@ Objetivo: proyecto arrancando limpio.
 - SQLite
 - Alembic
 - Jinja2
-- HTMX
-- Tabler Icons CDN
-- `static/css`, `static/js`, `templates`
+- HTMX local
+- Geist local
+- Tabler Icons local
 - configuración general
 
-Resultado esperado:
-
-```bash
-python -m uvicorn app.main:app --reload
-```
-
-## Etapa 1 — Sistema visual
+## Etapa 1 — Sistema visual ✅
 
 - layout 100% viewport
 - sidebar colapsable
@@ -33,17 +46,28 @@ python -m uvicorn app.main:app --reload
 - Geist
 - números tabulares
 - componentes base
+- navegación parcial de workspace
 
-## Etapa 2 — Seguridad
+## Etapa 2 — Seguridad — EN CURSO
 
-- login
-- logout
-- sesiones
-- usuarios
-- roles
-- permisos
-- protección de rutas
-- CSRF donde corresponda
+Completado:
+
+- login;
+- logout;
+- sesiones;
+- usuarios;
+- protección de rutas;
+- CSRF en operaciones existentes;
+- setup inicial restringido al servidor por defecto.
+
+Pendiente:
+
+- roles;
+- permisos granulares;
+- cambio de contraseña;
+- recuperación de contraseña;
+- rate limiting/bloqueo ante intentos fallidos;
+- política de despliegue HTTPS.
 
 ## Etapa 3 — Auditoría
 
@@ -60,6 +84,8 @@ python -m uvicorn app.main:app --reload
 - parámetros generales
 - moneda principal
 - condiciones fiscales básicas
+
+Hasta esta etapa el shell no debe mostrar una empresa ficticia como si estuviera configurada.
 
 ## Etapa 5 — Maestros
 
@@ -192,9 +218,9 @@ La generación contable estará integrada antes de esta etapa; aquí se completa
 
 Validar que operaciones como una factura ejecuten todos sus impactos dentro de una única unidad transaccional.
 
-## Etapa 15 — Dashboard
+## Etapa 15 — Dashboard real
 
-Se construirá cuando existan datos reales.
+El dashboard visual ya existe con datos de muestra. Se conectará a datos reales cuando existan los módulos correspondientes.
 
 Indicadores previstos:
 
@@ -222,24 +248,14 @@ A implementar contra normativa vigente al momento del desarrollo:
 - Libro IVA
 - IVA Simple
 
-## Primeras 10 tareas concretas
-
-1. Bootstrap técnico FastAPI + SQLAlchemy + SQLite + Jinja2
-2. Layout principal NERISOFT
-3. Design system CSS grafito/dorado
-4. Sidebar colapsable
-5. Login
-6. Usuarios
-7. Roles y permisos
-8. Auditoría
-9. Configuración de empresa
-10. Clientes
-
-Después:
+## Próximas tareas naturales
 
 ```text
-Productos
-→ Depósitos
+Roles y permisos
+→ Auditoría
+→ Configuración de empresa
+→ Clientes
+→ Proveedores / Productos / Depósitos
 → Stock
 → Ventas
 → Cuenta corriente
