@@ -71,6 +71,24 @@ El Select NERISOFT ya posee un `MutationObserver`, por lo que los selects nuevos
 
 Antes de retirar un workspace se eliminan los menús flotantes del Select NERISOFT para no dejar nodos huérfanos en `document.body`.
 
+## Filtros GET de usuarios
+
+Los filtros construyen una única URL a partir de `FormData` y la envían mediante HTMX sin volver a serializar el formulario como `source`.
+
+Esto evita duplicaciones como:
+
+```text
+?q=&estado=activos&q=&estado=activos
+```
+
+La forma correcta queda:
+
+```text
+?q=&estado=activos
+```
+
+El ajuste se implementa en `app/static/js/partial-filters.js`, que intercepta únicamente `.users-filters` y deja intactos los demás formularios.
+
 ## Redirecciones
 
 Si una petición HTMX termina en otra ruta por una redirección del servidor —por ejemplo sesión vencida o usuario inexistente— NERISOFT cancela el swap parcial y realiza una navegación normal a la URL final.
@@ -118,3 +136,5 @@ Inicio
 ```
 
 sidebar y topbar deben permanecer visualmente estables y las operaciones GET deben reemplazar solo el workspace.
+
+Al aplicar filtros de usuarios, cada parámetro debe aparecer una sola vez en la URL solicitada.
