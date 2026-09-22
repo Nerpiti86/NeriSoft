@@ -89,6 +89,27 @@ No se ocultan problemas funcionales, de autorización o de renderizado mediante 
 - Usuarios muestra roles asignados y permite administrarlos según alcance;
 - Roles y permisos permite alta, edición y activación/desactivación.
 
+## Terminología de acceso en la interfaz
+
+La UI debe mantener un único modelo mental y no mezclar sinónimos técnicos:
+
+- **Usuario**: cuenta de una persona que puede iniciar sesión en NERISOFT.
+- **Rol**: conjunto reutilizable de permisos que se asigna a uno o más usuarios.
+- **Permiso**: acción concreta que un rol habilita.
+- **Administrador del sistema**: cuenta con acceso total que no depende de roles para obtener permisos.
+
+Flujo que debe comunicar la interfaz:
+
+```text
+1. Crear un rol.
+2. Elegir los permisos de ese rol.
+3. Crear o editar un usuario.
+4. Asignarle uno o más roles.
+5. Los permisos de los roles asignados se combinan para definir el acceso del usuario.
+```
+
+En textos destinados al usuario final se evita usar `perfil`, `alcance` o `autorización` como sinónimos de rol/permisos. Esos términos pueden existir en documentación técnica o controles internos cuando sean precisos, pero la interfaz debe explicar la acción en lenguaje directo.
+
 ## Assets locales
 
 Versiones fijadas:
@@ -216,6 +237,13 @@ Estado actual:
 - Roles y Permisos 9.1 y 9.2 completados
 - asignación de roles a usuarios y permisos granulares 9.3 completados
 - siguiente tarea: 9.4 Validación integral de permisos
+
+Terminología UI de acceso:
+Usuario = cuenta que entra al sistema.
+Rol = conjunto de permisos asignable a usuarios.
+Permiso = acción habilitada por un rol.
+Administrador del sistema = acceso total sin depender de roles.
+No mezclar estos términos con “perfil”, “alcance” o “autorización” en textos de interfaz.
 
 Antes de modificar, revisar main y docs relacionados. Mantener convenciones visuales, de seguridad y de datos.
 No tapar síntomas con CSS/JS: corregir la causa en la capa responsable y eliminar workarounds previos.
