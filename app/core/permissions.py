@@ -124,6 +124,16 @@ def role_is_within_user_scope(db: Session, role_id: int, user: User) -> bool:
     return role_permission_codes(db, role_id).issubset(permission_codes_for_user(db, user))
 
 
+def user_is_within_user_scope(db: Session, target_user: User, user: User) -> bool:
+    if user.is_superuser:
+        return True
+    if target_user.is_superuser:
+        return False
+    return permission_codes_for_user(db, target_user).issubset(
+        permission_codes_for_user(db, user)
+    )
+
+
 def role_is_assigned_to_user(db: Session, role_id: int, user_id: int) -> bool:
     statement = (
         select(user_roles.c.role_id)

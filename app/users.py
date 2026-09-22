@@ -4,15 +4,20 @@ from fastapi import APIRouter, Depends, Form, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
-from app.core.auth import csrf_is_valid, csrf_token, superuser_or_redirect, user_display
+from app.core.auth import csrf_is_valid, csrf_token, permission_or_redirect, user_display
 from app.core.config import settings
 from app.core.database import get_db
+from app.core.permissions import (
+    permission_codes_for_user,
+    role_is_within_user_scope,
+    user_is_within_user_scope,
+)
 from app.core.security import hash_password
 from app.core.templates import templates
 from app.core.user_validation import normalized_user_values, validate_user_identity
-from app.models import User
+from app.models import Role, User
 
 
 router = APIRouter(prefix="/configuracion/usuarios", include_in_schema=False)
@@ -38,6 +43,54 @@ def _duplicate_identity_errors(
     return errors
 
 
+def _user_by_id(db: Session, user_id: int) -> User | None:
+    return db.scalar(
+        select(User)
+        .options(selectinload(User.roles).selectinload(Role.permissions))
+        .where(User.id == user_id)
+    )
+
+
+def _roles_for_scope(db: Session, current_user: User) -> tuple[Role, ...]:
+    roles = tuple(
+        db.scalars(
+            select(Role)
+            .options(selectinload(Role.permissions))
+            .order_by(func.lower(Role.name))
+        ).all()
+    )
+    if current_user.is_superuser:
+        return roles
+    return tuple(role for role in roles if role_is_within_user_scope(db, role.id, current_user))
+
+
+def _parse_role_ids(raw_role_ids: list[str]) -> tuple[frozenset[int], str | None]:
+    parsed: set[int] = set()
+    for raw_value in raw_role_ids:
+        try:
+            role_id = int(raw_value)
+        except (TypeError, ValueError):
+            return frozenset(), "La selección de roles contiene un valor inválido."
+        if role_id <= 0:
+            return frozenset(), "La selección de roles contiene un valor inválido."
+        parsed.add(role_id)
+    return frozenset(parsed), None
+
+
+def _role_selection(
+    db: Session,
+    current_user: User,
+    selected_ids: frozenset[int],
+) -> tuple[list[Role], dict[str, str]]:
+    allowed_roles = _roles_for_scope(db, current_user)
+    allowed_by_id = {role.id: role for role in allowed_roles}
+    if not selected_ids.issubset(allowed_by_id):
+        return [], {
+            "roles": "No podés asignar roles que estén fuera de tu propio alcance de permisos."
+        }
+    return [role for role in allowed_roles if role.id in selected_ids], {}
+
+
 def _users_response(
     request: Request,
     db: Session,
@@ -47,6 +100,7 @@ def _users_response(
     editing_user: User | None = None,
     errors: dict[str, str] | None = None,
     values: dict[str, str] | None = None,
+    selected_role_ids: frozenset[int] | None = None,
     status_code: int = status.HTTP_200_OK,
     notice: str | None = None,
 ):
@@ -55,7 +109,9 @@ def _users_response(
     if state_filter not in {"todos", "activos", "inactivos"}:
         state_filter = "todos"
 
-    statement = select(User)
+    statement = select(User).options(
+        selectinload(User.roles).selectinload(Role.permissions)
+    )
     if search_value:
         pattern = f"%{search_value.lower()}%"
         statement = statement.where(
@@ -82,13 +138,65 @@ def _users_response(
         select(func.count(User.id)).where(User.is_superuser.is_(True))
     ) or 0
 
+    granted_codes = permission_codes_for_user(db, current_user)
+    can_create_users = "system.users.create" in granted_codes
+    can_edit_users = "system.users.edit" in granted_codes
+    can_change_user_status = "system.users.status" in granted_codes
+    can_assign_roles = "system.users.assign_roles" in granted_codes
+
+    user_manageable = {
+        user.id: user_is_within_user_scope(db, user, current_user) for user in users
+    }
+    if editing_user is not None:
+        editing_user_manageable = user_is_within_user_scope(db, editing_user, current_user)
+        user_manageable[editing_user.id] = editing_user_manageable
+    else:
+        editing_user_manageable = False
+
+    assignable_roles = _roles_for_scope(db, current_user) if can_assign_roles else tuple()
+    assignable_role_ids = frozenset(role.id for role in assignable_roles)
+
+    if selected_role_ids is None:
+        if editing_user is not None:
+            selected_role_ids = frozenset(
+                role.id for role in editing_user.roles if role.id in assignable_role_ids
+            )
+        else:
+            selected_role_ids = frozenset()
+
+    can_edit_identity = form_mode == "create" or (
+        form_mode == "edit" and can_edit_users and editing_user_manageable
+    )
+    can_assign_roles_to_form_user = can_assign_roles and (
+        form_mode == "create"
+        or (
+            form_mode == "edit"
+            and editing_user is not None
+            and editing_user_manageable
+            and editing_user.id != current_user.id
+        )
+    )
+
+    hidden_assigned_roles = 0
+    if editing_user is not None:
+        hidden_assigned_roles = sum(
+            1 for role in editing_user.roles if role.id not in assignable_role_ids
+        )
+
     notice_key = notice or request.query_params.get("notice")
     notices = {
         "created": ("success", "Usuario creado correctamente."),
         "updated": ("success", "Usuario actualizado correctamente."),
         "activated": ("success", "Usuario activado correctamente."),
         "deactivated": ("success", "Usuario desactivado correctamente."),
-        "self-status-blocked": ("warning", "No podés desactivar tu propia sesión administrativa."),
+        "self-status-blocked": (
+            "warning",
+            "No podés desactivar tu propia sesión administrativa.",
+        ),
+        "target-protected": (
+            "warning",
+            "Ese usuario tiene un nivel de acceso fuera de tu alcance y no puede ser modificado desde esta sesión.",
+        ),
         "not-found": ("warning", "El usuario solicitado ya no existe."),
     }
     notice_payload = notices.get(notice_key or "")
@@ -116,14 +224,30 @@ def _users_response(
             "values": values or {},
             "notice_kind": notice_payload[0] if notice_payload else None,
             "notice_message": notice_payload[1] if notice_payload else None,
+            "can_create_users": can_create_users,
+            "can_edit_users": can_edit_users,
+            "can_change_user_status": can_change_user_status,
+            "can_assign_roles": can_assign_roles,
+            "can_edit_identity": can_edit_identity,
+            "can_assign_roles_to_form_user": can_assign_roles_to_form_user,
+            "assignable_roles": assignable_roles,
+            "selected_role_ids": selected_role_ids,
+            "hidden_assigned_roles": hidden_assigned_roles,
+            "user_manageable": user_manageable,
         },
         status_code=status_code,
     )
 
 
+def _mutation_permissions(db: Session, current_user: User) -> frozenset[str]:
+    return permission_codes_for_user(db, current_user).intersection(
+        {"system.users.edit", "system.users.assign_roles"}
+    )
+
+
 @router.get("", response_class=HTMLResponse)
 def users_list(request: Request, db: Session = Depends(get_db)):
-    current_user = superuser_or_redirect(request, db)
+    current_user = permission_or_redirect(request, db, "system.users.view")
     if isinstance(current_user, RedirectResponse):
         return current_user
     return _users_response(request, db, current_user)
@@ -131,7 +255,12 @@ def users_list(request: Request, db: Session = Depends(get_db)):
 
 @router.get("/nuevo", response_class=HTMLResponse)
 def new_user(request: Request, db: Session = Depends(get_db)):
-    current_user = superuser_or_redirect(request, db)
+    current_user = permission_or_redirect(
+        request,
+        db,
+        "system.users.view",
+        "system.users.create",
+    )
     if isinstance(current_user, RedirectResponse):
         return current_user
     return _users_response(request, db, current_user, form_mode="create")
@@ -146,25 +275,39 @@ def create_user(
     password: str = Form(""),
     password_confirm: str = Form(""),
     is_superuser: str = Form(""),
+    roles: list[str] = Form(default=[]),
     csrf_token_value: str = Form("", alias="csrf_token"),
     db: Session = Depends(get_db),
 ):
-    current_user = superuser_or_redirect(request, db)
+    current_user = permission_or_redirect(
+        request,
+        db,
+        "system.users.view",
+        "system.users.create",
+    )
     if isinstance(current_user, RedirectResponse):
         return current_user
+
+    granted_codes = permission_codes_for_user(db, current_user)
+    can_assign_roles = "system.users.assign_roles" in granted_codes
 
     values = normalized_user_values(name, username, email)
     values["is_superuser"] = "1" if is_superuser == "1" else ""
     errors = validate_user_identity(values)
 
     if not csrf_is_valid(request, csrf_token_value):
-        errors["_form"] = "La sesión del formulario venció. Recargá la página e intentá nuevamente."
+        errors["_form"] = (
+            "La sesión del formulario venció. Recargá la página e intentá nuevamente."
+        )
 
     if not 10 <= len(password) <= 128:
         errors["password"] = "La contraseña debe tener entre 10 y 128 caracteres."
 
     if password != password_confirm:
         errors["password_confirm"] = "Las contraseñas no coinciden."
+
+    if is_superuser == "1" and not current_user.is_superuser:
+        errors["_form"] = "Solo un administrador del sistema puede crear otro administrador."
 
     errors.update(
         _duplicate_identity_errors(
@@ -174,6 +317,16 @@ def create_user(
         )
     )
 
+    selected_role_ids, role_parse_error = _parse_role_ids(roles)
+    role_records: list[Role] = []
+    if role_parse_error:
+        errors["roles"] = role_parse_error
+    elif selected_role_ids and not can_assign_roles:
+        errors["roles"] = "No tenés permiso para asignar roles a usuarios."
+    elif can_assign_roles:
+        role_records, role_errors = _role_selection(db, current_user, selected_role_ids)
+        errors.update(role_errors)
+
     if errors:
         return _users_response(
             request,
@@ -182,6 +335,7 @@ def create_user(
             form_mode="create",
             errors=errors,
             values=values,
+            selected_role_ids=selected_role_ids,
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         )
 
@@ -191,7 +345,8 @@ def create_user(
         email=values["email"],
         password_hash=hash_password(password),
         is_active=True,
-        is_superuser=is_superuser == "1",
+        is_superuser=current_user.is_superuser and is_superuser == "1",
+        roles=role_records,
     )
     db.add(user)
 
@@ -204,8 +359,11 @@ def create_user(
             db,
             current_user,
             form_mode="create",
-            errors={"_form": "No se pudo crear el usuario porque los datos entraron en conflicto con otro registro."},
+            errors={
+                "_form": "No se pudo crear el usuario porque los datos entraron en conflicto con otro registro."
+            },
             values=values,
+            selected_role_ids=selected_role_ids,
             status_code=status.HTTP_409_CONFLICT,
         )
 
@@ -217,16 +375,29 @@ def create_user(
 
 @router.get("/{user_id}/editar", response_class=HTMLResponse)
 def edit_user(user_id: int, request: Request, db: Session = Depends(get_db)):
-    current_user = superuser_or_redirect(request, db)
+    current_user = permission_or_redirect(request, db, "system.users.view")
     if isinstance(current_user, RedirectResponse):
         return current_user
 
-    target_user = db.get(User, user_id)
+    allowed_mutations = _mutation_permissions(db, current_user)
+    if not allowed_mutations:
+        return RedirectResponse(url="/configuracion/usuarios", status_code=status.HTTP_303_SEE_OTHER)
+
+    target_user = _user_by_id(db, user_id)
     if target_user is None:
         return RedirectResponse(
             url="/configuracion/usuarios?notice=not-found",
             status_code=status.HTTP_303_SEE_OTHER,
         )
+
+    if not user_is_within_user_scope(db, target_user, current_user):
+        return RedirectResponse(
+            url="/configuracion/usuarios?notice=target-protected",
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
+    if target_user.id == current_user.id and "system.users.edit" not in allowed_mutations:
+        return RedirectResponse(url="/configuracion/usuarios", status_code=status.HTTP_303_SEE_OTHER)
 
     values = {
         "name": target_user.name,
@@ -252,35 +423,85 @@ def update_user(
     username: str = Form(""),
     email: str = Form(""),
     is_superuser: str = Form(""),
+    roles: list[str] = Form(default=[]),
     csrf_token_value: str = Form("", alias="csrf_token"),
     db: Session = Depends(get_db),
 ):
-    current_user = superuser_or_redirect(request, db)
+    current_user = permission_or_redirect(request, db, "system.users.view")
     if isinstance(current_user, RedirectResponse):
         return current_user
 
-    target_user = db.get(User, user_id)
+    allowed_mutations = _mutation_permissions(db, current_user)
+    if not allowed_mutations:
+        return RedirectResponse(url="/configuracion/usuarios", status_code=status.HTTP_303_SEE_OTHER)
+
+    target_user = _user_by_id(db, user_id)
     if target_user is None:
         return RedirectResponse(
             url="/configuracion/usuarios?notice=not-found",
             status_code=status.HTTP_303_SEE_OTHER,
         )
 
-    values = normalized_user_values(name, username, email)
-    values["is_superuser"] = "1" if is_superuser == "1" else ""
-    errors = validate_user_identity(values)
+    if not user_is_within_user_scope(db, target_user, current_user):
+        return RedirectResponse(
+            url="/configuracion/usuarios?notice=target-protected",
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
+    can_edit_identity = "system.users.edit" in allowed_mutations
+    can_assign_roles = (
+        "system.users.assign_roles" in allowed_mutations
+        and target_user.id != current_user.id
+    )
+
+    if target_user.id == current_user.id and not can_edit_identity:
+        return RedirectResponse(url="/configuracion/usuarios", status_code=status.HTTP_303_SEE_OTHER)
+
+    if can_edit_identity:
+        values = normalized_user_values(name, username, email)
+        values["is_superuser"] = "1" if is_superuser == "1" else ""
+        errors = validate_user_identity(values)
+        errors.update(
+            _duplicate_identity_errors(
+                db,
+                username=values["username"],
+                email=values["email"],
+                exclude_user_id=target_user.id,
+            )
+        )
+    else:
+        values = {
+            "name": target_user.name,
+            "username": target_user.username,
+            "email": target_user.email,
+            "is_superuser": "1" if target_user.is_superuser else "",
+        }
+        errors = {}
 
     if not csrf_is_valid(request, csrf_token_value):
-        errors["_form"] = "La sesión del formulario venció. Recargá la página e intentá nuevamente."
-
-    errors.update(
-        _duplicate_identity_errors(
-            db,
-            username=values["username"],
-            email=values["email"],
-            exclude_user_id=target_user.id,
+        errors["_form"] = (
+            "La sesión del formulario venció. Recargá la página e intentá nuevamente."
         )
+
+    if is_superuser == "1" and not current_user.is_superuser and not target_user.is_superuser:
+        errors["_form"] = "Solo un administrador del sistema puede otorgar acceso administrativo."
+
+    selected_role_ids = frozenset(
+        role.id for role in target_user.roles if role_is_within_user_scope(db, role.id, current_user)
     )
+    role_records: list[Role] = []
+    editable_role_ids: frozenset[int] = frozenset()
+
+    if can_assign_roles:
+        selected_role_ids, role_parse_error = _parse_role_ids(roles)
+        if role_parse_error:
+            errors["roles"] = role_parse_error
+        else:
+            role_records, role_errors = _role_selection(db, current_user, selected_role_ids)
+            errors.update(role_errors)
+            editable_role_ids = frozenset(role.id for role in _roles_for_scope(db, current_user))
+    elif roles:
+        errors["roles"] = "No tenés permiso para modificar los roles de este usuario."
 
     if errors:
         return _users_response(
@@ -291,14 +512,23 @@ def update_user(
             editing_user=target_user,
             errors=errors,
             values=values,
+            selected_role_ids=selected_role_ids,
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         )
 
-    target_user.name = values["name"]
-    target_user.username = values["username"]
-    target_user.email = values["email"]
-    if target_user.id != current_user.id:
+    if can_edit_identity:
+        target_user.name = values["name"]
+        target_user.username = values["username"]
+        target_user.email = values["email"]
+
+    if current_user.is_superuser and target_user.id != current_user.id:
         target_user.is_superuser = is_superuser == "1"
+
+    if can_assign_roles:
+        preserved_roles = [
+            role for role in target_user.roles if role.id not in editable_role_ids
+        ]
+        target_user.roles = preserved_roles + role_records
 
     try:
         db.commit()
@@ -310,8 +540,11 @@ def update_user(
             current_user,
             form_mode="edit",
             editing_user=target_user,
-            errors={"_form": "No se pudo actualizar el usuario porque los datos entraron en conflicto con otro registro."},
+            errors={
+                "_form": "No se pudo actualizar el usuario porque los datos entraron en conflicto con otro registro."
+            },
             values=values,
+            selected_role_ids=selected_role_ids,
             status_code=status.HTTP_409_CONFLICT,
         )
 
@@ -328,7 +561,12 @@ def toggle_user_status(
     csrf_token_value: str = Form("", alias="csrf_token"),
     db: Session = Depends(get_db),
 ):
-    current_user = superuser_or_redirect(request, db)
+    current_user = permission_or_redirect(
+        request,
+        db,
+        "system.users.view",
+        "system.users.status",
+    )
     if isinstance(current_user, RedirectResponse):
         return current_user
 
@@ -337,11 +575,13 @@ def toggle_user_status(
             request,
             db,
             current_user,
-            errors={"_form": "La sesión del formulario venció. Recargá la página e intentá nuevamente."},
+            errors={
+                "_form": "La sesión del formulario venció. Recargá la página e intentá nuevamente."
+            },
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
-    target_user = db.get(User, user_id)
+    target_user = _user_by_id(db, user_id)
     if target_user is None:
         return RedirectResponse(
             url="/configuracion/usuarios?notice=not-found",
@@ -351,6 +591,12 @@ def toggle_user_status(
     if target_user.id == current_user.id:
         return RedirectResponse(
             url="/configuracion/usuarios?notice=self-status-blocked",
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
+    if not user_is_within_user_scope(db, target_user, current_user):
+        return RedirectResponse(
+            url="/configuracion/usuarios?notice=target-protected",
             status_code=status.HTTP_303_SEE_OTHER,
         )
 

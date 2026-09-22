@@ -7,6 +7,7 @@ from app.core.permissions import (
     has_permission,
     permission_codes_for_user,
     role_is_within_user_scope,
+    user_is_within_user_scope,
 )
 from app.models import Permission, Role, User
 
@@ -103,3 +104,47 @@ def test_role_scope_cannot_exceed_delegated_user_permissions() -> None:
 
         assert role_is_within_user_scope(db, allowed_role.id, user)
         assert not role_is_within_user_scope(db, excessive_role.id, user)
+
+
+def test_delegated_user_can_only_manage_users_within_own_effective_scope() -> None:
+    engine = create_engine("sqlite+pysqlite:///:memory:")
+    Base.metadata.create_all(engine)
+
+    with Session(engine) as db:
+        view_users = _permission("system.users.view", "Ver usuarios")
+        edit_users = _permission("system.users.edit", "Editar usuarios")
+
+        supervisor_role = Role(
+            name="Supervisor",
+            name_key="supervisor",
+            is_active=True,
+            permissions=[view_users],
+        )
+        peer_role = Role(
+            name="Consulta",
+            name_key="consulta",
+            is_active=True,
+            permissions=[view_users],
+        )
+        higher_role = Role(
+            name="Edición",
+            name_key="edicion",
+            is_active=True,
+            permissions=[view_users, edit_users],
+        )
+
+        supervisor = _user("supervisor")
+        supervisor.roles = [supervisor_role]
+        peer = _user("consulta")
+        peer.roles = [peer_role]
+        higher = _user("editor")
+        higher.roles = [higher_role]
+        administrator = _user("administrador", is_superuser=True)
+
+        db.add_all([supervisor, peer, higher, administrator])
+        db.commit()
+
+        assert user_is_within_user_scope(db, peer, supervisor)
+        assert not user_is_within_user_scope(db, higher, supervisor)
+        assert not user_is_within_user_scope(db, administrator, supervisor)
+        assert user_is_within_user_scope(db, higher, administrator)

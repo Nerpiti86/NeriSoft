@@ -2,15 +2,19 @@
 
 {% block title %}{{ app_name }} · Usuarios{% endblock %}
 
+{% block authenticated_head %}
+<link rel="stylesheet" href="{{ url_for('static', path='css/user-roles.css') }}">
+{% endblock %}
+
 {% block workspace %}
 <main class="workspace users-workspace">
     <header class="workspace-header users-header">
         <div>
             <div class="users-breadcrumb">Configuración <i class="ti ti-chevron-right" aria-hidden="true"></i> Usuarios</div>
             <h1>Usuarios</h1>
-            <p>Administrá quién puede ingresar a NERISOFT y el estado de cada cuenta.</p>
+            <p>Administrá quién puede ingresar a NERISOFT, su estado y los roles asignados.</p>
         </div>
-        {% if form_mode != "create" %}
+        {% if can_create_users and form_mode != "create" %}
         <a class="primary-button" href="/configuracion/usuarios/nuevo">
             <i class="ti ti-user-plus" aria-hidden="true"></i>
             Nuevo usuario
@@ -51,9 +55,13 @@
                 <h2 id="user-form-title">{% if form_mode == "create" %}Nuevo usuario{% else %}Editar usuario{% endif %}</h2>
                 <p>
                     {% if form_mode == "create" %}
-                    Creá una cuenta con acceso inicial y definí si tendrá privilegios administrativos.
+                    Creá una cuenta y, si tu alcance lo permite, asignale sus roles iniciales.
+                    {% elif can_edit_identity and can_assign_roles_to_form_user %}
+                    Actualizá los datos de acceso y los roles permitidos para esta cuenta.
+                    {% elif can_edit_identity %}
+                    Actualizá los datos de acceso. Los roles no pueden modificarse desde esta sesión.
                     {% else %}
-                    Actualizá los datos de acceso. La contraseña se administra por separado.
+                    Administrá los roles permitidos para esta cuenta.
                     {% endif %}
                 </p>
             </div>
@@ -78,7 +86,7 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
             <div class="form-grid">
-                <label class="field field-span-2">
+                <label class="field field-span-2{% if not can_edit_identity %} is-readonly{% endif %}">
                     <span>Nombre completo</span>
                     <input
                         type="text"
@@ -87,12 +95,13 @@
                         maxlength="120"
                         autocomplete="name"
                         required
+                        {% if not can_edit_identity %}disabled{% endif %}
                         {% if errors.get('name') %}aria-invalid="true"{% endif %}
                     >
                     {% if errors.get('name') %}<small class="field-error">{{ errors.get('name') }}</small>{% endif %}
                 </label>
 
-                <label class="field">
+                <label class="field{% if not can_edit_identity %} is-readonly{% endif %}">
                     <span>Usuario</span>
                     <input
                         type="text"
@@ -102,12 +111,13 @@
                         autocomplete="username"
                         spellcheck="false"
                         required
+                        {% if not can_edit_identity %}disabled{% endif %}
                         {% if errors.get('username') %}aria-invalid="true"{% endif %}
                     >
                     {% if errors.get('username') %}<small class="field-error">{{ errors.get('username') }}</small>{% endif %}
                 </label>
 
-                <label class="field">
+                <label class="field{% if not can_edit_identity %} is-readonly{% endif %}">
                     <span>Correo electrónico</span>
                     <input
                         type="email"
@@ -117,6 +127,7 @@
                         autocomplete="email"
                         spellcheck="false"
                         required
+                        {% if not can_edit_identity %}disabled{% endif %}
                         {% if errors.get('email') %}aria-invalid="true"{% endif %}
                     >
                     {% if errors.get('email') %}<small class="field-error">{{ errors.get('email') }}</small>{% endif %}
@@ -165,6 +176,7 @@
                 {% endif %}
             </div>
 
+            {% if current_user.is_superuser %}
             <label class="admin-check {% if form_mode == 'edit' and editing_user.id == current_user.id %}is-locked{% endif %}">
                 {% if form_mode == "edit" and editing_user.id == current_user.id %}
                 <input type="hidden" name="is_superuser" value="1">
@@ -184,6 +196,63 @@
                     </small>
                 </span>
             </label>
+            {% endif %}
+
+            {% if can_assign_roles %}
+            <fieldset class="role-assignment" {% if form_mode == 'edit' and not can_assign_roles_to_form_user %}disabled{% endif %}>
+                <div class="role-assignment-heading">
+                    <div>
+                        <span class="section-eyebrow">Autorización</span>
+                        <h3>Roles asignados</h3>
+                        <p>
+                            {% if form_mode == 'edit' and editing_user.id == current_user.id %}
+                            Tus propios roles no pueden modificarse desde esta sesión.
+                            {% else %}
+                            Solo aparecen roles cuyos permisos están completamente dentro de tu alcance.
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if selected_role_ids %}
+                    <span class="role-selection-count">{{ selected_role_ids|length }} seleccionados</span>
+                    {% endif %}
+                </div>
+
+                {% if errors.get('roles') %}
+                <small class="field-error role-assignment-error">{{ errors.get('roles') }}</small>
+                {% endif %}
+
+                {% if assignable_roles %}
+                <div class="role-option-grid">
+                    {% for role in assignable_roles %}
+                    <label class="role-option{% if not role.is_active %} is-inactive{% endif %}">
+                        <input type="checkbox" name="roles" value="{{ role.id }}" {% if role.id in selected_role_ids %}checked{% endif %}>
+                        <span class="role-option-check" aria-hidden="true"><i class="ti ti-check"></i></span>
+                        <span class="role-option-copy">
+                            <span class="role-option-title">
+                                <strong>{{ role.name }}</strong>
+                                {% if not role.is_active %}<em>Inactivo</em>{% endif %}
+                            </span>
+                            <small>{{ role.description or 'Sin descripción.' }}</small>
+                            <span>{{ role.permissions|length }} permisos</span>
+                        </span>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="role-empty-state">
+                    <i class="ti ti-shield-off" aria-hidden="true"></i>
+                    <span>No hay roles disponibles dentro de tu alcance.</span>
+                </div>
+                {% endif %}
+
+                {% if hidden_assigned_roles %}
+                <p class="role-preserved-note">
+                    <i class="ti ti-lock" aria-hidden="true"></i>
+                    {{ hidden_assigned_roles }} asignación{% if hidden_assigned_roles != 1 %}es{% endif %} fuera de tu alcance se conservará{% if hidden_assigned_roles != 1 %}n{% endif %} sin cambios.
+                </p>
+                {% endif %}
+            </fieldset>
+            {% endif %}
 
             <div class="form-actions">
                 <a class="secondary-button" href="/configuracion/usuarios">Cancelar</a>
@@ -247,7 +316,7 @@
                         <th>Nombre</th>
                         <th>Usuario</th>
                         <th>Correo</th>
-                        <th>Tipo</th>
+                        <th>Roles</th>
                         <th>Estado</th>
                         <th>Creado</th>
                         <th class="actions-column">Acciones</th>
@@ -270,8 +339,16 @@
                         <td>
                             {% if user.is_superuser %}
                             <span class="role-badge is-admin"><i class="ti ti-shield-check" aria-hidden="true"></i> Administrador</span>
+                            {% elif user.roles %}
+                            <div class="table-role-list">
+                                {% for role in user.roles|sort(attribute='name') %}
+                                <span class="role-badge{% if not role.is_active %} is-inactive-role{% endif %}" title="{% if role.is_active %}Rol activo{% else %}Rol inactivo: no concede permisos{% endif %}">
+                                    <i class="ti ti-shield" aria-hidden="true"></i> {{ role.name }}
+                                </span>
+                                {% endfor %}
+                            </div>
                             {% else %}
-                            <span class="role-badge"><i class="ti ti-user" aria-hidden="true"></i> Usuario</span>
+                            <span class="role-badge"><i class="ti ti-user" aria-hidden="true"></i> Sin roles</span>
                             {% endif %}
                         </td>
                         <td>
@@ -283,23 +360,33 @@
                         </td>
                         <td class="date-value">{{ user.created_at|datetime_ar }}</td>
                         <td class="row-actions">
+                            {% set can_open_user = user_manageable.get(user.id) and (can_edit_users or (can_assign_roles and user.id != current_user.id)) %}
+                            {% if can_open_user %}
                             <a class="table-action" href="/configuracion/usuarios/{{ user.id }}/editar" title="Editar usuario">
                                 <i class="ti ti-edit" aria-hidden="true"></i>
-                                <span>Editar</span>
+                                <span>{% if can_edit_users %}Editar{% else %}Roles{% endif %}</span>
                             </a>
-                            {% if user.id == current_user.id %}
-                            <button class="table-action is-disabled" type="button" disabled title="No podés desactivar tu propia sesión">
-                                <i class="ti ti-lock" aria-hidden="true"></i>
-                                <span>Activo</span>
-                            </button>
-                            {% else %}
-                            <form method="post" action="/configuracion/usuarios/{{ user.id }}/estado">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                                <button class="table-action {% if user.is_active %}is-danger{% else %}is-success{% endif %}" type="submit">
-                                    <i class="ti {% if user.is_active %}ti-user-off{% else %}ti-user-check{% endif %}" aria-hidden="true"></i>
-                                    <span>{% if user.is_active %}Desactivar{% else %}Activar{% endif %}</span>
+                            {% endif %}
+
+                            {% if can_change_user_status %}
+                                {% if user.id == current_user.id %}
+                                <button class="table-action is-disabled" type="button" disabled title="No podés desactivar tu propia sesión">
+                                    <i class="ti ti-lock" aria-hidden="true"></i>
+                                    <span>Activo</span>
                                 </button>
-                            </form>
+                                {% elif user_manageable.get(user.id) %}
+                                <form method="post" action="/configuracion/usuarios/{{ user.id }}/estado">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                    <button class="table-action {% if user.is_active %}is-danger{% else %}is-success{% endif %}" type="submit">
+                                        <i class="ti {% if user.is_active %}ti-user-off{% else %}ti-user-check{% endif %}" aria-hidden="true"></i>
+                                        <span>{% if user.is_active %}Desactivar{% else %}Activar{% endif %}</span>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            {% endif %}
+
+                            {% if not can_open_user and (not can_change_user_status or user.id != current_user.id and not user_manageable.get(user.id)) %}
+                            <span class="table-action-placeholder">—</span>
                             {% endif %}
                         </td>
                     </tr>
