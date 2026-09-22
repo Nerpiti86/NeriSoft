@@ -4,6 +4,8 @@
 <link rel="stylesheet" href="{{ url_for('static', path='css/dashboard.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', path='css/users.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', path='css/roles.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='css/user-roles.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='css/configuration.css') }}">
 <script src="{{ url_for('static', path='js/setup.js') }}" defer></script>
 {% block authenticated_head %}{% endblock %}
 {% endblock %}
@@ -61,7 +63,7 @@
             </div>
 
             <div class="sidebar-nav-secondary">
-                <a class="nav-item{% if current_path.startswith('/configuracion/') %} is-active{% endif %}" href="/configuracion/usuarios" {% if current_path.startswith('/configuracion/') %}aria-current="page"{% endif %} title="Configuración">
+                <a class="nav-item{% if current_path == '/configuracion' or current_path.startswith('/configuracion/') %} is-active{% endif %}" href="/configuracion" {% if current_path == '/configuracion' or current_path.startswith('/configuracion/') %}aria-current="page"{% endif %} title="Configuración">
                     <i class="ti ti-settings" aria-hidden="true"></i>
                     <span class="nav-label">Configuración</span>
                     <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
@@ -119,10 +121,10 @@
 
                 <span class="topbar-separator" aria-hidden="true"></span>
 
-                <div class="user-control" aria-label="Usuario actual">
+                <a class="user-control" href="/mi-cuenta" aria-label="Abrir Mi cuenta" {% if current_path == '/mi-cuenta' %}aria-current="page"{% endif %} title="Mi cuenta">
                     <span class="user-avatar">{{ current_user_initials }}</span>
                     <span class="user-name">{{ current_user_first_name }}</span>
-                </div>
+                </a>
 
                 <form method="post" action="/logout" aria-label="Cerrar sesión">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
