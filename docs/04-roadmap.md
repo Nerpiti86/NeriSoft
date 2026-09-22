@@ -22,11 +22,68 @@ Completado:
 - reorganización de Configuración: portada propia, Usuarios y Roles como destinos independientes, Mi cuenta separada y Administrador del sistema representado como tipo de acceso, no como rol;
 - Tarea 9.3.5: normalización de Roles y Permisos, catálogo actual explícitamente limitado a Sistema, formulario separado del listado y UI reducida a información operativa.
 
-Siguiente bloque funcional previsto:
+## Decisión de secuencia
+
+Se deja Roles y Permisos en su estado actual.
+
+`9.4 — Validación integral de permisos` permanece pendiente, pero no bloquea el comienzo de los módulos funcionales.
+
+Auditoría también se posterga: no se construirá un motor transversal de auditoría antes de disponer de operaciones reales de negocio que permitan definir su alcance con evidencia.
+
+Siguiente bloque funcional:
 
 ```text
-Tarea 9.4 — Validación integral de permisos
+Configuración de empresa
 ```
+
+Después:
+
+```text
+Clientes
+→ Proveedores
+→ Productos
+→ Depósitos / Stock
+→ Ventas
+→ Cuenta corriente / cobranzas
+→ Compras
+→ Tesorería
+→ Contabilidad / Impuestos
+```
+
+## Regla de priorización
+
+Antes de crear infraestructura transversal:
+
+- debe existir una necesidad real;
+- debe desbloquear una operación próxima;
+- debe haber información suficiente para diseñarla;
+- si puede postergarse sin romper lo existente, se posterga;
+- no se generaliza antes de observar patrones reales.
+
+Regla corta:
+
+```text
+Primero operación real.
+Después patrón.
+Recién entonces abstracción.
+```
+
+## Referencia funcional externa
+
+Se adopta como referencia permanente la documentación pública de Holistor Gestión ERP:
+
+https://holistor.atlassian.net/wiki/spaces/TDADGC/overview?homepageId=566427761
+
+Uso permitido:
+
+- mapa de módulos;
+- detección de dependencias;
+- revisión de maestros y parámetros usados por un ERP argentino real;
+- contraste de circuitos antes de diseñarlos.
+
+No usar como especificación para copiar UI o complejidad completa.
+
+La referencia organiza, entre otras, áreas de Ventas, Compras, Stock, Tesorería, Impuestos, Contabilidad y Administración. En Administración aparecen Empresa, Puntos de Venta, Talonarios, Tipos de Comprobante, Monedas, Condiciones Fiscales, Tipos de Documento, Provincias, Localidades, Alícuotas, Tipos de Cobro/Pago, Conceptos y parámetros. NERISOFT incorporará cada pieza solo cuando una función real la necesite.
 
 ## Etapa 0 — Base técnica ✅
 
@@ -53,7 +110,7 @@ Tarea 9.4 — Validación integral de permisos
 - componentes base
 - navegación parcial de workspace
 
-## Etapa 2 — Seguridad — EN CURSO
+## Etapa 2 — Seguridad — PAUSA FUNCIONAL
 
 Completado:
 
@@ -84,29 +141,45 @@ Completado:
 - códigos técnicos y metadatos secundarios retirados de la UI principal de Roles;
 - regla de crecimiento: cada módulo nuevo debe definir, aplicar y probar sus propios permisos junto con su funcionalidad.
 
-Pendiente:
+Pendiente, pero no bloqueante para el próximo módulo:
 
-- validación integral de permisos y regresiones;
+- Tarea 9.4: validación integral de permisos y regresiones;
 - cambio de contraseña;
 - recuperación de contraseña;
 - rate limiting/bloqueo ante intentos fallidos;
 - política de despliegue HTTPS.
 
-## Etapa 3 — Auditoría
+## Etapa 3 — Auditoría — POSTERGADA
 
-- registro de acciones
-- entidad afectada
-- usuario
-- fecha/hora
-- IP
-- valores anteriores/nuevos cuando corresponda
+No es el próximo paso.
 
-## Etapa 4 — Configuración general
+La auditoría se diseñará cuando existan operaciones reales como altas/modificaciones de maestros, movimientos, comprobantes, anulaciones o ajustes. En ese momento se decidirá qué registrar, con qué granularidad y qué necesita trazabilidad.
 
-- datos de empresa
-- parámetros generales
-- moneda principal
-- condiciones fiscales básicas
+No crear ahora un motor genérico de eventos, snapshots o historial universal.
+
+## Etapa 4 — Configuración general — PRÓXIMO FOCO
+
+Primera tarea:
+
+```text
+Configuración de empresa
+```
+
+Alcance inicial candidato a validar en el próximo hilo:
+
+- razón social;
+- nombre comercial;
+- CUIT;
+- domicilio;
+- localidad;
+- provincia;
+- código postal;
+- teléfono;
+- email;
+- condición fiscal;
+- moneda principal.
+
+No incorporar todavía ARCA, CAE, certificados, puntos de venta, talonarios, retenciones, percepciones, SMTP o configuración contable salvo dependencia concreta.
 
 Hasta esta etapa el shell no debe mostrar una empresa ficticia como si estuviera configurada.
 
@@ -120,6 +193,8 @@ Hasta esta etapa el shell no debe mostrar una empresa ficticia como si estuviera
 - condiciones IVA
 - tipos de comprobante
 
+Los maestros secundarios se agregan por necesidad del circuito, no todos por adelantado.
+
 Patrón común:
 
 ```text
@@ -130,8 +205,9 @@ Ver
 Buscar
 Filtrar
 Activar/desactivar
-Auditoría
 ```
+
+La auditoría no se presupone todavía como patrón obligatorio de pantalla; se incorporará cuando su diseño esté sustentado por operaciones reales.
 
 ## Etapa 6 — Stock
 
@@ -274,16 +350,22 @@ A implementar contra normativa vigente al momento del desarrollo:
 ## Próximas tareas naturales
 
 ```text
-9.4 Validación integral de permisos
-→ Auditoría
-→ Configuración de empresa
+Configuración de empresa
 → Clientes
-→ Proveedores / Productos / Depósitos
-→ Stock
+→ Proveedores
+→ Productos
+→ Depósitos / Stock
 → Ventas
-→ Cuenta corriente
-→ Recibos
+→ Cuenta corriente / cobranzas
 → Compras
 → Tesorería
-→ Contabilidad completa
+→ Contabilidad / Impuestos
+```
+
+Pendientes transversales para retomar cuando exista evidencia suficiente o una necesidad concreta:
+
+```text
+9.4 Validación integral de permisos
+Auditoría
+Seguridad operativa adicional
 ```
