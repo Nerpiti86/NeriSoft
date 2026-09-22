@@ -165,16 +165,30 @@ NERISOFT es desktop-first. No debe desperdiciar espacio como una interfaz móvil
 
 Las tablas son un componente central del ERP.
 
+La densidad no significa mostrar todo. Una tabla debe permitir **identificar, comparar y actuar rápidamente**; el detalle secundario pertenece a la ficha o vista del registro.
+
 Reglas:
 
-- alta densidad de información
+- alta densidad de información útil, no alta cantidad de metadatos
+- incluir únicamente columnas necesarias para la decisión o acción principal de esa grilla
+- evitar repetir tipo, estado, roles, permisos, descripciones, badges u otros metadatos si no aportan comparación o acción real
+- no trasladar a la tabla toda la información disponible en el modelo de datos
+- cuando un dato sea secundario, mostrarlo en la ficha/vista del registro en lugar de agregar otra columna
+- antes de agregar una columna, comprobar si responde una pregunta frecuente del usuario en esa pantalla
 - columnas numéricas alineadas a la derecha
 - cabecera clara y persistente cuando corresponda
 - filtros visibles
 - búsqueda rápida
 - paginación consistente
-- estados con badges semánticos
+- estados con badges semánticos solo cuando el estado sea relevante para operar la lista
 - acciones previsibles
+
+Regla práctica:
+
+```text
+Tabla = resumen operativo
+Ficha = detalle completo
+```
 
 ## Patrón de listados
 

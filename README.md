@@ -2,6 +2,14 @@
 
 ERP administrativo, comercial y contable para uso multiusuario en red local.
 
+## Lectura rápida
+
+Para retomar el proyecto sin recorrer toda la documentación, empezar por:
+
+[`docs/00-lectura-rapida.md`](docs/00-lectura-rapida.md)
+
+El contexto consolidado y detallado sigue en [`docs/12-resumen-y-contexto.md`](docs/12-resumen-y-contexto.md).
+
 ## Stack
 
 - Python 3
@@ -32,14 +40,17 @@ NERISOFT ya cuenta con:
 - gestión de usuarios;
 - Select NERISOFT;
 - assets críticos locales;
-- navegación parcial HTMX con shell persistente entre Inicio y Configuración;
+- navegación parcial HTMX con shell persistente;
 - saneamiento técnico previo a Roles y Permisos;
 - base técnica de Roles y Permisos: modelo, catálogo, autorización y migración;
 - gestión de roles: alta, edición, permisos y activación/desactivación;
 - asignación de roles a usuarios con controles de alcance y permisos granulares;
+- portada propia de Configuración;
+- Usuarios y Roles y permisos como destinos independientes;
+- Mi cuenta separado de la administración de usuarios;
 - tests unitarios básicos y validación automática en GitHub Actions.
 
-El resumen consolidado para continuar el proyecto está en [`docs/12-resumen-y-contexto.md`](docs/12-resumen-y-contexto.md).
+La siguiente tarea funcional prevista es **Tarea 9.4 — Validación integral de permisos**.
 
 ## Primera instalación en Windows
 
