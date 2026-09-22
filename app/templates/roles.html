@@ -127,7 +127,7 @@
 
                     <div class="permission-groups">
                         {% for group_name, group_permissions in area_groups %}
-                        <section class="permission-group" aria-labelledby="permission-group-{{ loop.index }}-{{ loop.index0 }}">
+                        <section class="permission-group" aria-label="{{ group_name }}">
                             <header>
                                 <span class="permission-group-icon">
                                     <i class="ti {% if group_name == 'Usuarios' %}ti-users{% else %}ti-shield-lock{% endif %}" aria-hidden="true"></i>
