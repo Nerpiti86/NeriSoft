@@ -2,8 +2,33 @@
 
 const SIDEBAR_STORAGE_KEY = "nerisoft.sidebar.collapsed";
 
+const DOCUMENT_PREFIXES = Object.freeze({
+    FAC: "FC",
+    NCA: "NC",
+    NDA: "ND",
+    REC: "RC",
+    OP: "OP",
+    OC: "OC",
+    REM: "RM",
+    PRE: "PR",
+    PED: "PD",
+});
+
+function abbreviateDocumentLabel(value) {
+    const text = String(value ?? "").trim();
+    if (!text) {
+        return text;
+    }
+
+    const [prefix, ...rest] = text.split(/\s+/);
+    const abbreviation = DOCUMENT_PREFIXES[prefix];
+    return abbreviation ? [abbreviation, ...rest].join(" ") : text;
+}
+
 window.NERISOFT = Object.freeze({
     name: "NERISOFT",
+    documentAbbreviations: DOCUMENT_PREFIXES,
+    abbreviateDocumentLabel,
 });
 
 function readSidebarState() {
@@ -34,7 +59,30 @@ function applySidebarState(shell, toggle, collapsed) {
     }
 }
 
+function applyVisibleDataConventions() {
+    document.querySelectorAll(".document-number").forEach((node) => {
+        node.textContent = abbreviateDocumentLabel(node.textContent);
+    });
+
+    document.querySelectorAll(".recent-documents-panel tbody td:nth-child(3)").forEach((node) => {
+        node.classList.add("date-value");
+    });
+
+    document.querySelectorAll(".due-date").forEach((node) => {
+        if (/\b\d{2}\/\d{2}\/\d{4}\b/.test(node.textContent ?? "")) {
+            node.classList.add("date-value");
+        }
+    });
+
+    document.querySelectorAll(".stock-panel tbody td:first-child").forEach((node) => {
+        node.classList.remove("document-number");
+        node.classList.add("code-value");
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    applyVisibleDataConventions();
+
     const shell = document.querySelector("[data-app-shell]");
     const toggle = document.getElementById("sidebar-toggle");
 
