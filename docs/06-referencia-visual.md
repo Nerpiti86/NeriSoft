@@ -22,7 +22,7 @@ El dashboard de referencia contiene:
 
 1. Título y saludo/contexto.
 2. Selector de período.
-3. Cinco KPIs principales en una sola línea en escritorio.
+3. Cinco KPIs principales en una sola línea en escritorio amplio.
 4. Gráfico de ventas de los últimos 30 días.
 5. Tabla de comprobantes recientes.
 6. Tabla de cuentas por cobrar.
@@ -76,5 +76,18 @@ La primera implementación del shell queda fijada con estas reglas:
 - El estado colapsado de la sidebar se persiste en `localStorage` con la clave `nerisoft.sidebar.collapsed`.
 - En estado colapsado se conservan los iconos y los `title` nativos para identificar cada sección.
 - El header reserva las áreas de búsqueda global, empresa actual, notificaciones y usuario.
-- El contenido funcional del dashboard queda fuera de esta tarea y se incorporará por separado.
 - La implementación mantiene Geist, números tabulares, radios `6/8/10px` y sombras según el sistema visual documentado.
+
+## Dashboard visual implementado
+
+La primera versión visual del dashboard de Inicio queda fijada con estas reglas:
+
+- Los datos mostrados son **datos de muestra** y no provienen todavía de SQLite.
+- La pantalla incluye cinco tarjetas KPI: ventas, comprobantes, cuentas por cobrar, tesorería y stock bajo.
+- El bloque principal incluye un gráfico visual de ventas de 30 días y un panel de alertas.
+- Se incluyen tablas de comprobantes recientes, cuentas por cobrar y productos con stock bajo.
+- Los importes y cantidades visibles utilizan números tabulares.
+- Los estados usan colores semánticos independientes del dorado de marca.
+- El dashboard mantiene la densidad del mock aprobado y usa el ancho completo del workspace.
+- En pantallas más angostas la grilla se reorganiza sin transformar la aplicación en una interfaz móvil.
+- La lógica funcional, consultas reales, filtros y navegación quedan fuera de esta etapa y se incorporarán en tareas posteriores.
