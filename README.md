@@ -15,27 +15,27 @@ ERP administrativo, comercial y contable para uso multiusuario en red local.
 - CSS propio
 - Tabler Icons CDN
 - Uvicorn
+- pwdlib + Argon2
+- sesiones firmadas de Starlette
 
 La arquitectura y las decisiones del proyecto están documentadas en [`docs/`](docs/).
 
 ## Estado actual
 
-**Tarea 1 — Bootstrap técnico:** completada.
+NERISOFT ya completó las etapas de:
 
-La aplicación ya incluye:
+- bootstrap técnico;
+- shell principal;
+- dashboard visual base;
+- calibración de densidad y convenciones;
+- login visual;
+- usuarios base;
+- configuración inicial del primer administrador;
+- login real, sesión, CSRF, protección del dashboard y logout.
 
-- servidor FastAPI;
-- configuración centralizada;
-- SQLAlchemy 2;
-- SQLite local en `data/nerisoft.db`;
-- modo WAL, claves foráneas y `busy_timeout` para la base SQLite;
-- Alembic preparado para las migraciones;
-- Jinja2;
-- HTMX por CDN;
-- Tabler Icons por CDN;
-- CSS y JavaScript propios;
-- endpoint de salud `/health`;
-- documentación automática de la API en `/api/docs`.
+El estado consolidado del proyecto y el contexto preparado para continuar en un hilo nuevo están en:
+
+[`docs/12-resumen-y-contexto.md`](docs/12-resumen-y-contexto.md)
 
 ## Primera instalación en Windows
 
@@ -65,10 +65,16 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 ```powershell
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-### 4. Ejecutar NERISOFT
+### 4. Aplicar migraciones
+
+```powershell
+python -m alembic upgrade head
+```
+
+### 5. Ejecutar NERISOFT
 
 Para desarrollo:
 
@@ -82,7 +88,7 @@ O bien:
 python run.py
 ```
 
-### 5. Abrir en el navegador
+### 6. Abrir en el navegador
 
 En el servidor:
 
@@ -95,6 +101,8 @@ Desde otra PC de la misma red, usar la IP local del servidor, por ejemplo:
 ```text
 http://192.168.1.50:8000
 ```
+
+En una instalación vacía, NERISOFT redirige a `/setup` para crear el primer administrador. Después de creado, el acceso normal se realiza desde `/login`.
 
 ## Verificación rápida
 
@@ -112,7 +120,7 @@ http://127.0.0.1:8000/api/docs
 
 ## Base de datos
 
-Por defecto NERISOFT crea:
+Por defecto NERISOFT usa:
 
 ```text
 D:\NeriSoft\data\nerisoft.db
@@ -120,13 +128,11 @@ D:\NeriSoft\data\nerisoft.db
 
 El archivo SQLite es exclusivo del servidor de NERISOFT. Las PCs cliente acceden por HTTP y nunca deben abrir o compartir directamente el archivo `.db`.
 
-## Alembic
+Migraciones actuales:
 
-Cuando existan modelos funcionales, las migraciones se crearán con:
-
-```powershell
-alembic revision --autogenerate -m "descripcion"
-alembic upgrade head
+```text
+0001_users
+0002_user_superuser
 ```
 
 ## Flujo de trabajo
@@ -134,7 +140,7 @@ alembic upgrade head
 El desarrollo se realiza exclusivamente en `main` y sigue la regla:
 
 ```text
-1 tarea -> validación -> 1 commit -> push a main -> pull local -> prueba
+1 tarea -> validación -> 1 commit -> main -> pull local -> prueba
 ```
 
 Para actualizar la instalación local después de cada tarea:
