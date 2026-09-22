@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections import defaultdict
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, Form, Request, status
@@ -23,18 +22,26 @@ from app.core.permissions import (
 from app.core.role_validation import normalized_role_values, validate_role_values
 from app.core.templates import templates
 from app.models import Permission, Role, User
-from app.models.access import user_roles
 
 
 router = APIRouter(prefix="/configuracion/roles", include_in_schema=False)
 
 
-def _permission_groups(allowed_codes: frozenset[str]):
-    grouped: dict[str, list] = defaultdict(list)
+def _permission_sections(allowed_codes: frozenset[str]):
+    sections: dict[str, dict[str, list]] = {}
     for definition in PERMISSION_DEFINITIONS:
-        if definition.code in allowed_codes:
-            grouped[definition.group].append(definition)
-    return tuple((group, tuple(items)) for group, items in grouped.items())
+        if definition.code not in allowed_codes:
+            continue
+        groups = sections.setdefault(definition.area, {})
+        groups.setdefault(definition.group, []).append(definition)
+
+    return tuple(
+        (
+            area,
+            tuple((group, tuple(items)) for group, items in groups.items()),
+        )
+        for area, groups in sections.items()
+    )
 
 
 def _role_by_id(db: Session, role_id: int) -> Role | None:
@@ -81,37 +88,28 @@ def _role_response(
     status_code: int = status.HTTP_200_OK,
     notice: str | None = None,
 ):
-    roles = list(
-        db.scalars(
-            select(Role)
-            .options(selectinload(Role.permissions), selectinload(Role.users))
-            .order_by(func.lower(Role.name))
-        ).all()
-    )
-
     granted_codes = permission_codes_for_user(db, current_user)
     can_create_role = "system.roles.create" in granted_codes
     can_edit_role = "system.roles.edit" in granted_codes
     can_change_role_status = "system.roles.status" in granted_codes
 
+    roles: list[Role] = []
     manageable_roles: dict[int, bool] = {}
-    role_permission_modules: dict[int, tuple[str, ...]] = {}
-    for role in roles:
-        role_codes = frozenset(permission.code for permission in role.permissions)
-        within_scope = current_user.is_superuser or role_codes.issubset(granted_codes)
-        self_assigned = any(user.id == current_user.id for user in role.users)
-        manageable_roles[role.id] = within_scope and (
-            current_user.is_superuser or not self_assigned
+    if form_mode is None:
+        roles = list(
+            db.scalars(
+                select(Role)
+                .options(selectinload(Role.permissions), selectinload(Role.users))
+                .order_by(func.lower(Role.name))
+            ).all()
         )
-        role_permission_modules[role.id] = tuple(
-            sorted({permission.module for permission in role.permissions})
-        )
-
-    total_roles = len(roles)
-    active_roles = sum(1 for role in roles if role.is_active)
-    users_with_roles = db.scalar(
-        select(func.count(func.distinct(user_roles.c.user_id)))
-    ) or 0
+        for role in roles:
+            role_codes = frozenset(permission.code for permission in role.permissions)
+            within_scope = current_user.is_superuser or role_codes.issubset(granted_codes)
+            self_assigned = any(user.id == current_user.id for user in role.users)
+            manageable_roles[role.id] = within_scope and (
+                current_user.is_superuser or not self_assigned
+            )
 
     notice_key = notice or request.query_params.get("notice")
     notices = {
@@ -143,15 +141,11 @@ def _role_response(
             "current_user_initials": initials,
             "csrf_token": csrf_token(request),
             "roles": roles,
-            "total_roles": total_roles,
-            "active_roles": active_roles,
-            "users_with_roles": users_with_roles,
             "manageable_roles": manageable_roles,
-            "role_permission_modules": role_permission_modules,
             "can_create_role": can_create_role,
             "can_edit_role": can_edit_role,
             "can_change_role_status": can_change_role_status,
-            "permission_groups": _permission_groups(granted_codes),
+            "permission_sections": _permission_sections(granted_codes),
             "form_mode": form_mode,
             "editing_role": editing_role,
             "errors": errors or {},
