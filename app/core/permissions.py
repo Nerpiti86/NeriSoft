@@ -13,6 +13,7 @@ from app.models.user import User
 @dataclass(frozen=True, slots=True)
 class PermissionDefinition:
     code: str
+    area: str
     group: str
     name: str
     description: str
@@ -21,55 +22,64 @@ class PermissionDefinition:
 PERMISSION_DEFINITIONS = (
     PermissionDefinition(
         "system.users.view",
+        "Sistema",
         "Usuarios",
         "Ver usuarios",
         "Consultar el listado, estados y roles asignados a las cuentas de acceso.",
     ),
     PermissionDefinition(
         "system.users.create",
+        "Sistema",
         "Usuarios",
         "Crear usuarios",
         "Dar de alta nuevas cuentas de acceso no administrativas.",
     ),
     PermissionDefinition(
         "system.users.edit",
+        "Sistema",
         "Usuarios",
         "Editar usuarios",
         "Modificar nombre, usuario y correo de cuentas permitidas.",
     ),
     PermissionDefinition(
         "system.users.status",
+        "Sistema",
         "Usuarios",
         "Activar o desactivar usuarios",
         "Cambiar el estado de cuentas permitidas, excepto la propia sesión.",
     ),
     PermissionDefinition(
         "system.users.assign_roles",
+        "Sistema",
         "Usuarios",
         "Asignar roles",
         "Asignar a otros usuarios roles cuyo alcance no supere el propio.",
     ),
     PermissionDefinition(
         "system.roles.view",
-        "Roles",
+        "Sistema",
+        "Roles y permisos",
         "Ver roles y permisos",
         "Consultar roles, permisos incluidos y cantidad de usuarios asignados.",
     ),
     PermissionDefinition(
         "system.roles.create",
-        "Roles",
+        "Sistema",
+        "Roles y permisos",
         "Crear roles",
         "Crear roles con permisos dentro del alcance propio.",
     ),
     PermissionDefinition(
         "system.roles.edit",
-        "Roles",
+        "Sistema",
+        "Roles y permisos",
         "Editar roles y permisos",
         "Modificar nombre, descripción y permisos dentro del alcance propio.",
     ),
     PermissionDefinition(
         "system.roles.status",
-        "Roles",
+        "Sistema",
+        "Roles y permisos",
         "Activar o desactivar roles",
         "Cambiar el estado de roles que estén dentro del alcance propio.",
     ),
