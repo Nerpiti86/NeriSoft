@@ -1,0 +1,354 @@
+.configuration-workspace,
+.account-workspace {
+    gap: 0;
+}
+
+.configuration-header,
+.account-header {
+    padding-bottom: 20px;
+}
+
+.configuration-header h1,
+.account-header h1 {
+    margin: 4px 0 5px;
+    color: #292824;
+    font-size: 24px;
+    line-height: 1.15;
+}
+
+.configuration-header p,
+.account-header p,
+.settings-section-heading p {
+    margin: 0;
+    color: #77736c;
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+.settings-breadcrumb,
+.users-breadcrumb {
+    color: #9a958b;
+    font-size: 9px;
+    font-weight: 650;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.users-breadcrumb a {
+    transition: color 120ms ease;
+}
+
+.users-breadcrumb a:hover {
+    color: #7f6328;
+}
+
+.settings-section {
+    max-width: 980px;
+    padding: 18px;
+    border: 1px solid #e2dfd7;
+    border-radius: var(--radius-lg);
+    background: #ffffff;
+    box-shadow: 0 8px 22px rgb(47 42 31 / 5%);
+}
+
+.settings-section-heading {
+    display: grid;
+    gap: 4px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #efede7;
+}
+
+.settings-section-heading h2 {
+    margin: 0;
+    color: #302e29;
+    font-size: 16px;
+}
+
+.settings-card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    padding-top: 14px;
+}
+
+.settings-card {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr) 18px;
+    align-items: center;
+    gap: 12px;
+    min-height: 88px;
+    padding: 14px;
+    border: 1px solid #e4e1d9;
+    border-radius: var(--radius-md);
+    background: #fbfaf7;
+    transition: border-color 120ms ease, background 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+}
+
+.settings-card:hover {
+    border-color: #d7c69b;
+    background: #fffdf7;
+    box-shadow: 0 8px 20px rgb(47 42 31 / 7%);
+    transform: translateY(-1px);
+}
+
+.settings-card-icon {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border-radius: 10px;
+    background: #eee7d7;
+    color: #8a6a2b;
+}
+
+.settings-card-icon i {
+    font-size: 21px;
+}
+
+.settings-card-copy {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+
+.settings-card-copy strong {
+    color: #35322c;
+    font-size: 12px;
+}
+
+.settings-card-copy small {
+    color: #817d75;
+    font-size: 10px;
+    line-height: 1.45;
+}
+
+.settings-card-arrow {
+    color: #aaa49a;
+    font-size: 17px;
+}
+
+.settings-empty-state {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+    padding: 15px;
+    border: 1px dashed #ddd8cc;
+    border-radius: var(--radius-md);
+    background: #faf9f6;
+    color: #77736c;
+}
+
+.settings-empty-state > i {
+    font-size: 21px;
+}
+
+.settings-empty-state div {
+    display: grid;
+    gap: 3px;
+}
+
+.settings-empty-state strong {
+    color: #4c4942;
+    font-size: 11px;
+}
+
+.settings-empty-state span {
+    font-size: 10px;
+}
+
+.account-card {
+    width: min(920px, 100%);
+    overflow: hidden;
+    border: 1px solid #e2dfd7;
+    border-radius: var(--radius-lg);
+    background: #ffffff;
+    box-shadow: 0 8px 22px rgb(47 42 31 / 5%);
+}
+
+.account-identity {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 18px;
+    border-bottom: 1px solid #efede7;
+}
+
+.account-avatar {
+    display: grid;
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    place-items: center;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #c8a24a, #a98235);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.account-identity h2 {
+    margin: 0 0 3px;
+    color: #302e29;
+    font-size: 17px;
+}
+
+.account-identity p {
+    margin: 0;
+    color: #817d75;
+    font-size: 10px;
+}
+
+.account-facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-bottom: 1px solid #efede7;
+}
+
+.account-facts article {
+    display: grid;
+    align-content: start;
+    gap: 5px;
+    min-height: 112px;
+    padding: 16px 18px;
+    border-right: 1px solid #efede7;
+}
+
+.account-facts article:last-child {
+    border-right: 0;
+}
+
+.account-facts span,
+.account-roles > div:first-child .section-eyebrow {
+    color: #9a958b;
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: .055em;
+    text-transform: uppercase;
+}
+
+.account-facts strong {
+    color: #38352f;
+    font-size: 12px;
+}
+
+.account-facts small {
+    color: #817d75;
+    font-size: 9.5px;
+    line-height: 1.45;
+}
+
+.account-roles {
+    display: grid;
+    gap: 12px;
+    padding: 17px 18px 18px;
+}
+
+.account-roles h3 {
+    margin: 3px 0 0;
+    color: #302e29;
+    font-size: 14px;
+}
+
+.account-role-note {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 12px 13px;
+    border: 1px solid #dfd1ae;
+    border-radius: var(--radius-md);
+    background: #faf6ea;
+    color: #715723;
+}
+
+.account-role-note.is-neutral {
+    border-color: #dfddd7;
+    background: #f7f6f3;
+    color: #66625b;
+}
+
+.account-role-note > i {
+    font-size: 20px;
+}
+
+.account-role-note div {
+    display: grid;
+    gap: 3px;
+}
+
+.account-role-note strong {
+    font-size: 11px;
+}
+
+.account-role-note span {
+    color: #786f5c;
+    font-size: 9.5px;
+}
+
+.account-role-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.account-role-badge {
+    display: inline-flex;
+    min-height: 28px;
+    align-items: center;
+    gap: 6px;
+    padding: 0 9px;
+    border: 1px solid #ded4b9;
+    border-radius: 999px;
+    background: #f7f1e2;
+    color: #775c25;
+    font-size: 9.5px;
+    font-weight: 650;
+}
+
+.account-role-badge.is-inactive {
+    border-color: #dedbd4;
+    background: #f3f2ef;
+    color: #77736c;
+}
+
+.account-role-badge small {
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.access-summary {
+    display: grid;
+    gap: 5px;
+    min-width: 180px;
+}
+
+.access-summary > strong {
+    color: #454139;
+    font-size: 10px;
+}
+
+.access-summary > small {
+    color: #88837a;
+    font-size: 8.5px;
+}
+
+.access-summary.is-admin > strong {
+    color: #765b24;
+}
+
+@media (max-width: 900px) {
+    .settings-card-grid,
+    .account-facts {
+        grid-template-columns: 1fr;
+    }
+
+    .account-facts article {
+        border-right: 0;
+        border-bottom: 1px solid #efede7;
+    }
+
+    .account-facts article:last-child {
+        border-bottom: 0;
+    }
+}
