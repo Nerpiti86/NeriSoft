@@ -1,6 +1,6 @@
 # 00 — Lectura rápida de NERISOFT
 
-> Entrada de 2 minutos para retomar el proyecto. Para contexto completo, ver [`12-resumen-y-contexto.md`](12-resumen-y-contexto.md).
+> Entrada de 2 minutos para retomar el proyecto. Para el hilo siguiente, leer primero [`HANDOFF-ACTUAL.md`](HANDOFF-ACTUAL.md). Para contexto completo, ver [`12-resumen-y-contexto.md`](12-resumen-y-contexto.md).
 
 Actualizado: 22/09/2026
 
@@ -32,13 +32,101 @@ Ya están implementados y funcionando:
 - assets críticos locales;
 - tests y GitHub Actions.
 
-Próxima tarea funcional:
+La Tarea 9.3.5 quedó integrada en `main` y validada por GitHub Actions.
+
+## Decisión de continuidad
+
+Se decidió **dejar Roles y Permisos por ahora**.
+
+`9.4 — Validación integral de permisos` sigue pendiente, pero **no bloquea el avance funcional del ERP**.
+
+También se decidió **postergar Auditoría**. No se construirá un motor transversal de auditoría antes de tener operaciones reales de negocio que permitan definir con evidencia qué debe registrarse.
+
+Próximo foco:
 
 ```text
-Tarea 9.4 — Validación integral de permisos
+Configuración de empresa
+↓
+Clientes
+↓
+Proveedores
+↓
+Productos
+↓
+Depósitos / Stock
+↓
+Ventas
 ```
 
-Después: Auditoría → Configuración de empresa → Clientes → resto de maestros y circuitos.
+## Criterio para decidir qué construir
+
+Antes de agregar infraestructura o una capa transversal, responder:
+
+1. ¿Hay una necesidad real hoy?
+2. ¿Esto desbloquea la próxima operación real?
+3. ¿Tenemos suficiente información para diseñarlo bien?
+4. ¿Podemos postergarlo sin romper lo existente?
+5. ¿Estamos construyendo producto real o infraestructura imaginaria?
+
+Regla práctica:
+
+```text
+Necesidad concreta
+↓
+Dependencias mínimas
+↓
+Funcionalidad real
+↓
+Uso real
+↓
+Generalizar cuando aparezca un patrón
+```
+
+No diseñar una capa transversal importante hasta tener casos reales que la justifiquen.
+
+## Referencia funcional externa: Holistor
+
+Referencia permanente:
+
+https://holistor.atlassian.net/wiki/spaces/TDADGC/overview?homepageId=566427761
+
+Se usa como **mapa funcional de un ERP argentino maduro**, no como especificación a copiar.
+
+Sirve para:
+
+- descubrir entidades y dependencias reales;
+- revisar cómo se separan Ventas, Compras, Stock, Tesorería, Impuestos, Contabilidad y Administración;
+- detectar maestros y parámetros que podrían ser necesarios más adelante;
+- contrastar nuestros circuitos antes de inventarlos desde cero.
+
+No sirve para:
+
+- copiar su interfaz;
+- implementar ahora todos sus parámetros;
+- crear maestros o configuraciones “por las dudas”;
+- trasladar su complejidad histórica a NERISOFT.
+
+La documentación de Holistor muestra, entre otros, que Administración contempla Empresa, Puntos de Venta, Talonarios, Tipos de Comprobante, Monedas, Condiciones Fiscales, Tipos de Documento, Provincias, Localidades, Alícuotas, Tipos de Cobro/Pago, Conceptos y parámetros. En NERISOFT esas piezas se incorporarán **solo cuando un circuito real las necesite**.
+
+## Próximo bloque: Configuración de empresa
+
+El próximo hilo debe comenzar definiendo el alcance mínimo de Configuración de empresa.
+
+Candidatos iniciales a validar:
+
+- Razón social;
+- Nombre comercial;
+- CUIT;
+- Domicilio;
+- Localidad;
+- Provincia;
+- Código postal;
+- Teléfono;
+- Email;
+- Condición fiscal;
+- Moneda principal.
+
+No implementar todavía ARCA, CAE, certificados, puntos de venta, talonarios, retenciones, percepciones, SMTP ni configuración contable salvo que una operación concreta lo requiera.
 
 ## Modelo mental de acceso
 
@@ -74,8 +162,6 @@ Regla de crecimiento:
 ```text
 Cada módulo nuevo define, aplica y prueba sus propios permisos junto con su funcionalidad.
 ```
-
-Un rol operativo futuro como `Vendedor` o `Cajero` solo cobra sentido cuando existen permisos funcionales que pueda recibir. El nombre del rol por sí mismo no concede acceso.
 
 ## Navegación de Configuración
 
@@ -156,6 +242,7 @@ D:\NeriSoft\data\nerisoft.db
 
 ## Dónde leer más
 
+- Inicio del próximo hilo: [`HANDOFF-ACTUAL.md`](HANDOFF-ACTUAL.md)
 - Arquitectura: [`01-arquitectura.md`](01-arquitectura.md)
 - Diseño UI: [`02-diseno-ui.md`](02-diseno-ui.md)
 - Datos y reglas: [`03-datos-y-reglas.md`](03-datos-y-reglas.md)
@@ -163,4 +250,4 @@ D:\NeriSoft\data\nerisoft.db
 - Flujo de trabajo: [`05-flujo-trabajo.md`](05-flujo-trabajo.md)
 - Contexto consolidado: [`12-resumen-y-contexto.md`](12-resumen-y-contexto.md)
 
-Regla práctica: empezar siempre por este archivo. Abrir documentación específica solo cuando la tarea lo requiera.
+Regla práctica: para un hilo nuevo, empezar por `HANDOFF-ACTUAL.md`; después usar este archivo y abrir documentación específica solo cuando haga falta.

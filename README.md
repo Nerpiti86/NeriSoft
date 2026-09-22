@@ -4,11 +4,11 @@ ERP administrativo, comercial y contable para uso multiusuario en red local.
 
 ## Lectura rápida
 
-Para retomar el proyecto sin recorrer toda la documentación, empezar por:
+Para retomar el proyecto:
 
-[`docs/00-lectura-rapida.md`](docs/00-lectura-rapida.md)
-
-El contexto consolidado y detallado sigue en [`docs/12-resumen-y-contexto.md`](docs/12-resumen-y-contexto.md).
+1. [`docs/HANDOFF-ACTUAL.md`](docs/HANDOFF-ACTUAL.md) — handoff actual y próximo objetivo.
+2. [`docs/00-lectura-rapida.md`](docs/00-lectura-rapida.md) — contexto rápido general.
+3. [`docs/12-resumen-y-contexto.md`](docs/12-resumen-y-contexto.md) — contexto consolidado.
 
 ## Stack
 
@@ -42,15 +42,28 @@ NERISOFT ya cuenta con:
 - assets críticos locales;
 - navegación parcial HTMX con shell persistente;
 - saneamiento técnico previo a Roles y Permisos;
-- base técnica de Roles y Permisos: modelo, catálogo, autorización y migración;
-- gestión de roles: alta, edición, permisos y activación/desactivación;
+- base técnica de Roles y Permisos;
+- gestión de roles;
 - asignación de roles a usuarios con controles de alcance y permisos granulares;
+- catálogo actual de permisos organizado bajo `Sistema`;
 - portada propia de Configuración;
 - Usuarios y Roles y permisos como destinos independientes;
 - Mi cuenta separado de la administración de usuarios;
-- tests unitarios básicos y validación automática en GitHub Actions.
+- tests y GitHub Actions.
 
-La siguiente tarea funcional prevista es **Tarea 9.4 — Validación integral de permisos**.
+La Tarea 9.3.5 quedó completada. `9.4 — Validación integral de permisos` sigue pendiente, pero se decidió avanzar funcionalmente.
+
+El próximo foco es **Configuración de empresa**.
+
+Auditoría se posterga hasta que existan operaciones reales de negocio suficientes para diseñarla con fundamento.
+
+## Referencia funcional
+
+Se usa como referencia externa permanente la documentación pública de Holistor Gestión ERP:
+
+https://holistor.atlassian.net/wiki/spaces/TDADGC/overview?homepageId=566427761
+
+Se consulta como mapa de módulos, dependencias y casos funcionales. No se copia su UI ni se implementa toda su complejidad por adelantado.
 
 ## Primera instalación en Windows
 

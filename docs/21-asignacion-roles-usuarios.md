@@ -61,10 +61,12 @@ permisos_efectivos(usuario_objetivo) ⊆ permisos_efectivos(usuario_actual)
 
 Los `superuser` siempre quedan fuera del alcance de otro usuario delegado.
 
-## Siguiente tarea
+## Continuidad actual
 
-```text
-Tarea 9.4 — Validación integral de permisos
-```
+Después de 9.3 se completó la Tarea 9.3.5 para normalizar el alcance y la UI de Roles y Permisos.
 
-La siguiente subetapa verificará navegación, rutas, combinaciones de permisos y regresiones antes de cerrar el bloque de Roles y Permisos.
+`9.4 — Validación integral de permisos` sigue pendiente, pero se decidió avanzar con módulos funcionales y retomarla cuando corresponda.
+
+El próximo foco del proyecto es **Configuración de empresa**.
+
+Para el estado actual y las decisiones del próximo hilo leer [`HANDOFF-ACTUAL.md`](HANDOFF-ACTUAL.md).
