@@ -44,11 +44,19 @@ Los colores semánticos no deben reemplazarse por dorado. El dorado representa i
 
 ## Tipografía
 
-- Geist para toda la interfaz.
-- Geist Mono solo cuando exista una razón concreta de legibilidad técnica.
-- Datos numéricos importantes con números tabulares.
+- **Geist** es la tipografía de interfaz.
+- No se usarán stacks de fuentes de sistema nombradas como reemplazo visual. El único fallback genérico será `sans-serif`.
+- **Geist Mono** queda reservado para casos técnicos específicos y no se usa por defecto en datos administrativos.
+- Datos numéricos importantes usan números tabulares sobre Geist.
+- No se deben introducir otras familias tipográficas sin una decisión explícita de diseño.
 
 ```css
+body {
+  font-family: "Geist", sans-serif;
+  font-synthesis: none;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
 .numeric,
 .amount,
 .quantity,
@@ -58,6 +66,32 @@ Los colores semánticos no deben reemplazarse por dorado. El dorado representa i
 ```
 
 Importes alineados a la derecha.
+
+## Radios y sombras
+
+NERISOFT debe evitar el aspecto excesivamente redondeado. Los radios serán contenidos y consistentes.
+
+```css
+:root {
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 7%),
+               0 4px 12px rgb(0 0 0 / 4%);
+  --shadow-md: 0 10px 28px rgb(0 0 0 / 10%),
+               0 2px 8px rgb(0 0 0 / 5%);
+}
+```
+
+Reglas:
+
+- paneles y cards principales: hasta `10px`
+- controles habituales: `6–8px`
+- evitar radios grandes de `16–20px` en superficies administrativas
+- pills y badges pueden usar radios mayores cuando su semántica lo requiera
+- las sombras deben ser visibles pero limpias, con profundidad moderada y sin efecto flotante exagerado
+- usar sombras por jerarquía: `shadow-sm` para controles destacados y `shadow-md` para paneles principales
 
 ## Layout
 
