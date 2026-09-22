@@ -5,6 +5,7 @@
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', path='css/login.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', path='css/setup.css') }}">
+<script src="{{ url_for('static', path='js/setup.js') }}" defer></script>
 {% endblock %}
 
 {% block body %}
@@ -83,6 +84,9 @@
                         <div class="login-input-wrap">
                             <i class="ti ti-lock" aria-hidden="true"></i>
                             <input id="setup-password" name="password" type="password" maxlength="128" autocomplete="new-password" placeholder="Mínimo 10 caracteres" required>
+                            <button class="password-toggle" type="button" data-password-toggle aria-controls="setup-password" aria-label="Mostrar contraseña" aria-pressed="false">
+                                <i class="ti ti-eye" aria-hidden="true"></i>
+                            </button>
                         </div>
                         {% if errors.get('password') %}<span class="field-error">{{ errors.get('password') }}</span>{% endif %}
                     </div>
@@ -92,6 +96,9 @@
                         <div class="login-input-wrap">
                             <i class="ti ti-lock-check" aria-hidden="true"></i>
                             <input id="setup-password-confirm" name="password_confirm" type="password" maxlength="128" autocomplete="new-password" placeholder="Repetí la contraseña" required>
+                            <button class="password-toggle" type="button" data-password-toggle aria-controls="setup-password-confirm" aria-label="Mostrar contraseña" aria-pressed="false">
+                                <i class="ti ti-eye" aria-hidden="true"></i>
+                            </button>
                         </div>
                         {% if errors.get('password_confirm') %}<span class="field-error">{{ errors.get('password_confirm') }}</span>{% endif %}
                     </div>

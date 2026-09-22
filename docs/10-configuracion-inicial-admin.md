@@ -31,6 +31,14 @@ La configuración inicial solicita:
 
 El usuario y el correo se normalizan a minúsculas antes de persistirlos.
 
+## Visibilidad de contraseña
+
+Los campos `Contraseña` y `Repetir contraseña` incluyen una acción visual para alternar entre contraseña oculta y visible.
+
+- El control usa Tabler Icons (`ti-eye` / `ti-eye-off`).
+- El cambio afecta únicamente la visualización en el navegador; no modifica el valor enviado al servidor.
+- El estado se expone mediante `aria-pressed` y el texto accesible cambia entre `Mostrar contraseña` y `Ocultar contraseña`.
+
 ## Validaciones
 
 - Nombre: entre 2 y 120 caracteres.
