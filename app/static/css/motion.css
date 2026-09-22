@@ -6,6 +6,22 @@
     --ease-standard: cubic-bezier(.2, .8, .2, 1);
 }
 
+.workspace {
+    transition:
+        opacity var(--motion-fast) var(--ease-standard),
+        transform var(--motion-fast) var(--ease-standard);
+}
+
+.workspace.htmx-swapping {
+    opacity: .94;
+    transform: translateY(-1px);
+}
+
+.workspace.htmx-added {
+    opacity: .94;
+    transform: translateY(2px);
+}
+
 .user-form-panel,
 .page-alert,
 .form-alert {
