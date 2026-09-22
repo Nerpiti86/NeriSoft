@@ -10,7 +10,7 @@ def _template_source(name: str) -> str:
 
 
 def test_configuration_and_account_routes_are_registered() -> None:
-    paths = {route.path for route in app.routes}
+    paths = {path for route in app.routes if (path := getattr(route, "path", None))}
     assert "/configuracion" in paths
     assert "/mi-cuenta" in paths
 
