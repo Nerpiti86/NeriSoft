@@ -4,13 +4,11 @@ Actualizado: 22/09/2026
 
 ## Objetivo
 
-NERISOFT incorpora una primera capa global de movimiento para reducir la sensación de corte o salto entre pantallas sin convertir el ERP en una interfaz ornamental ni en una SPA.
-
-El movimiento debe reforzar continuidad, jerarquía y respuesta. No debe distraer ni ralentizar operaciones administrativas repetitivas.
+NERISOFT mantiene una capa de movimiento corta y funcional para controles, paneles y popovers, sin animar todavía la navegación completa entre páginas.
 
 ## Principios
 
-El sistema utiliza tiempos cortos y desplazamientos mínimos:
+Tiempos base:
 
 ```text
 instantáneo:  80 ms
@@ -30,88 +28,36 @@ Reglas:
 - evitar rebotes;
 - evitar zooms notorios;
 - evitar desplazamientos largos;
-- no introducir esperas artificiales antes de navegar;
+- no introducir esperas artificiales;
 - priorizar `opacity` y `transform`;
-- mantener la interfaz rápida para uso administrativo intensivo.
+- respetar `prefers-reduced-motion`;
+- no ocultar problemas de carga mediante animaciones.
 
-## Navegación entre páginas
+## Corrección de navegación
 
-Se habilita la API CSS de **View Transitions** mediante mejora progresiva:
+La primera prueba utilizó View Transitions sobre páginas completas. En la prueba real se observaron artefactos al coincidir la transición con la carga tardía de Geist y Tabler Icons desde Internet.
 
-```css
-@view-transition {
-    navigation: auto;
-}
-```
+Por esa razón se retira temporalmente:
 
-Cuando el navegador la soporta, NERISOFT conserva visualmente la continuidad de:
+- `@view-transition`;
+- nombres de transición para sidebar/topbar/workspace;
+- fade de entrada global del workspace;
+- `@starting-style` de página completa.
 
-- sidebar;
-- topbar;
-- workspace.
+La navegación vuelve a ser directa y estable mientras se corrige primero el origen de los saltos visuales: los assets externos.
 
-El sidebar y la topbar usan nombres de transición estables. El workspace aplica una salida y entrada muy corta con opacidad y un desplazamiento vertical de pocos píxeles.
+## Movimiento que permanece
 
-No se interceptan enlaces ni se retrasan clics con JavaScript.
+Se conservan microtransiciones de bajo costo para:
 
-En navegadores sin soporte de View Transitions la navegación continúa funcionando de forma normal, sin dependencia funcional de esta característica.
+- formulario de alta/edición de usuarios;
+- avisos de estado;
+- Select NERISOFT;
+- sidebar expandida/contraída;
+- hover/focus de controles y paneles.
 
-## Entrada inicial
+## Próxima evolución
 
-`workspace` y las tarjetas de acceso usan `@starting-style` para aparecer de manera suave cuando el navegador soporta esta capacidad.
+Si luego de estabilizar tipografía e iconos la navegación completa continúa sintiéndose brusca, el siguiente enfoque será mantener el shell persistente y reemplazar únicamente el workspace mediante HTMX.
 
-Esto evita esconder contenido mediante JavaScript y mantiene un fallback seguro.
-
-## Paneles y mensajes
-
-Los paneles de edición/alta y mensajes contextuales usan una microentrada de aproximadamente 150 ms.
-
-Ejemplos actuales:
-
-- formulario de alta de usuario;
-- formulario de edición de usuario;
-- avisos de éxito, advertencia o error.
-
-## Select NERISOFT
-
-El menú del Select NERISOFT recibe una apertura corta con:
-
-- opacidad;
-- desplazamiento vertical mínimo;
-- escala prácticamente imperceptible.
-
-El objetivo es evitar que el dropdown aparezca de forma brusca sin convertirlo en una animación protagonista.
-
-## Sidebar
-
-La transición de expansión/contracción mantiene su comportamiento existente, pero adopta el tiempo y easing globales del sistema de movimiento.
-
-La modificación afecta únicamente la percepción de movimiento, no el estado persistido de la sidebar.
-
-## Accesibilidad
-
-Se respeta:
-
-```css
-@media (prefers-reduced-motion: reduce)
-```
-
-Cuando el sistema operativo solicita movimiento reducido:
-
-- las animaciones quedan prácticamente anuladas;
-- las transiciones se reducen al mínimo;
-- la funcionalidad permanece intacta.
-
-## Estado actual
-
-Esta etapa es deliberadamente conservadora.
-
-Todavía no se implementa:
-
-- navegación parcial con HTMX;
-- reemplazo dinámico del workspace;
-- skeletons de carga;
-- animaciones complejas de tablas;
-- transiciones entre estados de datos asincrónicos.
-
-La navegación parcial con HTMX podrá evaluarse más adelante si las pruebas de uso indican que la recarga completa sigue produciendo una interrupción visual significativa.
+Eso evita animar dos documentos completos y permite una transición realmente estructural.

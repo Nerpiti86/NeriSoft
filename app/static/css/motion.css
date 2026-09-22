@@ -4,87 +4,6 @@
     --motion-base: 150ms;
     --motion-slow: 200ms;
     --ease-standard: cubic-bezier(.2, .8, .2, 1);
-    --ease-exit: cubic-bezier(.4, 0, 1, 1);
-}
-
-@view-transition {
-    navigation: auto;
-}
-
-.sidebar {
-    view-transition-name: nerisoft-sidebar;
-}
-
-.topbar {
-    view-transition-name: nerisoft-topbar;
-}
-
-.workspace {
-    view-transition-name: nerisoft-workspace;
-}
-
-::view-transition-old(root),
-::view-transition-new(root) {
-    animation-duration: var(--motion-base);
-    animation-timing-function: var(--ease-standard);
-}
-
-::view-transition-old(nerisoft-sidebar),
-::view-transition-new(nerisoft-sidebar),
-::view-transition-old(nerisoft-topbar),
-::view-transition-new(nerisoft-topbar) {
-    animation-duration: var(--motion-instant);
-    animation-timing-function: linear;
-    mix-blend-mode: normal;
-}
-
-::view-transition-old(nerisoft-workspace) {
-    animation: nerisoft-workspace-out var(--motion-fast) var(--ease-exit) both;
-}
-
-::view-transition-new(nerisoft-workspace) {
-    animation: nerisoft-workspace-in var(--motion-base) var(--ease-standard) both;
-}
-
-@keyframes nerisoft-workspace-out {
-    from {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    to {
-        opacity: .94;
-        transform: translateY(-2px);
-    }
-}
-
-@keyframes nerisoft-workspace-in {
-    from {
-        opacity: .92;
-        transform: translateY(4px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.workspace,
-.login-card {
-    opacity: 1;
-    transform: translateY(0);
-    transition:
-        opacity var(--motion-base) var(--ease-standard),
-        transform var(--motion-base) var(--ease-standard);
-}
-
-@starting-style {
-    .workspace,
-    .login-card {
-        opacity: 0;
-        transform: translateY(4px);
-    }
 }
 
 .user-form-panel,
@@ -96,8 +15,8 @@
 
 @keyframes nerisoft-panel-in {
     from {
-        opacity: .88;
-        transform: translateY(4px);
+        opacity: .9;
+        transform: translateY(3px);
     }
 
     to {
@@ -114,7 +33,7 @@
 @keyframes nerisoft-popover-in {
     from {
         opacity: 0;
-        transform: translateY(-3px) scale(.99);
+        transform: translateY(-2px) scale(.995);
     }
 
     to {
@@ -154,16 +73,5 @@
         animation-duration: .001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: .001ms !important;
-    }
-
-    ::view-transition-old(root),
-    ::view-transition-new(root),
-    ::view-transition-old(nerisoft-sidebar),
-    ::view-transition-new(nerisoft-sidebar),
-    ::view-transition-old(nerisoft-topbar),
-    ::view-transition-new(nerisoft-topbar),
-    ::view-transition-old(nerisoft-workspace),
-    ::view-transition-new(nerisoft-workspace) {
-        animation-duration: .001ms !important;
     }
 }
