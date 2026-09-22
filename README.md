@@ -36,6 +36,7 @@ NERISOFT ya cuenta con:
 - saneamiento técnico previo a Roles y Permisos;
 - base técnica de Roles y Permisos: modelo, catálogo, autorización y migración;
 - gestión de roles: alta, edición, permisos y activación/desactivación;
+- asignación de roles a usuarios con controles de alcance y permisos granulares;
 - tests unitarios básicos y validación automática en GitHub Actions.
 
 El resumen consolidado para continuar el proyecto está en [`docs/12-resumen-y-contexto.md`](docs/12-resumen-y-contexto.md).
