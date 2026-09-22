@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}{{ app_name }} · Ingreso{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', path='css/login.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="login-shell">
+    <aside class="login-brand-panel" aria-label="Identidad NERISOFT">
+        <div class="login-brand">
+            <span class="login-brand-mark" aria-hidden="true">
+                <i class="ti ti-diamond"></i>
+            </span>
+            <div>
+                <strong>{{ app_name }}</strong>
+                <span>GESTIÓN ERP</span>
+            </div>
+        </div>
+
+        <div class="login-brand-copy">
+            <span class="login-eyebrow">Sistema de gestión</span>
+            <h1>Información clara para operar mejor.</h1>
+            <p>Ventas, compras, stock, tesorería y contabilidad integrados en una sola plataforma.</p>
+        </div>
+
+        <div class="login-brand-footer">
+            <span>v{{ app_version }}</span>
+            <span>NERISOFT · 2026</span>
+        </div>
+    </aside>
+
+    <main class="login-main">
+        <section class="login-card" aria-labelledby="login-title">
+            <header class="login-card-header">
+                <span class="login-card-kicker">Acceso al sistema</span>
+                <h2 id="login-title">Ingresar a NERISOFT</h2>
+                <p>Usá tus credenciales para continuar.</p>
+            </header>
+
+            <div class="login-alert" role="alert" hidden>
+                <i class="ti ti-alert-circle" aria-hidden="true"></i>
+                <span>Usuario o contraseña incorrectos.</span>
+            </div>
+
+            <form class="login-form" novalidate>
+                <div class="form-field">
+                    <label for="login-user">Usuario o correo</label>
+                    <div class="login-input-wrap">
+                        <i class="ti ti-user" aria-hidden="true"></i>
+                        <input
+                            id="login-user"
+                            name="username"
+                            type="text"
+                            autocomplete="username"
+                            placeholder="usuario@empresa.com"
+                            aria-describedby="login-user-error"
+                        >
+                    </div>
+                    <span id="login-user-error" class="field-error" hidden>Ingresá un usuario válido.</span>
+                </div>
+
+                <div class="form-field">
+                    <div class="field-label-row">
+                        <label for="login-password">Contraseña</label>
+                        <button class="login-text-action" type="button" tabindex="-1">¿Olvidaste tu contraseña?</button>
+                    </div>
+                    <div class="login-input-wrap">
+                        <i class="ti ti-lock" aria-hidden="true"></i>
+                        <input
+                            id="login-password"
+                            name="password"
+                            type="password"
+                            autocomplete="current-password"
+                            placeholder="Ingresá tu contraseña"
+                            aria-describedby="login-password-error"
+                        >
+                    </div>
+                    <span id="login-password-error" class="field-error" hidden>La contraseña es obligatoria.</span>
+                </div>
+
+                <button class="login-submit" type="button">
+                    <span>Ingresar</span>
+                    <i class="ti ti-arrow-right" aria-hidden="true"></i>
+                </button>
+            </form>
+
+            <footer class="login-card-footer">
+                <i class="ti ti-shield-lock" aria-hidden="true"></i>
+                <span>Acceso protegido al entorno de gestión.</span>
+            </footer>
+        </section>
+    </main>
+</div>
+{% endblock %}

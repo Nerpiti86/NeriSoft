@@ -44,6 +44,18 @@ def home(request: Request):
     )
 
 
+@app.get("/login", response_class=HTMLResponse, include_in_schema=False)
+def login(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="login.html",
+        context={
+            "app_name": settings.app_name,
+            "app_version": settings.app_version,
+        },
+    )
+
+
 @app.get("/health", tags=["system"])
 def health() -> dict[str, str]:
     database_is_ready()
