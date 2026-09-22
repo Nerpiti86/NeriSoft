@@ -6,7 +6,7 @@ ERP administrativo, comercial y contable para uso multiusuario en red local.
 
 Para retomar el proyecto:
 
-1. [`docs/13-inicio-proximo-hilo.md`](docs/13-inicio-proximo-hilo.md) — handoff actual y próximo objetivo.
+1. [`docs/HANDOFF-ACTUAL.md`](docs/HANDOFF-ACTUAL.md) — handoff actual y próximo objetivo.
 2. [`docs/00-lectura-rapida.md`](docs/00-lectura-rapida.md) — contexto rápido general.
 3. [`docs/12-resumen-y-contexto.md`](docs/12-resumen-y-contexto.md) — contexto consolidado.
 
