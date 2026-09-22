@@ -1,28 +1,136 @@
 {% extends "base.html" %}
 
-{% block title %}{{ app_name }} · Base técnica{% endblock %}
+{% block title %}{{ app_name }} · Inicio{% endblock %}
 
 {% block body %}
-<main class="bootstrap-screen">
-    <section class="bootstrap-card" aria-labelledby="page-title">
-        <div class="bootstrap-brand">
-            <span class="bootstrap-mark" aria-hidden="true">N</span>
-            <div>
+<div class="app-shell" data-app-shell>
+    <aside class="sidebar" aria-label="Navegación principal">
+        <div class="sidebar-brand">
+            <span class="brand-mark" aria-hidden="true">
+                <i class="ti ti-diamond"></i>
+            </span>
+            <span class="brand-copy">
                 <strong>{{ app_name }}</strong>
+                <small>ADMINISTRÁ TU NEGOCIO</small>
+            </span>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Secciones">
+            <div class="sidebar-nav-primary">
+                <a class="nav-item is-active" href="#" aria-current="page" title="Inicio">
+                    <i class="ti ti-home" aria-hidden="true"></i>
+                    <span class="nav-label">Inicio</span>
+                </a>
+                <a class="nav-item" href="#" title="Ventas">
+                    <i class="ti ti-shopping-cart" aria-hidden="true"></i>
+                    <span class="nav-label">Ventas</span>
+                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
+                </a>
+                <a class="nav-item" href="#" title="Compras">
+                    <i class="ti ti-package" aria-hidden="true"></i>
+                    <span class="nav-label">Compras</span>
+                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
+                </a>
+                <a class="nav-item" href="#" title="Stock">
+                    <i class="ti ti-boxes" aria-hidden="true"></i>
+                    <span class="nav-label">Stock</span>
+                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
+                </a>
+                <a class="nav-item" href="#" title="Tesorería">
+                    <i class="ti ti-wallet" aria-hidden="true"></i>
+                    <span class="nav-label">Tesorería</span>
+                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
+                </a>
+                <a class="nav-item" href="#" title="Contabilidad">
+                    <i class="ti ti-chart-bar" aria-hidden="true"></i>
+                    <span class="nav-label">Contabilidad</span>
+                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
+                </a>
+                <a class="nav-item" href="#" title="Reportes">
+                    <i class="ti ti-file-report" aria-hidden="true"></i>
+                    <span class="nav-label">Reportes</span>
+                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
+                </a>
+            </div>
+
+            <div class="sidebar-nav-secondary">
+                <a class="nav-item" href="#" title="Configuración">
+                    <i class="ti ti-settings" aria-hidden="true"></i>
+                    <span class="nav-label">Configuración</span>
+                    <i class="ti ti-chevron-right nav-chevron" aria-hidden="true"></i>
+                </a>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button
+                id="sidebar-toggle"
+                class="sidebar-toggle"
+                type="button"
+                aria-label="Contraer menú"
+                aria-expanded="true"
+                title="Contraer menú"
+            >
+                <i class="ti ti-chevrons-left" aria-hidden="true"></i>
+                <span class="toggle-label">Contraer menú</span>
+            </button>
+            <div class="sidebar-meta">
                 <span>v{{ app_version }}</span>
+                <span>© 2026 {{ app_name }}</span>
             </div>
         </div>
+    </aside>
 
-        <h1 id="page-title">Base técnica operativa</h1>
-        <p>
-            FastAPI, SQLAlchemy 2, SQLite, Alembic, Jinja2, HTMX,
-            JavaScript y CSS propio ya están preparados.
-        </p>
+    <section class="app-main">
+        <header class="topbar">
+            <label class="topbar-search">
+                <i class="ti ti-search" aria-hidden="true"></i>
+                <input
+                    type="search"
+                    name="global-search"
+                    placeholder="Buscar clientes, productos, comprobantes..."
+                    autocomplete="off"
+                    aria-label="Búsqueda global"
+                >
+                <span class="search-shortcut" aria-hidden="true">Ctrl K</span>
+            </label>
 
-        <div class="bootstrap-status">
-            <i class="ti ti-circle-check" aria-hidden="true"></i>
-            <span>Listo para construir la interfaz de NERISOFT.</span>
-        </div>
+            <div class="topbar-actions">
+                <button class="company-control" type="button" aria-label="Empresa actual">
+                    <span class="company-copy">
+                        <small>Empresa</small>
+                        <strong>Demo S.A.</strong>
+                    </span>
+                    <i class="ti ti-chevron-down" aria-hidden="true"></i>
+                </button>
+
+                <span class="topbar-separator" aria-hidden="true"></span>
+
+                <button class="icon-button notification-button" type="button" aria-label="Notificaciones" title="Notificaciones">
+                    <i class="ti ti-bell" aria-hidden="true"></i>
+                    <span class="notification-dot" aria-hidden="true"></span>
+                </button>
+
+                <span class="topbar-separator" aria-hidden="true"></span>
+
+                <button class="user-control" type="button" aria-label="Menú de usuario">
+                    <span class="user-avatar">NS</span>
+                    <span class="user-name">Nicolás</span>
+                    <i class="ti ti-chevron-down" aria-hidden="true"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="workspace">
+            <header class="workspace-header">
+                <div>
+                    <h1>Inicio</h1>
+                    <p>Área principal de trabajo de NERISOFT.</p>
+                </div>
+            </header>
+
+            <section class="workspace-canvas" aria-label="Área de trabajo"></section>
+        </main>
     </section>
-</main>
+</div>
 {% endblock %}
