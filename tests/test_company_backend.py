@@ -93,6 +93,15 @@ def _save(request: Request, db: Session, **overrides: str):
     return save_company(request=request, db=db, **values)
 
 
+def test_company_routes_are_registered_in_application() -> None:
+    route_paths = {
+        route.path
+        for route in app.routes
+        if getattr(route, "path", None)
+    }
+    assert "/configuracion/empresa" in route_paths
+
+
 def test_company_routes_require_manage_permission() -> None:
     engine = create_engine("sqlite+pysqlite:///:memory:")
     Base.metadata.create_all(engine)
@@ -102,13 +111,20 @@ def test_company_routes_require_manage_permission() -> None:
         db.add(user)
         db.commit()
 
-        response = company_details(_request(user_id=user.id), db=db)
+        read_response = company_details(_request(user_id=user.id), db=db)
+        write_response = _save(
+            _request(user_id=user.id, csrf_token=CSRF_TOKEN),
+            db,
+        )
 
-        assert isinstance(response, RedirectResponse)
-        assert response.headers["location"] == "/"
+        assert isinstance(read_response, RedirectResponse)
+        assert read_response.headers["location"] == "/"
+        assert isinstance(write_response, RedirectResponse)
+        assert write_response.headers["location"] == "/"
+        assert db.get(Company, 1) is None
 
 
-def test_company_manage_permission_allows_reading_company_form() -> None:
+def test_company_manage_permission_allows_reading_and_writing_company() -> None:
     engine = create_engine("sqlite+pysqlite:///:memory:")
     Base.metadata.create_all(engine)
 
@@ -118,12 +134,19 @@ def test_company_manage_permission_allows_reading_company_form() -> None:
         db.add(user)
         db.commit()
 
-        response = company_details(
+        read_response = company_details(
             _request(user_id=user.id, csrf_token=CSRF_TOKEN),
             db=db,
         )
+        assert read_response.status_code == 200
 
-        assert response.status_code == 200
+        write_response = _save(
+            _request(user_id=user.id, csrf_token=CSRF_TOKEN),
+            db,
+        )
+        assert isinstance(write_response, RedirectResponse)
+        assert write_response.status_code == 303
+        assert db.get(Company, 1) is not None
 
 
 def test_superuser_can_create_and_update_single_company() -> None:
