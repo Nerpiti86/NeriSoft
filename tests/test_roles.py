@@ -59,6 +59,7 @@ def test_current_permission_catalog_is_explicitly_system_scoped() -> None:
     assert tuple(group_name for group_name, _ in groups) == (
         "Usuarios",
         "Roles y permisos",
+        "Empresa",
     )
     assert sum(len(items) for _, items in groups) == len(PERMISSION_DEFINITIONS)
 
