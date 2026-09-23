@@ -15,6 +15,12 @@ TAX_CONDITIONS = (
     "MONOTRIBUTISTA SOCIAL",
 )
 
+TAX_CONDITION_ALIASES = {
+    "IVA RESPONSABLE INSCRIPTO": "IVA RESPONSABLE INSCRITO",
+    "IVA SUJETO EXENTO": "IVA EXENTO",
+    "IVA NO ALCANZADO": "NO RESPONSABLE IVA",
+}
+
 
 def _clean_text(value: str) -> str:
     return " ".join(value.strip().split())
@@ -22,6 +28,11 @@ def _clean_text(value: str) -> str:
 
 def normalize_tax_id(value: str) -> str:
     return CUIT_SEPARATORS_RE.sub("", value.strip())
+
+
+def _normalize_tax_condition(value: str) -> str:
+    normalized = _clean_text(value).upper()
+    return TAX_CONDITION_ALIASES.get(normalized, normalized)
 
 
 def normalized_company_values(
@@ -40,7 +51,7 @@ def normalized_company_values(
         "legal_name": _clean_text(legal_name),
         "trade_name": _clean_text(trade_name),
         "tax_id": normalize_tax_id(tax_id),
-        "tax_condition": _clean_text(tax_condition).upper(),
+        "tax_condition": _normalize_tax_condition(tax_condition),
         "fiscal_address": _clean_text(fiscal_address),
         "city": _clean_text(city),
         "province": _clean_text(province),
