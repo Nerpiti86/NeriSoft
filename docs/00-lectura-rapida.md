@@ -130,16 +130,18 @@ No crear todavía maestros separados para localidad, provincia, moneda o condici
 
 También quedan fuera por ahora IIBB, inicio de actividades, logo, ARCA, CAE, certificados, puntos de venta, talonarios, retenciones, percepciones, SMTP y configuración contable.
 
+Tarea 10.1 completada:
+
+- modelo `Company`;
+- tabla `companies` singleton;
+- migración `0004_company`;
+- permiso `system.company.manage`;
+- test de consistencia entre catálogo de permisos y base migrada.
+
 Próxima tarea:
 
 ```text
-10.1 — Modelo + migración + permiso de Empresa
-```
-
-Permiso previsto:
-
-```text
-system.company.manage
+10.2 — Backend + validaciones de Empresa
 ```
 
 ## Modelo mental de acceso
