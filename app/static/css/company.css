@@ -3,6 +3,7 @@
 }
 
 .company-header {
+    width: min(1180px, 100%);
     align-items: center;
     padding-bottom: 0;
 }
@@ -42,7 +43,7 @@
 }
 
 .company-form-panel {
-    width: min(980px, 100%);
+    width: min(1180px, 100%);
     overflow: hidden;
     border: 1px solid var(--border-soft);
     border-radius: var(--radius-lg);
