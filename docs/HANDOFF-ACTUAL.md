@@ -4,11 +4,11 @@ Fecha de cierre: 22/09/2026
 
 ## Objetivo del próximo hilo
 
-**Ejecutar Tarea 10.2 — Backend + validaciones de Configuración de empresa.**
+**Ejecutar Tarea 10.3 — UI de Configuración de empresa + integración en Configuración + prueba funcional.**
 
-No implementar todavía la UI final de Empresa; eso corresponde a 10.3.
+El backend de Empresa ya está implementado. No rediseñarlo salvo que aparezca un problema concreto durante la integración visual.
 
-No continuar con Roles y Permisos salvo que aparezca un problema concreto.
+No continuar con Roles y Permisos salvo problema concreto.
 
 No empezar Auditoría.
 
@@ -25,109 +25,19 @@ local habitual: D:\NeriSoft
 Última tarea completada:
 
 ```text
+Tarea 10.2 — Backend + validaciones de Empresa ✅
+```
+
+También completadas:
+
+```text
+Tarea 10.0 — Normalización documental ✅
 Tarea 10.1 — Modelo + migración + permiso de Empresa ✅
 ```
 
-También completada:
+`9.4 — Validación integral de permisos` sigue pendiente, pero no bloquea Empresa.
 
-```text
-Tarea 10.0 — Normalización de documentación vigente ✅
-```
-
-`9.4 — Validación integral de permisos` queda pendiente, pero **no bloquea** Empresa.
-
-## Qué quedó implementado en 10.1
-
-### Modelo
-
-Existe:
-
-```text
-app/models/company.py
-Company
-companies
-```
-
-Campos:
-
-```text
-id
-legal_name
-trade_name
-tax_id
-tax_condition
-fiscal_address
-city
-province
-postal_code
-phone
-email
-```
-
-La tabla es singleton mediante:
-
-```text
-CHECK (id = 1)
-```
-
-Esto hace cumplir a nivel de base la decisión de una sola empresa por instalación.
-
-### Migración
-
-Nueva migración:
-
-```text
-0004_company
-↓
-0003_roles_permissions
-```
-
-Crea `companies` e inserta el permiso de Empresa.
-
-No modificar migraciones históricas ya aplicadas.
-
-### Permiso
-
-Permiso implementado:
-
-```text
-system.company.manage
-```
-
-Definición funcional:
-
-```text
-Sistema
-└── Empresa
-    └── Administrar datos de empresa
-```
-
-Permite consultar y actualizar los datos generales y fiscales de la empresa.
-
-El Administrador del sistema mantiene acceso total por bypass y no necesita roles.
-
-### Tests
-
-Se incorporaron pruebas para:
-
-- persistencia de los 10 campos aprobados;
-- rechazo de una segunda empresa;
-- migración completa a `head`;
-- igualdad exacta entre permisos sembrados por migraciones y `ALL_PERMISSION_CODES`.
-
-La regla queda:
-
-```text
-catálogo vigente en código
-+
-migraciones históricas/incrementales
-+
-test de consistencia
-```
-
-No crear sincronizador automático de permisos.
-
-## Alcance de Empresa que NO hay que volver a discutir
+## Empresa — alcance vigente
 
 Primera etapa:
 
@@ -138,12 +48,12 @@ sin ABM multiempresa
 acceso directo desde Configuración
 ```
 
-Campos aprobados:
+Campos:
 
 ```text
 Razón social        obligatoria
 Nombre comercial    opcional
-CUIT                 obligatorio, normalizado y validado
+CUIT                 obligatorio
 Condición fiscal    obligatoria
 Domicilio fiscal    obligatorio
 Localidad            obligatoria
@@ -153,20 +63,10 @@ Teléfono             opcional
 Email                opcional
 ```
 
-No crear todavía maestros separados para:
+Fuera de alcance:
 
 ```text
-Localidades
-Provincias
-Monedas
-Condiciones fiscales
-```
-
-La moneda principal queda fuera de esta primera versión hasta que un circuito monetario real la necesite.
-
-También quedan fuera por ahora:
-
-```text
+moneda principal
 IIBB
 inicio de actividades
 logo
@@ -177,58 +77,41 @@ talonarios
 retenciones / percepciones
 SMTP
 contabilidad
-parámetros genéricos masivos
+maestros separados de Localidad / Provincia / Condición fiscal
+multiempresa
 ```
 
-## Tarea 10.2 — alcance exacto
+## Qué quedó implementado en 10.1
 
-Implementar únicamente backend y validaciones necesarias para Empresa.
-
-Debe resolver:
-
-- obtener la única empresa si existe;
-- crearla si todavía no existe;
-- actualizarla si ya existe;
-- proteger lectura/escritura con `system.company.manage`;
-- mantener bypass del Administrador del sistema;
-- CSRF en escritura;
-- normalización y validación de CUIT;
-- validación de campos obligatorios;
-- validación de email cuando se informe;
-- límites de longitud coherentes con el modelo;
-- tests de backend/validaciones.
-
-No implementar todavía:
-
-- diseño final de formulario;
-- tarjeta visual definitiva en Configuración;
-- navegación UI final;
-- maestros auxiliares;
-- Auditoría;
-- ARCA;
-- multiempresa.
-
-La Tarea 10.3 será la responsable de la UI y prueba visual/funcional.
-
-## Roles y Permisos
-
-Motor actual:
+Modelo:
 
 ```text
-Usuario
-→ Rol
-→ Permisos
+app/models/company.py
+Company
+companies
 ```
 
-Administrador del sistema:
+La tabla es singleton mediante:
 
 ```text
-acceso total
-no es un rol
-no necesita roles
+CHECK (id = 1)
 ```
 
-Catálogo actual después de 10.1:
+Migración:
+
+```text
+0004_company
+↓
+0003_roles_permissions
+```
+
+Permiso:
+
+```text
+system.company.manage
+```
+
+Catálogo actual:
 
 ```text
 Sistema
@@ -237,37 +120,173 @@ Sistema
 └── Empresa
 ```
 
-Cada módulo nuevo define, aplica y prueba sus permisos junto con su funcionalidad.
+Las migraciones históricas no se modifican. El catálogo vigente y la base migrada se comparan mediante tests; no existe sincronizador automático.
 
-## Auditoría se posterga
+## Qué quedó implementado en 10.2
 
-No construir ahora:
-
-- motor genérico de auditoría;
-- event bus;
-- snapshots universales;
-- historial transversal;
-- infraestructura “por las dudas”.
-
-Cuando existan suficientes operaciones reales, se diseña Auditoría sobre casos concretos.
-
-## Regla arquitectónica de prioridad
+### Ruta
 
 ```text
-Necesidad concreta
-↓
-Dependencias mínimas
-↓
-Funcionalidad real
-↓
-Uso real
-↓
-Patrón observado
-↓
-Abstracción
+GET  /configuracion/empresa
+POST /configuracion/empresa
 ```
 
-No generalizar antes de tiempo.
+La ruta no está todavía enlazada desde la portada de Configuración. Eso corresponde a 10.3.
+
+### Acceso
+
+Ambas operaciones requieren:
+
+```text
+system.company.manage
+```
+
+El Administrador del sistema mantiene bypass total.
+
+### Persistencia
+
+Comportamiento:
+
+```text
+si companies.id=1 no existe → crear
+si companies.id=1 existe    → actualizar
+```
+
+Nunca se crea una segunda empresa.
+
+### CSRF
+
+El POST exige token CSRF válido usando el mecanismo existente del proyecto.
+
+### CUIT
+
+El backend:
+
+- elimina espacios y guiones;
+- almacena 11 dígitos;
+- valida longitud;
+- valida que sean dígitos;
+- valida dígito verificador mediante checksum.
+
+### Condición fiscal
+
+Se usa una lista controlada dentro del módulo, sin maestro independiente:
+
+```text
+IVA RESPONSABLE INSCRITO
+IVA EXENTO
+NO RESPONSABLE IVA
+RESPONSABLE MONOTRIBUTO
+MONOTRIBUTO TRABAJADOR INDEPENDIENTE PROMOVIDO
+MONOTRIBUTISTA SOCIAL
+```
+
+La selección se basó en las leyendas vigentes para el **emisor** contempladas por ARCA en la RG 1415, Anexo II, texto vigente según RG 5866/2026.
+
+No se incorporaron categorías de receptor como Consumidor Final, Cliente del Exterior o Proveedor del Exterior.
+
+Cuando se llegue al módulo fiscal/electrónico deberá revisarse nuevamente la normativa vigente.
+
+### Validaciones
+
+Se validan:
+
+- razón social obligatoria y hasta 160 caracteres;
+- nombre comercial opcional y hasta 160;
+- CUIT válido;
+- condición fiscal perteneciente al conjunto permitido;
+- domicilio fiscal obligatorio y hasta 255;
+- localidad obligatoria y hasta 120;
+- provincia obligatoria y hasta 120;
+- código postal opcional y hasta 20;
+- teléfono opcional y hasta 50;
+- email opcional, formato válido y hasta 254.
+
+Los valores de texto se limpian antes de guardar; el email se normaliza a minúsculas.
+
+### Errores
+
+- validaciones / CSRF → formulario con errores y HTTP 422;
+- conflicto de persistencia → HTTP 409;
+- éxito → redirect 303 a `/configuracion/empresa?notice=saved`.
+
+### Template actual
+
+Existe:
+
+```text
+app/templates/company.html
+```
+
+Es un formulario funcional mínimo para sostener el backend. **No es la UI final aprobada.**
+
+No agregar ahora otro formulario paralelo ni otra ruta.
+
+## Tests agregados en 10.2
+
+Cubren:
+
+- normalización de campos;
+- checksum de CUIT;
+- rechazo de CUIT inválido;
+- rechazo de condición fiscal no permitida;
+- validación de obligatorios y email;
+- bloqueo de acceso sin permiso;
+- acceso con permiso delegado;
+- bypass de superusuario;
+- creación de empresa;
+- actualización de la misma empresa;
+- conservación de un único registro;
+- rechazo de escritura con datos/CSRF inválidos.
+
+## Tarea 10.3 — alcance exacto
+
+Trabajar sobre el backend existente.
+
+Debe implementar:
+
+- sección **Empresa** en la portada de Configuración;
+- tarjeta **Datos de la empresa** visible solo con `system.company.manage`;
+- formulario visual definitivo para `/configuracion/empresa`;
+- organización en:
+  - Datos generales;
+  - Domicilio fiscal;
+  - Contacto;
+- mensajes de errores integrados al diseño;
+- aviso de guardado correcto;
+- consistencia con shell, Geist, Tabler y sistema visual existente;
+- comportamiento HTMX/HTML normal coherente con el proyecto;
+- prueba local visual y funcional.
+
+No agregar:
+
+- tabs innecesarios;
+- listado de empresas;
+- botón “Nueva empresa”;
+- código de empresa;
+- moneda principal;
+- maestros auxiliares;
+- campos fiscales futuros;
+- Auditoría.
+
+## Regla UI
+
+Desktop-first, sobria, densa y orientada a productividad.
+
+```text
+Configuración
+├── Empresa
+│   └── Datos de la empresa
+└── Accesos y seguridad
+    ├── Usuarios
+    └── Roles y permisos
+```
+
+## Auditoría
+
+Sigue postergada.
+
+No crear todavía motor genérico de auditoría, event bus, snapshots universales ni historial transversal.
 
 ## Holistor
 
@@ -275,14 +294,7 @@ Referencia funcional permanente:
 
 https://holistor.atlassian.net/wiki/spaces/TDADGC/overview?homepageId=566427761
 
-Usarla para descubrir entidades, dependencias y casos reales.
-
-No usarla para copiar UI ni trasladar toda su complejidad a NERISOFT.
-
-```text
-Holistor = universo de referencia
-NERISOFT = mínimo necesario para el circuito actual
-```
+Usarla para descubrir dependencias y casos reales, no para copiar UI ni toda su complejidad.
 
 ## Secuencia actual
 
@@ -291,35 +303,11 @@ NERISOFT = mínimo necesario para el circuito actual
 ↓
 10.1 Modelo + migración + permiso ✅
 ↓
-10.2 Backend + validaciones
+10.2 Backend + validaciones ✅
 ↓
 10.3 UI + prueba funcional
 ↓
 Clientes
-```
-
-## Orden funcional acordado
-
-```text
-Configuración de empresa
-↓
-Clientes
-↓
-Proveedores
-↓
-Productos
-↓
-Depósitos / Stock
-↓
-Ventas
-↓
-Cuenta corriente / cobranzas
-↓
-Compras
-↓
-Tesorería
-↓
-Contabilidad / Impuestos
 ```
 
 ## Forma de trabajo
@@ -334,7 +322,7 @@ Contabilidad / Impuestos
 → squash merge a main
 → GitHub Actions
 → git pull local
-→ prueba
+→ prueba visual/funcional
 → siguiente
 ```
 
@@ -344,7 +332,7 @@ Durante pruebas locales: **una sola acción o comando por mensaje**.
 
 ```text
 Leé primero docs/HANDOFF-ACTUAL.md y docs/00-lectura-rapida.md.
-Después revisá main y ejecutemos únicamente la Tarea 10.2:
-backend + validaciones de Company, permiso system.company.manage, CSRF y tests.
-No implementar todavía la UI final de Empresa.
+Después revisá main y ejecutemos únicamente la Tarea 10.3:
+integrar Empresa en Configuración, diseñar el formulario final sobre /configuracion/empresa y validar visual/funcionalmente.
+No agregar campos ni maestros fuera del alcance aprobado.
 ```
