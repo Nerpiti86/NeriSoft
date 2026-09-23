@@ -205,23 +205,17 @@ No se acepta una factura emitida sin los impactos obligatorios asociados.
 
 ## Auditoría
 
-La auditoría debe existir antes de liberar operaciones sensibles.
+La auditoría transversal se **posterga** hasta disponer de operaciones reales que permitan definir con evidencia qué debe registrarse y con qué granularidad.
 
-Datos mínimos:
+No se construirá ahora:
 
-```text
-usuario
-fecha_hora
-acción
-módulo
-entidad
-entidad_id
-datos_anteriores
-datos_nuevos
-IP
-```
+- un motor genérico de auditoría;
+- un event bus;
+- snapshots universales;
+- historial transversal;
+- infraestructura preventiva “por las dudas”.
 
-Debe poder rastrearse quién creó, modificó, anuló o configuró información relevante.
+Cuando existan altas y modificaciones de maestros, movimientos, comprobantes, anulaciones, ajustes u otras operaciones sensibles, la auditoría se diseñará sobre esos casos concretos. En ese momento se definirán los datos mínimos de trazabilidad necesarios para cada operación.
 
 ## Seguridad y permisos
 
@@ -254,18 +248,37 @@ contabilidad.editar
 
 ## Empresa
 
-Primera etapa: una empresa.
+Primera etapa: **una sola empresa por instalación**.
 
-Datos societarios mínimos previstos:
+Alcance mínimo aprobado para Configuración de empresa:
 
-- razón social
-- nombre de fantasía
-- CUIT
-- domicilio
-- condición IVA
-- ingresos brutos
-- inicio de actividades
-- logo
-- moneda principal
+- razón social — obligatoria;
+- nombre comercial — opcional;
+- CUIT — obligatorio, normalizado y validado;
+- condición fiscal — obligatoria;
+- domicilio fiscal — obligatorio;
+- localidad — obligatoria;
+- provincia — obligatoria;
+- código postal — opcional;
+- teléfono — opcional;
+- email — opcional.
 
-Los datos societarios no deben estar hardcodeados.
+En esta etapa `localidad`, `provincia` y `condición fiscal` no requieren maestros independientes. Se almacenan o controlan dentro del módulo Empresa con la solución mínima necesaria.
+
+No forman parte de este alcance inicial:
+
+- moneda principal;
+- ingresos brutos;
+- inicio de actividades;
+- logo;
+- ARCA / CAE;
+- certificados;
+- puntos de venta;
+- talonarios;
+- retenciones y percepciones;
+- SMTP;
+- parámetros contables.
+
+Esos datos o maestros se incorporarán cuando una operación real los necesite.
+
+Los datos de la empresa no deben estar hardcodeados.
