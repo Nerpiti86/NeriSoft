@@ -83,6 +83,13 @@ PERMISSION_DEFINITIONS = (
         "Activar o desactivar roles",
         "Cambiar el estado de roles que estén dentro del alcance propio.",
     ),
+    PermissionDefinition(
+        "system.company.manage",
+        "Sistema",
+        "Empresa",
+        "Administrar datos de empresa",
+        "Consultar y actualizar los datos generales y fiscales de la empresa.",
+    ),
 )
 
 PERMISSION_BY_CODE = {item.code: item for item in PERMISSION_DEFINITIONS}
