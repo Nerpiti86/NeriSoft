@@ -18,6 +18,10 @@
 
 .configuration-header p,
 .account-header p,
+.settings-section + .settings-section {
+    margin-top: 14px;
+}
+
 .settings-section-heading p {
     margin: 0;
     color: #77736c;
