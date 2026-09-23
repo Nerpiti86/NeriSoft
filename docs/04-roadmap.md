@@ -184,11 +184,13 @@ No se crearán todavía maestros separados de localidades, provincias, monedas o
 
 También quedan fuera por ahora ARCA, CAE, certificados, puntos de venta, talonarios, IIBB, inicio de actividades, logo, retenciones, percepciones, SMTP y configuración contable.
 
-El acceso se incorporará desde la portada de Configuración y tendrá un único permiso funcional previsto:
+El permiso funcional ya incorporado para Empresa es:
 
 ```text
 system.company.manage
 ```
+
+La entrada visual desde la portada de Configuración se incorporará en la Tarea 10.3.
 
 Secuencia del bloque:
 
