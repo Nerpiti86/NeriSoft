@@ -16,14 +16,14 @@ Este documento es la fuente de contexto consolidado para continuar NERISOFT. Par
 ## Regla de trabajo
 
 ```text
-1 tarea -> validación -> 1 commit coherente en main -> pull local -> prueba -> siguiente tarea
+1 tarea -> revisar main -> rama -> implementar -> validar -> PR -> squash merge -> main -> GitHub Actions -> pull local -> prueba -> siguiente tarea
 ```
 
 Durante pruebas locales se avanza una acción/comando por mensaje.
 
 No se ocultan problemas funcionales, de autorización o de renderizado mediante parches de CSS/JavaScript. La causa debe corregirse en la capa responsable (backend, template, datos o estilo según corresponda) y cualquier workaround previo debe eliminarse al aplicar la solución correcta.
 
-## Decisión al cerrar este hilo
+## Decisión vigente
 
 Se decidió **dejar Roles y Permisos por ahora**.
 
@@ -33,10 +33,16 @@ La Tarea 9.4 — Validación integral de permisos — queda **pendiente**, pero 
 
 También se decidió **postergar Auditoría**. La razón es arquitectónica: todavía no existen suficientes operaciones reales de negocio para definir un motor de auditoría transversal con fundamento. No se construirá ahora un sistema genérico de eventos, snapshots o historial universal “por las dudas”.
 
-El próximo foco es:
+La Tarea 10.0 cierra la normalización documental y fija el alcance mínimo de Empresa.
+
+El próximo trabajo es:
 
 ```text
-Configuración de empresa
+10.1 Empresa: modelo + migración + permiso
+↓
+10.2 Empresa: backend y validaciones
+↓
+10.3 Empresa: UI y prueba funcional
 ↓
 Clientes
 ↓
@@ -115,26 +121,28 @@ NERISOFT = implementar solo lo necesario en la etapa actual
 
 ## Próximo bloque: Configuración de empresa
 
-El siguiente hilo debe empezar definiendo el alcance mínimo real.
+Alcance mínimo aprobado:
 
-Candidatos iniciales:
+- una sola empresa por instalación;
+- razón social obligatoria;
+- nombre comercial opcional;
+- CUIT obligatorio, normalizado y validado;
+- condición fiscal obligatoria;
+- domicilio fiscal obligatorio;
+- localidad obligatoria;
+- provincia obligatoria;
+- código postal opcional;
+- teléfono opcional;
+- email opcional.
 
-- razón social;
-- nombre comercial;
-- CUIT;
-- domicilio;
-- localidad;
-- provincia;
-- código postal;
-- teléfono;
-- email;
-- condición fiscal;
-- moneda principal.
-
-Estos campos son **alcance candidato**, no una especificación cerrada. Antes de implementar, revisar dependencias reales y decidir qué debe existir como dato propio de Empresa y qué merece ser maestro separado más adelante.
+En esta etapa localidad, provincia y condición fiscal no requieren maestros independientes.
 
 No implementar ahora:
 
+- moneda principal;
+- IIBB;
+- inicio de actividades;
+- logo;
 - ARCA/CAE;
 - certificados digitales;
 - puntos de venta;
@@ -145,6 +153,8 @@ No implementar ahora:
 - grandes catálogos auxiliares que todavía no consume ninguna operación.
 
 Los maestros secundarios se introducen cuando el módulo que los necesita exista.
+
+La portada de Configuración tendrá una entrada directa a Empresa, sin listado intermedio ni ABM multiempresa. El permiso funcional previsto es `system.company.manage`.
 
 ## Stack actual
 
@@ -168,7 +178,7 @@ Los maestros secundarios se introducen cuando el módulo que los necesita exista
 
 - SQLite: WAL + FK + `busy_timeout=5000`.
 - Migración futura a PostgreSQL si la concurrencia lo requiere.
-- Multiempresa prevista, todavía no implementada.
+- Primera etapa: una sola empresa por instalación. Multiempresa queda fuera del alcance actual; no se agregará complejidad preventiva para soportarla.
 - Dinero futuro: `BIGINT` en centavos; nunca `FLOAT`.
 - Fechas: `DATE` / `DATETIME`.
 - IDs internos: enteros.
@@ -251,7 +261,7 @@ Barra superior
 └── Mi cuenta
 ```
 
-La portada de Configuración incorporará **Empresa** cuando el módulo exista. No crear niveles de navegación intermedios sin necesidad real.
+La Tarea 10.3 incorporará **Empresa** como acceso directo desde la portada de Configuración. No crear niveles de navegación intermedios sin necesidad real.
 
 ## Terminología de acceso
 
@@ -279,6 +289,8 @@ Cada módulo nuevo debe definir, aplicar y probar sus permisos junto con su func
 ```
 
 Esto no obliga a terminar 9.4 antes de iniciar Configuración de empresa; significa que, al crear funcionalidad sensible nueva, sus permisos deben diseñarse con el propio módulo cuando corresponda.
+
+Las migraciones históricas no se reescriben. `0003_roles_permissions` permanece congelada. Cada permiso nuevo se agrega al catálogo vigente de `app/core/permissions.py` y mediante una migración nueva que lleve las bases existentes al mismo estado. No se construye un sincronizador automático: los tests deben detectar desalineaciones entre el catálogo esperado y una base migrada.
 
 ## Assets locales
 
@@ -332,11 +344,14 @@ GitHub Actions ejecuta compilación, migraciones sobre SQLite temporal, pytest y
 15. Tarea 9.3: asignación de roles y permisos granulares.
 16. Reorganización de Configuración y Mi cuenta.
 17. Tarea 9.3.5: normalización de Roles y Permisos.
+18. Tarea 10.0: normalización de documentación vigente y cierre del alcance mínimo de Empresa.
 
 ## Próximo bloque
 
 ```text
-Configuración de empresa
+10.1 Empresa: modelo + migración + permiso
+→ 10.2 Empresa: backend y validaciones
+→ 10.3 Empresa: UI y prueba funcional
 ```
 
 Después:
@@ -373,8 +388,10 @@ Decisión actual:
 - dejamos Roles y Permisos por ahora;
 - 9.4 queda pendiente, no bloquea;
 - Auditoría se posterga hasta tener operaciones reales;
-- próximo foco: Configuración de empresa;
-- después: Clientes → Proveedores → Productos → Depósitos/Stock → Ventas.
+- Empresa queda limitada a una sola empresa por instalación y 10 campos aprobados;
+- sin moneda principal ni maestros auxiliares en esta etapa;
+- próximo paso: 10.1 modelo + migración + permiso system.company.manage;
+- después: 10.2 backend → 10.3 UI → Clientes → Proveedores → Productos → Depósitos/Stock → Ventas.
 
 Referencia funcional:
 Holistor Gestión ERP:
