@@ -33,13 +33,13 @@ La Tarea 9.4 — Validación integral de permisos — queda **pendiente**, pero 
 
 También se decidió **postergar Auditoría**. La razón es arquitectónica: todavía no existen suficientes operaciones reales de negocio para definir un motor de auditoría transversal con fundamento. No se construirá ahora un sistema genérico de eventos, snapshots o historial universal “por las dudas”.
 
-La Tarea 10.0 cierra la normalización documental y fija el alcance mínimo de Empresa.
+La Tarea 10.0 cerró la normalización documental y fijó el alcance mínimo de Empresa.
+
+La Tarea 10.1 implementó el modelo `Company`, la tabla singleton `companies`, la migración `0004_company`, el permiso `system.company.manage` y la prueba de consistencia entre catálogo y base migrada.
 
 El próximo trabajo es:
 
 ```text
-10.1 Empresa: modelo + migración + permiso
-↓
 10.2 Empresa: backend y validaciones
 ↓
 10.3 Empresa: UI y prueba funcional
@@ -345,12 +345,12 @@ GitHub Actions ejecuta compilación, migraciones sobre SQLite temporal, pytest y
 16. Reorganización de Configuración y Mi cuenta.
 17. Tarea 9.3.5: normalización de Roles y Permisos.
 18. Tarea 10.0: normalización de documentación vigente y cierre del alcance mínimo de Empresa.
+19. Tarea 10.1: modelo Company, migración 0004, permiso de Empresa y tests de consistencia.
 
 ## Próximo bloque
 
 ```text
-10.1 Empresa: modelo + migración + permiso
-→ 10.2 Empresa: backend y validaciones
+10.2 Empresa: backend y validaciones
 → 10.3 Empresa: UI y prueba funcional
 ```
 
