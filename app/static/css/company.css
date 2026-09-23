@@ -81,8 +81,8 @@
 .company-form-section {
     display: grid;
     grid-template-columns: 210px minmax(0, 1fr);
-    gap: 24px;
-    padding: 18px;
+    gap: 20px;
+    padding: 13px 16px;
     border-bottom: 1px solid var(--border-soft);
 }
 
