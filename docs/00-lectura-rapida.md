@@ -138,10 +138,21 @@ Tarea 10.1 completada:
 - permiso `system.company.manage`;
 - test de consistencia entre catálogo de permisos y base migrada.
 
+Tarea 10.2 completada:
+
+- ruta funcional `/configuracion/empresa`;
+- lectura y upsert de la empresa singleton;
+- permiso `system.company.manage`;
+- CSRF en escritura;
+- normalización y checksum de CUIT;
+- condición fiscal controlada;
+- validación de obligatorios, longitudes y email;
+- tests de backend y validaciones.
+
 Próxima tarea:
 
 ```text
-10.2 — Backend + validaciones de Empresa
+10.3 — UI de Empresa + integración en Configuración + prueba funcional
 ```
 
 ## Modelo mental de acceso
