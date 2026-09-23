@@ -94,16 +94,21 @@
                         {% if errors.get('tax_id') %}<small class="field-error">{{ errors.get('tax_id') }}</small>{% endif %}
                     </label>
 
-                    <label class="field">
-                        <span>Condición fiscal *</span>
-                        <select name="tax_condition" data-native-select required {% if errors.get('tax_condition') %}aria-invalid="true"{% endif %}>
+                    <div class="field">
+                        <label for="company-tax-condition">Condición fiscal *</label>
+                        <select
+                            id="company-tax-condition"
+                            name="tax_condition"
+                            required
+                            {% if errors.get('tax_condition') %}aria-invalid="true"{% endif %}
+                        >
                             <option value="">Seleccionar</option>
                             {% for condition in tax_conditions %}
                             <option value="{{ condition }}"{% if values.get('tax_condition') == condition %} selected{% endif %}>{{ condition }}</option>
                             {% endfor %}
                         </select>
                         {% if errors.get('tax_condition') %}<small class="field-error">{{ errors.get('tax_condition') }}</small>{% endif %}
-                    </label>
+                    </div>
                 </div>
             </section>
 
