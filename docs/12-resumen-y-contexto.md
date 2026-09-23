@@ -390,8 +390,9 @@ Decisión actual:
 - Auditoría se posterga hasta tener operaciones reales;
 - Empresa queda limitada a una sola empresa por instalación y 10 campos aprobados;
 - sin moneda principal ni maestros auxiliares en esta etapa;
-- próximo paso: 10.1 modelo + migración + permiso system.company.manage;
-- después: 10.2 backend → 10.3 UI → Clientes → Proveedores → Productos → Depósitos/Stock → Ventas.
+- 10.1 ya completó modelo Company + migración 0004 + permiso system.company.manage + tests;
+- próximo paso: 10.2 backend y validaciones;
+- después: 10.3 UI → Clientes → Proveedores → Productos → Depósitos/Stock → Ventas.
 
 Referencia funcional:
 Holistor Gestión ERP:
@@ -407,6 +408,6 @@ tabla = resumen operativo; ficha = detalle completo.
 No parches CSS/JS; resolver causa raíz.
 
 Trabajo:
-1 tarea -> validar -> commit/PR -> main -> pull local -> prueba.
+1 tarea -> revisar main -> rama -> validar -> PR -> squash merge -> main -> Actions -> pull local -> prueba.
 En pruebas locales, una acción/comando por mensaje.
 ```
