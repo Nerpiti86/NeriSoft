@@ -55,6 +55,12 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.execute(
+        sa.text(
+            "DELETE FROM role_permissions "
+            "WHERE permission_id IN (SELECT id FROM permissions WHERE code = :code)"
+        ).bindparams(code=COMPANY_PERMISSION["code"])
+    )
+    op.execute(
         sa.text("DELETE FROM permissions WHERE code = :code").bindparams(
             code=COMPANY_PERMISSION["code"]
         )
