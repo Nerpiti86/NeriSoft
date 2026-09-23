@@ -37,11 +37,11 @@ La Tarea 10.0 cerró la normalización documental y fijó el alcance mínimo de 
 
 La Tarea 10.1 implementó el modelo `Company`, la tabla singleton `companies`, la migración `0004_company`, el permiso `system.company.manage` y la prueba de consistencia entre catálogo y base migrada.
 
+La Tarea 10.2 implementó `/configuracion/empresa`, lectura/upsert singleton, permiso, CSRF, normalización y checksum de CUIT, condición fiscal controlada, validación de obligatorios/longitudes/email y tests de backend.
+
 El próximo trabajo es:
 
 ```text
-10.2 Empresa: backend y validaciones
-↓
 10.3 Empresa: UI y prueba funcional
 ↓
 Clientes
@@ -348,12 +348,12 @@ GitHub Actions ejecuta compilación, migraciones sobre SQLite temporal, pytest y
 17. Tarea 9.3.5: normalización de Roles y Permisos.
 18. Tarea 10.0: normalización de documentación vigente y cierre del alcance mínimo de Empresa.
 19. Tarea 10.1: modelo Company, migración 0004, permiso de Empresa y tests de consistencia.
+20. Tarea 10.2: backend, upsert singleton, permiso, CSRF y validaciones de Empresa.
 
 ## Próximo bloque
 
 ```text
-10.2 Empresa: backend y validaciones
-→ 10.3 Empresa: UI y prueba funcional
+10.3 Empresa: UI y prueba funcional
 ```
 
 Después:
@@ -393,8 +393,9 @@ Decisión actual:
 - Empresa queda limitada a una sola empresa por instalación y 10 campos aprobados;
 - sin moneda principal ni maestros auxiliares en esta etapa;
 - 10.1 ya completó modelo Company + migración 0004 + permiso system.company.manage + tests;
-- próximo paso: 10.2 backend y validaciones;
-- después: 10.3 UI → Clientes → Proveedores → Productos → Depósitos/Stock → Ventas.
+- 10.2 ya completó backend, upsert singleton, permiso, CSRF y validaciones;
+- próximo paso: 10.3 UI de Empresa + integración en Configuración + prueba funcional;
+- después: Clientes → Proveedores → Productos → Depósitos/Stock → Ventas.
 
 Referencia funcional:
 Holistor Gestión ERP:
