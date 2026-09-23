@@ -168,8 +168,11 @@ Hoy los permisos implementados pertenecen solamente al área **Sistema**:
 ```text
 Sistema
 ├── Usuarios
-└── Roles y permisos
+├── Roles y permisos
+└── Empresa
 ```
+
+El permiso de Empresa ya existe en backend; su acceso visual se incorporará en la Tarea 10.3.
 
 No se crean permisos ficticios de Ventas, Compras, Stock, Tesorería u otros módulos antes de que exista su funcionalidad.
 
