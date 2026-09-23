@@ -21,7 +21,8 @@ Completado:
 - Tarea 9.3: asignación de roles a usuarios y permisos granulares en Gestión de Usuarios;
 - reorganización de Configuración: portada propia, Usuarios y Roles como destinos independientes, Mi cuenta separada y Administrador del sistema representado como tipo de acceso, no como rol;
 - Tarea 9.3.5: normalización de Roles y Permisos, catálogo actual explícitamente limitado a Sistema, formulario separado del listado y UI reducida a información operativa;
-- Tarea 10.0: normalización de documentación vigente y cierre del alcance mínimo de Configuración de empresa.
+- Tarea 10.0: normalización de documentación vigente y cierre del alcance mínimo de Configuración de empresa;
+- Tarea 10.1: modelo Company, tabla singleton, migración 0004, permiso system.company.manage y tests de consistencia.
 
 ## Decisión de secuencia
 
