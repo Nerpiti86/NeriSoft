@@ -52,7 +52,7 @@
                 </div>
 
                 <div class="company-grid">
-                    <label class="field field-span-2">
+                    <label class="field">
                         <span>Razón social *</span>
                         <input
                             type="text"
@@ -66,7 +66,7 @@
                         {% if errors.get('legal_name') %}<small class="field-error">{{ errors.get('legal_name') }}</small>{% endif %}
                     </label>
 
-                    <label class="field field-span-2">
+                    <label class="field">
                         <span>Nombre comercial</span>
                         <input
                             type="text"
@@ -116,8 +116,8 @@
                     </div>
                 </div>
 
-                <div class="company-grid">
-                    <label class="field field-span-2">
+                <div class="company-grid company-address-grid">
+                    <label class="field field-span-3">
                         <span>Domicilio fiscal *</span>
                         <input
                             type="text"
@@ -159,7 +159,7 @@
                         {% if errors.get('province') %}<small class="field-error">{{ errors.get('province') }}</small>{% endif %}
                     </label>
 
-                    <label class="field company-postal-field">
+                    <label class="field">
                         <span>Código postal</span>
                         <input
                             type="text"
