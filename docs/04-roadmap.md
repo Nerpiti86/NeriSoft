@@ -194,7 +194,7 @@ Secuencia del bloque:
 
 ```text
 10.0 Documentación vigente ✅
-10.1 Modelo + migración + permiso
+10.1 Modelo + migración + permiso ✅
 10.2 Backend y validaciones
 10.3 UI y prueba funcional
 ```
@@ -368,8 +368,8 @@ A implementar contra normativa vigente al momento del desarrollo:
 ## Próximas tareas naturales
 
 ```text
-10.1 Empresa: modelo + migración + permiso
-→ 10.2 Empresa: backend y validaciones
+10.2 Empresa: backend y validaciones
+→ 10.3 Empresa: UI y prueba funcional
 → 10.3 Empresa: UI y prueba funcional
 → Clientes
 → Proveedores
