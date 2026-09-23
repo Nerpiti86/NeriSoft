@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.account import router as account_router
+from app.company import router as company_router
 from app.configuration import router as configuration_router
 from app.core.assets import ensure_vendor_assets_ready
 from app.core.auth import (
@@ -62,6 +63,7 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory=str(settings.static_dir)), name="static")
 app.include_router(account_router)
 app.include_router(configuration_router)
+app.include_router(company_router)
 app.include_router(users_router)
 app.include_router(roles_router)
 
