@@ -71,6 +71,7 @@ def test_company_form_has_only_approved_sections_and_fields() -> None:
         assert f'name="{field_name}"' in source
 
     assert 'name="currency"' not in source
+    assert 'name="tax_condition" data-native-select' in source
     assert "Nueva empresa" not in source
     assert "config-tabs" not in source
 
