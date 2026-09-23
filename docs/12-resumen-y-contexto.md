@@ -279,7 +279,8 @@ Estado actual:
 ```text
 Sistema
 ├── Usuarios
-└── Roles y permisos
+├── Roles y permisos
+└── Empresa
 ```
 
 No se crean permisos ficticios de módulos futuros.
@@ -314,6 +315,7 @@ Migraciones:
 0001_users
 0002_user_superuser
 0003_roles_permissions
+0004_company
 ```
 
 ## Tests
