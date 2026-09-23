@@ -33,6 +33,7 @@ def configuration_home(request: Request, db: Session = Depends(get_db)):
             "current_user_first_name": first_name,
             "current_user_initials": initials,
             "csrf_token": csrf_token(request),
+            "can_manage_company": "system.company.manage" in granted_codes,
             "can_view_users": "system.users.view" in granted_codes,
             "can_view_roles": "system.roles.view" in granted_codes,
         },

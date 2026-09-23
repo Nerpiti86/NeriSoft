@@ -79,6 +79,7 @@ function updateShellNavigation(value = window.location.href) {
     const isHome = path === "/";
     const isUsers = path.startsWith("/configuracion/usuarios");
     const isRoles = path.startsWith("/configuracion/roles");
+    const isCompany = path.startsWith("/configuracion/empresa");
     const isConfiguration = path === "/configuracion" || path.startsWith("/configuracion/");
     const isAccount = path === "/mi-cuenta";
 
@@ -113,6 +114,8 @@ function updateShellNavigation(value = window.location.href) {
         document.title = `${window.NERISOFT.name} · Usuarios`;
     } else if (isRoles) {
         document.title = `${window.NERISOFT.name} · Roles y permisos`;
+    } else if (isCompany) {
+        document.title = `${window.NERISOFT.name} · Empresa`;
     } else if (path === "/configuracion") {
         document.title = `${window.NERISOFT.name} · Configuración`;
     } else if (isAccount) {

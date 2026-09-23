@@ -12,6 +12,28 @@
         </div>
     </header>
 
+    {% if can_manage_company %}
+    <section class="settings-section" aria-labelledby="company-settings-title">
+        <div class="settings-section-heading">
+            <span class="section-eyebrow">Organización</span>
+            <h2 id="company-settings-title">Empresa</h2>
+            <p>Definí los datos generales, fiscales y de contacto de la empresa que opera en NERISOFT.</p>
+        </div>
+
+        <div class="settings-card-grid">
+            <a class="settings-card" href="/configuracion/empresa">
+                <span class="settings-card-icon"><i class="ti ti-building" aria-hidden="true"></i></span>
+                <span class="settings-card-copy">
+                    <strong>Datos de la empresa</strong>
+                    <small>Configurá razón social, CUIT, condición fiscal, domicilio y datos de contacto.</small>
+                </span>
+                <i class="ti ti-chevron-right settings-card-arrow" aria-hidden="true"></i>
+            </a>
+        </div>
+    </section>
+    {% endif %}
+
+    {% if can_view_users or can_view_roles %}
     <section class="settings-section" aria-labelledby="access-settings-title">
         <div class="settings-section-heading">
             <span class="section-eyebrow">Seguridad</span>
@@ -19,7 +41,6 @@
             <p>Definí quién puede ingresar al sistema y qué acciones puede realizar.</p>
         </div>
 
-        {% if can_view_users or can_view_roles %}
         <div class="settings-card-grid">
             {% if can_view_users %}
             <a class="settings-card" href="/configuracion/usuarios">
@@ -43,7 +64,11 @@
             </a>
             {% endif %}
         </div>
-        {% else %}
+    </section>
+    {% endif %}
+
+    {% if not can_manage_company and not can_view_users and not can_view_roles %}
+    <section class="settings-section" aria-label="Configuración no disponible">
         <div class="settings-empty-state">
             <i class="ti ti-lock" aria-hidden="true"></i>
             <div>
@@ -51,7 +76,7 @@
                 <span>Tu cuenta no tiene permisos para administrar esta sección.</span>
             </div>
         </div>
-        {% endif %}
     </section>
+    {% endif %}
 </main>
 {% endblock %}
