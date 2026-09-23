@@ -96,7 +96,7 @@
 
                     <label class="field">
                         <span>Condición fiscal *</span>
-                        <select name="tax_condition" required {% if errors.get('tax_condition') %}aria-invalid="true"{% endif %}>
+                        <select name="tax_condition" data-native-select required {% if errors.get('tax_condition') %}aria-invalid="true"{% endif %}>
                             <option value="">Seleccionar</option>
                             {% for condition in tax_conditions %}
                             <option value="{{ condition }}"{% if values.get('tax_condition') == condition %} selected{% endif %}>{{ condition }}</option>
