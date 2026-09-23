@@ -1,17 +1,23 @@
 from __future__ import annotations
 
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import Session
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
-from app.company import company_details, save_company
+from app.company import company_details, router as company_router, save_company
+from app.core.config import settings
 from app.core.database import Base
-from app.main import app
 from app.models import Company, Permission, Role, User
 
 
 CSRF_TOKEN = "company-test-csrf-token-000000000000"
+
+test_app = FastAPI()
+test_app.mount("/static", StaticFiles(directory=str(settings.static_dir)), name="static")
+test_app.include_router(company_router)
 
 
 def _request(
@@ -42,8 +48,8 @@ def _request(
             "client": ("127.0.0.1", 12345),
             "server": ("127.0.0.1", 8000),
             "session": session,
-            "app": app,
-            "router": app.router,
+            "app": test_app,
+            "router": test_app.router,
         }
     )
 
@@ -96,7 +102,7 @@ def _save(request: Request, db: Session, **overrides: str):
 def test_company_routes_are_registered_in_application() -> None:
     route_paths = {
         route.path
-        for route in app.routes
+        for route in test_app.routes
         if getattr(route, "path", None)
     }
     assert "/configuracion/empresa" in route_paths
