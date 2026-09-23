@@ -33,13 +33,13 @@ La Tarea 9.4 — Validación integral de permisos — queda **pendiente**, pero 
 
 También se decidió **postergar Auditoría**. La razón es arquitectónica: todavía no existen suficientes operaciones reales de negocio para definir un motor de auditoría transversal con fundamento. No se construirá ahora un sistema genérico de eventos, snapshots o historial universal “por las dudas”.
 
-La Tarea 10.0 cierra la normalización documental y fija el alcance mínimo de Empresa.
+La Tarea 10.0 cerró la normalización documental y fijó el alcance mínimo de Empresa.
+
+La Tarea 10.1 implementó el modelo `Company`, la tabla singleton `companies`, la migración `0004_company`, el permiso `system.company.manage` y la prueba de consistencia entre catálogo y base migrada.
 
 El próximo trabajo es:
 
 ```text
-10.1 Empresa: modelo + migración + permiso
-↓
 10.2 Empresa: backend y validaciones
 ↓
 10.3 Empresa: UI y prueba funcional
@@ -279,7 +279,8 @@ Estado actual:
 ```text
 Sistema
 ├── Usuarios
-└── Roles y permisos
+├── Roles y permisos
+└── Empresa
 ```
 
 No se crean permisos ficticios de módulos futuros.
@@ -314,6 +315,7 @@ Migraciones:
 0001_users
 0002_user_superuser
 0003_roles_permissions
+0004_company
 ```
 
 ## Tests
@@ -345,12 +347,12 @@ GitHub Actions ejecuta compilación, migraciones sobre SQLite temporal, pytest y
 16. Reorganización de Configuración y Mi cuenta.
 17. Tarea 9.3.5: normalización de Roles y Permisos.
 18. Tarea 10.0: normalización de documentación vigente y cierre del alcance mínimo de Empresa.
+19. Tarea 10.1: modelo Company, migración 0004, permiso de Empresa y tests de consistencia.
 
 ## Próximo bloque
 
 ```text
-10.1 Empresa: modelo + migración + permiso
-→ 10.2 Empresa: backend y validaciones
+10.2 Empresa: backend y validaciones
 → 10.3 Empresa: UI y prueba funcional
 ```
 
@@ -390,8 +392,9 @@ Decisión actual:
 - Auditoría se posterga hasta tener operaciones reales;
 - Empresa queda limitada a una sola empresa por instalación y 10 campos aprobados;
 - sin moneda principal ni maestros auxiliares en esta etapa;
-- próximo paso: 10.1 modelo + migración + permiso system.company.manage;
-- después: 10.2 backend → 10.3 UI → Clientes → Proveedores → Productos → Depósitos/Stock → Ventas.
+- 10.1 ya completó modelo Company + migración 0004 + permiso system.company.manage + tests;
+- próximo paso: 10.2 backend y validaciones;
+- después: 10.3 UI → Clientes → Proveedores → Productos → Depósitos/Stock → Ventas.
 
 Referencia funcional:
 Holistor Gestión ERP:
@@ -407,6 +410,6 @@ tabla = resumen operativo; ficha = detalle completo.
 No parches CSS/JS; resolver causa raíz.
 
 Trabajo:
-1 tarea -> validar -> commit/PR -> main -> pull local -> prueba.
+1 tarea -> revisar main -> rama -> validar -> PR -> squash merge -> main -> Actions -> pull local -> prueba.
 En pruebas locales, una acción/comando por mensaje.
 ```

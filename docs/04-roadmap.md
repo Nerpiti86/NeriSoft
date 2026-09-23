@@ -21,7 +21,8 @@ Completado:
 - Tarea 9.3: asignación de roles a usuarios y permisos granulares en Gestión de Usuarios;
 - reorganización de Configuración: portada propia, Usuarios y Roles como destinos independientes, Mi cuenta separada y Administrador del sistema representado como tipo de acceso, no como rol;
 - Tarea 9.3.5: normalización de Roles y Permisos, catálogo actual explícitamente limitado a Sistema, formulario separado del listado y UI reducida a información operativa;
-- Tarea 10.0: normalización de documentación vigente y cierre del alcance mínimo de Configuración de empresa.
+- Tarea 10.0: normalización de documentación vigente y cierre del alcance mínimo de Configuración de empresa;
+- Tarea 10.1: modelo Company, tabla singleton, migración 0004, permiso system.company.manage y tests de consistencia.
 
 ## Decisión de secuencia
 
@@ -184,17 +185,19 @@ No se crearán todavía maestros separados de localidades, provincias, monedas o
 
 También quedan fuera por ahora ARCA, CAE, certificados, puntos de venta, talonarios, IIBB, inicio de actividades, logo, retenciones, percepciones, SMTP y configuración contable.
 
-El acceso se incorporará desde la portada de Configuración y tendrá un único permiso funcional previsto:
+El permiso funcional ya incorporado para Empresa es:
 
 ```text
 system.company.manage
 ```
 
+La entrada visual desde la portada de Configuración se incorporará en la Tarea 10.3.
+
 Secuencia del bloque:
 
 ```text
 10.0 Documentación vigente ✅
-10.1 Modelo + migración + permiso
+10.1 Modelo + migración + permiso ✅
 10.2 Backend y validaciones
 10.3 UI y prueba funcional
 ```
@@ -368,8 +371,8 @@ A implementar contra normativa vigente al momento del desarrollo:
 ## Próximas tareas naturales
 
 ```text
-10.1 Empresa: modelo + migración + permiso
-→ 10.2 Empresa: backend y validaciones
+10.2 Empresa: backend y validaciones
+→ 10.3 Empresa: UI y prueba funcional
 → 10.3 Empresa: UI y prueba funcional
 → Clientes
 → Proveedores

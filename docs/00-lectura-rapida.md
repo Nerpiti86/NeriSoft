@@ -130,16 +130,18 @@ No crear todavía maestros separados para localidad, provincia, moneda o condici
 
 También quedan fuera por ahora IIBB, inicio de actividades, logo, ARCA, CAE, certificados, puntos de venta, talonarios, retenciones, percepciones, SMTP y configuración contable.
 
+Tarea 10.1 completada:
+
+- modelo `Company`;
+- tabla `companies` singleton;
+- migración `0004_company`;
+- permiso `system.company.manage`;
+- test de consistencia entre catálogo de permisos y base migrada.
+
 Próxima tarea:
 
 ```text
-10.1 — Modelo + migración + permiso de Empresa
-```
-
-Permiso previsto:
-
-```text
-system.company.manage
+10.2 — Backend + validaciones de Empresa
 ```
 
 ## Modelo mental de acceso
@@ -166,8 +168,11 @@ Hoy los permisos implementados pertenecen solamente al área **Sistema**:
 ```text
 Sistema
 ├── Usuarios
-└── Roles y permisos
+├── Roles y permisos
+└── Empresa
 ```
+
+El permiso de Empresa ya existe en backend; su acceso visual se incorporará en la Tarea 10.3.
 
 No se crean permisos ficticios de Ventas, Compras, Stock, Tesorería u otros módulos antes de que exista su funcionalidad.
 

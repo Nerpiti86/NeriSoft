@@ -4,9 +4,9 @@ Fecha de cierre: 22/09/2026
 
 ## Objetivo del próximo hilo
 
-**Ejecutar Tarea 10.1 — Modelo + migración + permiso de Configuración de empresa.**
+**Ejecutar Tarea 10.2 — Backend + validaciones de Configuración de empresa.**
 
-No volver a discutir desde cero el alcance de Empresa: quedó cerrado en la Tarea 10.0.
+No implementar todavía la UI final de Empresa; eso corresponde a 10.3.
 
 No continuar con Roles y Permisos salvo que aparezca un problema concreto.
 
@@ -25,20 +25,109 @@ local habitual: D:\NeriSoft
 Última tarea completada:
 
 ```text
-Tarea 10.0 — Normalización de documentación vigente ✅
+Tarea 10.1 — Modelo + migración + permiso de Empresa ✅
 ```
 
-Último bloque funcional previo:
+También completada:
 
 ```text
-Tarea 9.3.5 — Normalización de Roles y Permisos ✅
+Tarea 10.0 — Normalización de documentación vigente ✅
 ```
 
 `9.4 — Validación integral de permisos` queda pendiente, pero **no bloquea** Empresa.
 
-## Decisiones que NO hay que volver a discutir desde cero
+## Qué quedó implementado en 10.1
 
-### 1. Configuración de empresa: alcance aprobado
+### Modelo
+
+Existe:
+
+```text
+app/models/company.py
+Company
+companies
+```
+
+Campos:
+
+```text
+id
+legal_name
+trade_name
+tax_id
+tax_condition
+fiscal_address
+city
+province
+postal_code
+phone
+email
+```
+
+La tabla es singleton mediante:
+
+```text
+CHECK (id = 1)
+```
+
+Esto hace cumplir a nivel de base la decisión de una sola empresa por instalación.
+
+### Migración
+
+Nueva migración:
+
+```text
+0004_company
+↓
+0003_roles_permissions
+```
+
+Crea `companies` e inserta el permiso de Empresa.
+
+No modificar migraciones históricas ya aplicadas.
+
+### Permiso
+
+Permiso implementado:
+
+```text
+system.company.manage
+```
+
+Definición funcional:
+
+```text
+Sistema
+└── Empresa
+    └── Administrar datos de empresa
+```
+
+Permite consultar y actualizar los datos generales y fiscales de la empresa.
+
+El Administrador del sistema mantiene acceso total por bypass y no necesita roles.
+
+### Tests
+
+Se incorporaron pruebas para:
+
+- persistencia de los 10 campos aprobados;
+- rechazo de una segunda empresa;
+- migración completa a `head`;
+- igualdad exacta entre permisos sembrados por migraciones y `ALL_PERMISSION_CODES`.
+
+La regla queda:
+
+```text
+catálogo vigente en código
++
+migraciones históricas/incrementales
++
+test de consistencia
+```
+
+No crear sincronizador automático de permisos.
+
+## Alcance de Empresa que NO hay que volver a discutir
 
 Primera etapa:
 
@@ -91,37 +180,37 @@ contabilidad
 parámetros genéricos masivos
 ```
 
-### 2. Permiso de Empresa
+## Tarea 10.2 — alcance exacto
 
-Se acordó un único permiso funcional:
+Implementar únicamente backend y validaciones necesarias para Empresa.
 
-```text
-system.company.manage
-```
+Debe resolver:
 
-Debe permitir consultar y actualizar los datos de la empresa.
+- obtener la única empresa si existe;
+- crearla si todavía no existe;
+- actualizarla si ya existe;
+- proteger lectura/escritura con `system.company.manage`;
+- mantener bypass del Administrador del sistema;
+- CSRF en escritura;
+- normalización y validación de CUIT;
+- validación de campos obligatorios;
+- validación de email cuando se informe;
+- límites de longitud coherentes con el modelo;
+- tests de backend/validaciones.
 
-El Administrador del sistema mantiene acceso total por bypass y no necesita roles.
+No implementar todavía:
 
-No crear permisos ficticios de módulos futuros.
+- diseño final de formulario;
+- tarjeta visual definitiva en Configuración;
+- navegación UI final;
+- maestros auxiliares;
+- Auditoría;
+- ARCA;
+- multiempresa.
 
-### 3. Regla para catálogo de permisos y migraciones
+La Tarea 10.3 será la responsable de la UI y prueba visual/funcional.
 
-`app/core/permissions.py` representa el catálogo vigente esperado por la aplicación.
-
-Las migraciones de Alembic representan la evolución histórica de bases existentes.
-
-Por lo tanto:
-
-- **no modificar** `0003_roles_permissions.py`;
-- agregar `system.company.manage` al catálogo vigente;
-- insertar el nuevo permiso mediante una migración nueva;
-- no crear un sincronizador automático de permisos;
-- agregar tests que detecten desalineación entre el catálogo esperado y una base migrada.
-
-La coexistencia entre catálogo actual y migraciones históricas no se considera una duplicación incorrecta.
-
-### 4. Roles y Permisos se dejan por ahora
+## Roles y Permisos
 
 Motor actual:
 
@@ -139,17 +228,18 @@ no es un rol
 no necesita roles
 ```
 
-Catálogo actualmente implementado antes de Empresa:
+Catálogo actual después de 10.1:
 
 ```text
 Sistema
 ├── Usuarios
-└── Roles y permisos
+├── Roles y permisos
+└── Empresa
 ```
 
 Cada módulo nuevo define, aplica y prueba sus permisos junto con su funcionalidad.
 
-### 5. Auditoría se posterga
+## Auditoría se posterga
 
 No construir ahora:
 
@@ -159,25 +249,9 @@ No construir ahora:
 - historial transversal;
 - infraestructura “por las dudas”.
 
-Motivo:
+Cuando existan suficientes operaciones reales, se diseña Auditoría sobre casos concretos.
 
-Todavía no hay suficientes operaciones reales de negocio para saber qué debe auditarse y con qué granularidad.
-
-Cuando existan altas/modificaciones de maestros, movimientos, comprobantes, anulaciones, ajustes y otras operaciones sensibles, se diseña Auditoría sobre casos reales.
-
-### 6. Regla arquitectónica de prioridad
-
-Antes de construir algo preguntar:
-
-```text
-¿Lo necesitamos hoy?
-¿Desbloquea la próxima operación?
-¿Tenemos suficiente evidencia para diseñarlo?
-¿Podemos postergarlo sin romper nada?
-¿Es producto real o infraestructura imaginaria?
-```
-
-Secuencia preferida:
+## Regla arquitectónica de prioridad
 
 ```text
 Necesidad concreta
@@ -195,37 +269,27 @@ Abstracción
 
 No generalizar antes de tiempo.
 
-### 7. Holistor es referencia funcional permanente
+## Holistor
 
-Documentación:
+Referencia funcional permanente:
 
 https://holistor.atlassian.net/wiki/spaces/TDADGC/overview?homepageId=566427761
 
-Usarla como:
+Usarla para descubrir entidades, dependencias y casos reales.
 
-- mapa de un ERP argentino real;
-- fuente para descubrir entidades y dependencias;
-- contraste para Ventas, Compras, Stock, Tesorería, Impuestos, Contabilidad y Administración;
-- ayuda para no olvidar casos importantes.
-
-NO usarla para:
-
-- copiar UI;
-- copiar pantalla por pantalla;
-- implementar todos sus parámetros;
-- trasladar su complejidad completa a NERISOFT.
-
-Regla:
+No usarla para copiar UI ni trasladar toda su complejidad a NERISOFT.
 
 ```text
 Holistor = universo de referencia
 NERISOFT = mínimo necesario para el circuito actual
 ```
 
-## Próximas tareas del bloque Empresa
+## Secuencia actual
 
 ```text
-10.1 Modelo + migración + permiso
+10.0 Documentación ✅
+↓
+10.1 Modelo + migración + permiso ✅
 ↓
 10.2 Backend + validaciones
 ↓
@@ -233,19 +297,6 @@ NERISOFT = mínimo necesario para el circuito actual
 ↓
 Clientes
 ```
-
-### Tarea 10.1
-
-Objetivo limitado:
-
-- crear modelo `Company`;
-- crear tabla `companies`;
-- sostener una sola empresa por instalación en esta etapa;
-- crear migración nueva posterior a `0003_roles_permissions`;
-- agregar `system.company.manage`;
-- agregar tests de modelo/migración/permisos necesarios.
-
-No implementar todavía formulario ni UI de Empresa en 10.1.
 
 ## Orden funcional acordado
 
@@ -271,28 +322,6 @@ Tesorería
 Contabilidad / Impuestos
 ```
 
-Los maestros auxiliares se agregan cuando el circuito que los necesita aparezca.
-
-## Reglas UI
-
-- Desktop-first.
-- No sobrecargar.
-- No meter metadata porque sí.
-- Tabla = resumen operativo.
-- Ficha = detalle completo.
-- No niveles de navegación innecesarios.
-- No placeholders de funciones futuras.
-- No parches CSS/JS para tapar causas de backend/template/datos.
-
-## Reglas de datos
-
-- SQLite solo en servidor.
-- IDs enteros.
-- Dinero futuro en centavos enteros, nunca FLOAT.
-- Stock, cuenta corriente, tesorería y contabilidad derivados de movimientos.
-- Operaciones compuestas atómicas.
-- Fechas visibles en America/Argentina/Cordoba.
-
 ## Forma de trabajo
 
 ```text
@@ -305,7 +334,7 @@ Los maestros auxiliares se agregan cuando el circuito que los necesita aparezca.
 → squash merge a main
 → GitHub Actions
 → git pull local
-→ prueba visual/funcional
+→ prueba
 → siguiente
 ```
 
@@ -315,7 +344,7 @@ Durante pruebas locales: **una sola acción o comando por mensaje**.
 
 ```text
 Leé primero docs/HANDOFF-ACTUAL.md y docs/00-lectura-rapida.md.
-Después revisá main y ejecutemos únicamente la Tarea 10.1:
-modelo Company + migración + permiso system.company.manage + tests correspondientes.
-No implementar todavía backend/formulario/UI de Empresa.
+Después revisá main y ejecutemos únicamente la Tarea 10.2:
+backend + validaciones de Company, permiso system.company.manage, CSRF y tests.
+No implementar todavía la UI final de Empresa.
 ```
