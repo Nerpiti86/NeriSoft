@@ -138,7 +138,7 @@ def save_company(
             company=company,
             errors=errors,
             values=values,
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         )
 
     if company is None:
