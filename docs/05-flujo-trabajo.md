@@ -6,13 +6,15 @@
 https://github.com/Nerpiti86/NeriSoft
 ```
 
-## Rama oficial
+## Rama estable
 
 ```text
 main
 ```
 
-Todo el trabajo del proyecto se realiza directamente sobre `main`, salvo decisión explícita posterior.
+`main` es la rama estable y debe quedar ejecutable y verificable.
+
+Cada tarea se desarrolla en una rama propia creada desde `main`. Una vez validada, se integra mediante Pull Request con **squash merge**. No se desarrolla trabajo parcial directamente sobre `main`.
 
 ## Carpeta local del usuario
 
@@ -24,22 +26,29 @@ D:\NeriSoft
 
 ```text
 1 tarea
-→ cambio en GitHub
-→ validación
-→ commit en main
-→ aviso de finalización
+→ revisar main
+→ crear rama de tarea
+→ implementar
+→ validar
+→ Pull Request
+→ squash merge a main
+→ GitHub Actions
 → git pull origin main
 → prueba local
 → siguiente tarea
 ```
 
-## Reglas de commit
+Durante las pruebas locales se avanza con una sola acción o comando por mensaje.
+
+## Reglas de commit y PR
 
 - Una tarea debe producir un cambio coherente.
-- No mezclar tareas funcionalmente distintas en el mismo commit.
-- No publicar trabajo parcial si deja `main` roto.
-- Cada commit debe dejar el proyecto ejecutable o, en tareas exclusivamente documentales, la documentación consistente.
-- Los mensajes de commit deben describir claramente la tarea realizada.
+- No mezclar tareas funcionalmente distintas en el mismo PR.
+- La rama de trabajo puede contener los commits intermedios necesarios.
+- No mergear trabajo parcial si deja `main` roto.
+- El squash merge debe dejar un único commit coherente de la tarea en `main`.
+- En tareas exclusivamente documentales, el resultado mergeado debe dejar la documentación vigente consistente.
+- Los mensajes finales deben describir claramente la tarea realizada.
 
 Ejemplos:
 
