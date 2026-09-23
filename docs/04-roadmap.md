@@ -20,7 +20,8 @@ Completado:
 - Tarea 9.2: gestión de roles, permisos y estado desde Configuración;
 - Tarea 9.3: asignación de roles a usuarios y permisos granulares en Gestión de Usuarios;
 - reorganización de Configuración: portada propia, Usuarios y Roles como destinos independientes, Mi cuenta separada y Administrador del sistema representado como tipo de acceso, no como rol;
-- Tarea 9.3.5: normalización de Roles y Permisos, catálogo actual explícitamente limitado a Sistema, formulario separado del listado y UI reducida a información operativa.
+- Tarea 9.3.5: normalización de Roles y Permisos, catálogo actual explícitamente limitado a Sistema, formulario separado del listado y UI reducida a información operativa;
+- Tarea 10.0: normalización de documentación vigente y cierre del alcance mínimo de Configuración de empresa.
 
 ## Decisión de secuencia
 
@@ -159,29 +160,46 @@ No crear ahora un motor genérico de eventos, snapshots o historial universal.
 
 ## Etapa 4 — Configuración general — PRÓXIMO FOCO
 
-Primera tarea:
+Primer bloque funcional:
 
 ```text
 Configuración de empresa
 ```
 
-Alcance inicial candidato a validar en el próximo hilo:
+Alcance mínimo aprobado:
 
-- razón social;
-- nombre comercial;
-- CUIT;
-- domicilio;
-- localidad;
-- provincia;
-- código postal;
-- teléfono;
-- email;
-- condición fiscal;
-- moneda principal.
+- una sola empresa por instalación;
+- razón social obligatoria;
+- nombre comercial opcional;
+- CUIT obligatorio, normalizado y validado;
+- condición fiscal obligatoria;
+- domicilio fiscal obligatorio;
+- localidad obligatoria;
+- provincia obligatoria;
+- código postal opcional;
+- teléfono opcional;
+- email opcional.
 
-No incorporar todavía ARCA, CAE, certificados, puntos de venta, talonarios, retenciones, percepciones, SMTP o configuración contable salvo dependencia concreta.
+No se crearán todavía maestros separados de localidades, provincias, monedas o condiciones fiscales. La moneda principal queda fuera del alcance inicial hasta que un circuito monetario real la necesite.
 
-Hasta esta etapa el shell no debe mostrar una empresa ficticia como si estuviera configurada.
+También quedan fuera por ahora ARCA, CAE, certificados, puntos de venta, talonarios, IIBB, inicio de actividades, logo, retenciones, percepciones, SMTP y configuración contable.
+
+El acceso se incorporará desde la portada de Configuración y tendrá un único permiso funcional previsto:
+
+```text
+system.company.manage
+```
+
+Secuencia del bloque:
+
+```text
+10.0 Documentación vigente ✅
+10.1 Modelo + migración + permiso
+10.2 Backend y validaciones
+10.3 UI y prueba funcional
+```
+
+Hasta que Empresa esté implementada, el shell no debe mostrar una sociedad ficticia como si estuviera configurada.
 
 ## Etapa 5 — Maestros
 
@@ -350,7 +368,9 @@ A implementar contra normativa vigente al momento del desarrollo:
 ## Próximas tareas naturales
 
 ```text
-Configuración de empresa
+10.1 Empresa: modelo + migración + permiso
+→ 10.2 Empresa: backend y validaciones
+→ 10.3 Empresa: UI y prueba funcional
 → Clientes
 → Proveedores
 → Productos

@@ -110,23 +110,37 @@ La documentación de Holistor muestra, entre otros, que Administración contempl
 
 ## Próximo bloque: Configuración de empresa
 
-El próximo hilo debe comenzar definiendo el alcance mínimo de Configuración de empresa.
+El alcance mínimo ya está aprobado.
 
-Candidatos iniciales a validar:
+Primera etapa:
 
-- Razón social;
-- Nombre comercial;
-- CUIT;
-- Domicilio;
-- Localidad;
-- Provincia;
-- Código postal;
-- Teléfono;
-- Email;
-- Condición fiscal;
-- Moneda principal.
+- una sola empresa por instalación;
+- Razón social obligatoria;
+- Nombre comercial opcional;
+- CUIT obligatorio, normalizado y validado;
+- Condición fiscal obligatoria;
+- Domicilio fiscal obligatorio;
+- Localidad obligatoria;
+- Provincia obligatoria;
+- Código postal opcional;
+- Teléfono opcional;
+- Email opcional.
 
-No implementar todavía ARCA, CAE, certificados, puntos de venta, talonarios, retenciones, percepciones, SMTP ni configuración contable salvo que una operación concreta lo requiera.
+No crear todavía maestros separados para localidad, provincia, moneda o condición fiscal. La moneda principal queda fuera de esta primera versión hasta que un circuito monetario real la necesite.
+
+También quedan fuera por ahora IIBB, inicio de actividades, logo, ARCA, CAE, certificados, puntos de venta, talonarios, retenciones, percepciones, SMTP y configuración contable.
+
+Próxima tarea:
+
+```text
+10.1 — Modelo + migración + permiso de Empresa
+```
+
+Permiso previsto:
+
+```text
+system.company.manage
+```
 
 ## Modelo mental de acceso
 
@@ -177,7 +191,7 @@ Configuración
 ## Reglas de trabajo
 
 ```text
-1 tarea → validación → 1 commit coherente en main → pull local → prueba → siguiente tarea
+1 tarea → rama → validación → PR → squash merge → main → GitHub Actions → pull local → prueba → siguiente
 ```
 
 Durante validación local: una sola acción o comando por paso.
